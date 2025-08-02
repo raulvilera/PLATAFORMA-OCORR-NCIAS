@@ -453,6 +453,12 @@
             color: #c0392b;
         }
         
+        .alert-warning {
+            background: linear-gradient(135deg, rgba(241, 196, 15, 0.15) 0%, rgba(243, 156, 18, 0.15) 100%);
+            border: 1px solid #f39c12;
+            color: #d35400;
+        }
+        
         .loading {
             display: inline-block;
             width: 24px;
@@ -545,6 +551,35 @@
             gap: 15px;
         }
         
+        .debug-panel {
+            background: #f9f9f9;
+            border: 1px solid #e1e5eb;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .debug-toggle {
+            background: #f1c40f;
+            color: #333;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        .debug-toggle:hover {
+            background: #f39c12;
+        }
+        
         @media (max-width: 992px) {
             .dashboard {
                 grid-template-columns: 1fr;
@@ -621,12 +656,20 @@
                         </div>
                     </div>
                     
-                    <div class="integration-status">
+                    <div class="alert alert-warning" id="connectionAlert" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i> 
+                        <div>
+                            <strong>Problema na conexão</strong>
+                            <p id="connectionMessage">Verificando status da integração...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="integration-status" id="integrationStatus">
                         <i class="fas fa-plug"></i>
                         <div>
                             <strong>Status de integração:</strong> 
                             <span class="status-indicator status-connected"></span>
-                            Conectado à planilha Google Sheets
+                            <span id="statusText">Conectado à planilha Google Sheets</span>
                         </div>
                     </div>
                     
@@ -824,6 +867,14 @@
                                     </button>
                                 </div>
                             </form>
+                            
+                            <button id="debugToggle" class="debug-toggle">
+                                <i class="fas fa-bug"></i> Mostrar informações de depuração
+                            </button>
+                            
+                            <div class="debug-panel" id="debugPanel">
+                                <div id="debugInfo">Informações de depuração aparecerão aqui...</div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -895,7 +946,7 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Dados completos dos professores (corrigidos)
+            // Dados completos dos professores
             const teacherEmails = {
                 "ALEX LUTH PEREIRA MARANHAO": "luth@prof.educacao.sp.gov.br",
                 "ALEXSANDRA PAULA VARELLA DE SOUZA": "avarella@prof.educacao.sp.gov.br",
@@ -984,10 +1035,18 @@
             const clearBtn = document.getElementById('clearBtn');
             const successAlert = document.getElementById('successAlert');
             const errorAlert = document.getElementById('errorAlert');
+            const connectionAlert = document.getElementById('connectionAlert');
+            const connectionMessage = document.getElementById('connectionMessage');
             const errorMessage = document.getElementById('errorMessage');
             const studentSelect = document.getElementById('student');
             const classSelect = document.getElementById('studentClass');
             const professorSelect = document.getElementById('professor');
+            const integrationStatus = document.getElementById('integrationStatus');
+            const statusText = document.getElementById('statusText');
+            const statusIndicator = document.querySelector('.status-indicator');
+            const debugPanel = document.getElementById('debugPanel');
+            const debugInfo = document.getElementById('debugInfo');
+            const debugToggle = document.getElementById('debugToggle');
             const totalOccurrencesEl = document.getElementById('totalOccurrences');
             const totalStudentsEl = document.getElementById('totalStudents');
             const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
@@ -1070,6 +1129,61 @@
                 });
             }
             
+            // Verificar conexão com o Google Sheets
+            async function checkConnection() {
+                try {
+                    // Testar conexão com o endpoint de alunos
+                    const response = await fetch(`${STUDENT_SCRIPT_URL}?action=test`);
+                    
+                    if (!response.ok) {
+                        throw new Error('Falha na conexão com o Google Sheets');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.status === "success") {
+                        updateConnectionStatus(true, "Conectado à planilha Google Sheets");
+                    } else {
+                        updateConnectionStatus(false, "Erro na integração com o Google Sheets");
+                    }
+                } catch (error) {
+                    console.error('Erro na conexão:', error);
+                    updateConnectionStatus(false, `Falha na conexão: ${error.message}`);
+                }
+            }
+            
+            // Atualizar status da conexão
+            function updateConnectionStatus(isConnected, message) {
+                if (isConnected) {
+                    statusIndicator.className = "status-indicator status-connected";
+                    connectionAlert.style.display = 'none';
+                    integrationStatus.style.display = 'flex';
+                } else {
+                    statusIndicator.className = "status-indicator status-disconnected";
+                    connectionAlert.style.display = 'flex';
+                    integrationStatus.style.display = 'none';
+                    connectionMessage.textContent = message;
+                }
+                statusText.textContent = message;
+            }
+            
+            // Toggle para depuração
+            let debugVisible = false;
+            debugToggle.addEventListener('click', function() {
+                debugVisible = !debugVisible;
+                debugPanel.style.display = debugVisible ? 'block' : 'none';
+                debugToggle.innerHTML = `<i class="fas fa-bug"></i> ${debugVisible ? 'Ocultar' : 'Mostrar'} informações de depuração`;
+            });
+            
+            // Adicionar informação de depuração
+            function addDebugInfo(message) {
+                const timestamp = new Date().toLocaleTimeString();
+                const debugEntry = document.createElement('div');
+                debugEntry.innerHTML = `<span style="color: #888;">[${timestamp}]</span> ${message}`;
+                debugInfo.appendChild(debugEntry);
+                debugPanel.scrollTop = debugPanel.scrollHeight;
+            }
+            
             // Carregar alunos quando uma turma for selecionada
             classSelect.addEventListener('change', function() {
                 const selectedClass = this.value;
@@ -1088,7 +1202,7 @@
                     return;
                 }
                 
-                // Buscar alunos reais da planilha (URL CORRIGIDA)
+                // Buscar alunos reais da planilha
                 fetch(`${STUDENT_SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
                     .then(response => {
                         if (!response.ok) {
@@ -1162,6 +1276,7 @@
                 studentSelect.disabled = true;
                 successAlert.style.display = 'none';
                 errorAlert.style.display = 'none';
+                connectionAlert.style.display = 'none';
                 studentOccurrencesCard.style.display = 'none';
                 classSelect.selectedIndex = 0;
                 
@@ -1177,13 +1292,14 @@
                 });
             });
             
-            // Enviar formulário - CORREÇÃO PRINCIPAL
+            // Enviar formulário - CORREÇÃO FINAL
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 // Esconder alertas
                 successAlert.style.display = 'none';
                 errorAlert.style.display = 'none';
+                connectionAlert.style.display = 'none';
                 
                 // Coletar dados do formulário
                 const professor = professorSelect.value;
@@ -1198,7 +1314,7 @@
                     irregularities.push(cb.value);
                 });
                 
-                // Validação melhorada
+                // Validação
                 let errorMsg = "";
                 if (!professor) errorMsg += "• Selecione o professor<br>";
                 if (!occurrenceDate) errorMsg += "• Informe a data da ocorrência<br>";
@@ -1220,6 +1336,9 @@
                 submitBtn.innerHTML = '<span class="loading"></span> Enviando...';
                 submitBtn.disabled = true;
                 
+                // Registrar depuração
+                addDebugInfo("Iniciando envio da ocorrência...");
+                
                 try {
                     // Preparar dados para envio
                     const formData = {
@@ -1231,6 +1350,8 @@
                         description: description
                     };
                     
+                    addDebugInfo(`Dados preparados: ${JSON.stringify(formData)}`);
+                    
                     // Enviar dados para o Google Sheets
                     const response = await fetch(OCCURRENCE_SCRIPT_URL, {
                         method: 'POST',
@@ -1240,12 +1361,27 @@
                         body: JSON.stringify(formData)
                     });
                     
+                    addDebugInfo(`Resposta recebida: Status ${response.status}`);
+                    
+                    // Verificar se a resposta foi bem sucedida
+                    if (!response.ok) {
+                        let errorBody;
+                        try {
+                            errorBody = await response.json();
+                        } catch (e) {
+                            errorBody = await response.text();
+                        }
+                        throw new Error(`Erro HTTP ${response.status}: ${JSON.stringify(errorBody)}`);
+                    }
+                    
                     const result = await response.json();
+                    addDebugInfo(`Resposta do servidor: ${JSON.stringify(result)}`);
                     
                     if (result.status === "success") {
                         // Mostrar mensagem de sucesso
                         successAlert.style.display = 'flex';
                         window.scrollTo({ top: 0, behavior: 'smooth' });
+                        addDebugInfo("Ocorrência registrada com sucesso!");
                         
                         // Resetar formulário após sucesso
                         form.reset();
@@ -1263,18 +1399,28 @@
                         if (currentStudents < 1000) {
                             totalStudentsEl.textContent = currentStudents + 1;
                         }
-                        
-                        // Resetar gráficos
-                        const chartCanvases = document.querySelectorAll('.donut-chart');
-                        chartCanvases.forEach(canvas => {
-                            createDonutChart(canvas, 0);
-                        });
                     } else {
-                        throw new Error(result.message || "Erro ao enviar dados");
+                        throw new Error(result.message || "Erro ao processar a solicitação no servidor");
                     }
                 } catch (error) {
                     console.error('Erro ao enviar ocorrência:', error);
-                    errorMessage.textContent = "Ocorreu um erro ao enviar a ocorrência. Por favor, tente novamente.";
+                    addDebugInfo(`Erro: ${error.message}`);
+                    
+                    // Mensagem de erro detalhada
+                    let errorText = "Ocorreu um erro ao enviar a ocorrência. ";
+                    
+                    // Dicas específicas baseadas no tipo de erro
+                    if (error.message.includes("Failed to fetch")) {
+                        errorText += "Verifique sua conexão com a internet ou se o servidor está disponível.";
+                    } else if (error.message.includes("403")) {
+                        errorText += "Problema de permissão. Verifique se o script do Google Sheets está publicado corretamente.";
+                    } else if (error.message.includes("404")) {
+                        errorText += "URL do script não encontrada. Verifique se o endpoint está correto.";
+                    } else {
+                        errorText += "Por favor, tente novamente mais tarde.";
+                    }
+                    
+                    errorMessage.textContent = errorText;
                     errorAlert.style.display = 'flex';
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 } finally {
@@ -1283,6 +1429,10 @@
                     submitBtn.disabled = false;
                 }
             });
+            
+            // Inicialização
+            checkConnection();
+            addDebugInfo("Sistema inicializado. Verificando conexão com o Google Sheets...");
             
             // Inicializar gráficos com valores zero
             document.querySelectorAll('.donut-chart').forEach(canvas => {
