@@ -1177,7 +1177,7 @@
                 });
             });
             
-            // Enviar formulário
+            // Enviar formulário - CORREÇÃO PRINCIPAL
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
@@ -1221,35 +1221,57 @@
                 submitBtn.disabled = true;
                 
                 try {
-                    // Simular envio para o Google Sheets
-                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    // Preparar dados para envio
+                    const formData = {
+                        professor: professor,
+                        date: occurrenceDate,
+                        student: student,
+                        class: classInfo,
+                        irregularities: irregularities.join(', '),
+                        description: description
+                    };
                     
-                    // Mostrar mensagem de sucesso
-                    successAlert.style.display = 'flex';
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    
-                    // Resetar formulário após sucesso
-                    form.reset();
-                    document.getElementById('occurrenceDate').value = formattedDate;
-                    studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-                    studentSelect.disabled = true;
-                    classSelect.selectedIndex = 0;
-                    studentOccurrencesCard.style.display = 'none';
-                    
-                    // Atualizar estatísticas gerais
-                    const currentTotal = parseInt(totalOccurrencesEl.textContent);
-                    totalOccurrencesEl.textContent = currentTotal + 1;
-                    
-                    const currentStudents = parseInt(totalStudentsEl.textContent);
-                    if (currentStudents < 1000) {
-                        totalStudentsEl.textContent = currentStudents + 1;
-                    }
-                    
-                    // Resetar gráficos
-                    const chartCanvases = document.querySelectorAll('.donut-chart');
-                    chartCanvases.forEach(canvas => {
-                        createDonutChart(canvas, 0);
+                    // Enviar dados para o Google Sheets
+                    const response = await fetch(OCCURRENCE_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
                     });
+                    
+                    const result = await response.json();
+                    
+                    if (result.status === "success") {
+                        // Mostrar mensagem de sucesso
+                        successAlert.style.display = 'flex';
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        
+                        // Resetar formulário após sucesso
+                        form.reset();
+                        document.getElementById('occurrenceDate').value = formattedDate;
+                        studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                        studentSelect.disabled = true;
+                        classSelect.selectedIndex = 0;
+                        studentOccurrencesCard.style.display = 'none';
+                        
+                        // Atualizar estatísticas gerais
+                        const currentTotal = parseInt(totalOccurrencesEl.textContent);
+                        totalOccurrencesEl.textContent = currentTotal + 1;
+                        
+                        const currentStudents = parseInt(totalStudentsEl.textContent);
+                        if (currentStudents < 1000) {
+                            totalStudentsEl.textContent = currentStudents + 1;
+                        }
+                        
+                        // Resetar gráficos
+                        const chartCanvases = document.querySelectorAll('.donut-chart');
+                        chartCanvases.forEach(canvas => {
+                            createDonutChart(canvas, 0);
+                        });
+                    } else {
+                        throw new Error(result.message || "Erro ao enviar dados");
+                    }
                 } catch (error) {
                     console.error('Erro ao enviar ocorrência:', error);
                     errorMessage.textContent = "Ocorreu um erro ao enviar a ocorrência. Por favor, tente novamente.";
@@ -1270,4 +1292,3 @@
     </script>
 </body>
 </html>
-
