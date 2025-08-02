@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Registro de Ocorrências Escolares</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary-color: #1a73e8;
@@ -21,6 +22,15 @@
             --footer-bg: #ffffff;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
+            --chart-color-1: #3498db;
+            --chart-color-2: #2ecc71;
+            --chart-color-3: #9b59b6;
+            --chart-color-4: #e74c3c;
+            --chart-color-5: #f1c40f;
+            --chart-color-6: #1abc9c;
+            --chart-color-7: #d35400;
+            --chart-color-8: #34495e;
+            --chart-color-9: #7f8c8d;
         }
         
         * {
@@ -45,7 +55,7 @@
         }
         
         header {
-            background-color: var(--header-bg);
+            background: linear-gradient(135deg, #2ecc71 0%, #3498db 100%);
             border-bottom: 1px solid var(--border-color);
             padding: 15px 0;
             box-shadow: var(--shadow);
@@ -70,7 +80,7 @@
         }
         
         .logo-icon {
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            background: rgba(255, 255, 255, 0.2);
             color: white;
             width: 55px;
             height: 55px;
@@ -79,7 +89,8 @@
             align-items: center;
             justify-content: center;
             font-size: 26px;
-            box-shadow: 0 5px 15px rgba(26, 115, 232, 0.3);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
         }
         
         .logo-text {
@@ -89,14 +100,16 @@
         
         .logo h1 {
             font-size: 1.6rem;
-            color: var(--primary-color);
+            color: white;
             font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         
         .logo p {
             font-size: 0.9rem;
-            color: var(--light-text);
+            color: rgba(255, 255, 255, 0.9);
             margin-top: 3px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         
         main {
@@ -254,6 +267,12 @@
             font-size: 1.1rem;
             opacity: 0.9;
             text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .chart-container {
+            width: 100%;
+            margin-top: 20px;
+            height: 250px;
         }
         
         .form-group {
@@ -791,6 +810,10 @@
                             <div class="student-occurrences-name" id="studentOccurrencesName">Nome do Aluno</div>
                             <div class="student-occurrences-count" id="studentOccurrencesCount">0</div>
                             <div class="student-occurrences-label">Ocorrências registradas</div>
+                            
+                            <div class="chart-container">
+                                <canvas id="studentIrregularitiesChart"></canvas>
+                            </div>
                         </div>
                     </div>
                     
@@ -808,7 +831,7 @@
                                 <li>Integração em tempo real com planilha Google</li>
                                 <li>Estatísticas atualizadas</li>
                                 <li>Interface amigável e responsiva</li>
-                                <li>Acompanhamento individual por aluno</li>
+                                <li>Acompanhamento individual por aluno com gráficos</li>
                             </ul>
                         </div>
                     </div>
@@ -929,6 +952,7 @@
             const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
+            const studentIrregularitiesChart = document.getElementById('studentIrregularitiesChart');
             
             // Estatísticas atualizadas
             const totalClassesEl = document.getElementById('totalClasses');
@@ -993,17 +1017,115 @@
                     });
             });
             
+            // Gráfico de ocorrências por tipo
+            let studentChart = null;
+            
             // Quando um aluno é selecionado
             studentSelect.addEventListener('change', function() {
                 if (this.value) {
                     // Mostrar o card de ocorrências do aluno
                     studentOccurrencesCard.style.display = 'block';
                     studentOccurrencesName.textContent = this.value;
+                    studentOccurrencesCount.textContent = "0";
                     
-                    // Simular busca de ocorrências do aluno
-                    // Na implementação real, substituir por chamada ao servidor
-                    const randomOccurrences = Math.floor(Math.random() * 10) + 1;
-                    studentOccurrencesCount.textContent = randomOccurrences;
+                    // Destruir gráfico anterior se existir
+                    if (studentChart) {
+                        studentChart.destroy();
+                    }
+                    
+                    // Buscar estatísticas do aluno
+                    fetch(`${SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === "success") {
+                                // Atualizar contagem total
+                                studentOccurrencesCount.textContent = data.totalOccurrences;
+                                
+                                // Preparar dados para o gráfico
+                                const labels = Object.keys(data.irregularityCounts);
+                                const counts = Object.values(data.irregularityCounts);
+                                
+                                // Configurar cores
+                                const backgroundColors = labels.map((_, index) => {
+                                    return `var(--chart-color-${index + 1})`;
+                                });
+                                
+                                // Criar gráfico de barras
+                                const ctx = studentIrregularitiesChart.getContext('2d');
+                                studentChart = new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: labels,
+                                        datasets: [{
+                                            label: 'Ocorrências por Tipo',
+                                            data: counts,
+                                            backgroundColor: backgroundColors,
+                                            borderColor: 'rgba(255, 255, 255, 0.8)',
+                                            borderWidth: 1
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        plugins: {
+                                            legend: {
+                                                display: false
+                                            },
+                                            title: {
+                                                display: true,
+                                                text: 'Distribuição de Ocorrências',
+                                                color: 'white',
+                                                font: {
+                                                    size: 16
+                                                }
+                                            },
+                                            tooltip: {
+                                                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                                titleFont: {
+                                                    size: 14
+                                                },
+                                                bodyFont: {
+                                                    size: 13
+                                                },
+                                                padding: 10,
+                                                displayColors: false
+                                            }
+                                        },
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true,
+                                                ticks: {
+                                                    color: 'white',
+                                                    font: {
+                                                        size: 12
+                                                    }
+                                                },
+                                                grid: {
+                                                    color: 'rgba(255, 255, 255, 0.1)'
+                                                }
+                                            },
+                                            x: {
+                                                ticks: {
+                                                    color: 'white',
+                                                    font: {
+                                                        size: 11
+                                                    }
+                                                },
+                                                grid: {
+                                                    display: false
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            } else {
+                                studentOccurrencesCount.textContent = '0';
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Erro ao carregar estatísticas do aluno:', error);
+                            studentOccurrencesCount.textContent = '0';
+                        });
                 } else {
                     studentOccurrencesCard.style.display = 'none';
                 }
@@ -1087,8 +1209,8 @@
                         
                         // Atualizar ocorrências do aluno
                         if (studentSelect.value) {
-                            const currentCount = parseInt(studentOccurrencesCount.textContent);
-                            studentOccurrencesCount.textContent = currentCount + 1;
+                            // Recarregar estatísticas do aluno
+                            studentSelect.dispatchEvent(new Event('change'));
                         }
                         
                         // Limpar formulário após envio
@@ -1137,4 +1259,3 @@
     </script>
 </body>
 </html>
-
