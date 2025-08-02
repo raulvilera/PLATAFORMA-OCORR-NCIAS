@@ -994,9 +994,8 @@
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
             
-            // URLs dos Apps Script com tratamento CORS
-            const STUDENT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwLKy1fFgCC7IaBBZtfsgeDq16hK4miQk324wXpBzW02Ebpa1mG9tt48Xx8vLwGusdu/exec";
-            const OCCURRENCE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqApfcKAyxe6RfBg-2312-KzsZMVOZ7eAtDCSW5egUbO8vcLcGW3s8EaV36E_IGUsRXA/exec";
+            // URL base do Apps Script
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpjENvIYOBQcM93tCA9QxEOmVJBVEomxpWCu80YRT97N9gf9NS4VuiyGarfduie8K-/exec";
             
             // Preencher dropdown de professores
             const teacherNames = Object.keys(teacherEmails);
@@ -1122,7 +1121,7 @@
                 }
                 
                 // Buscar alunos reais da planilha com tratamento CORS
-                fetchWithCors(`${STUDENT_SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
+                fetchWithCors(`${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
                     .then(data => {
                         if (data.status === "success") {
                             studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
@@ -1152,7 +1151,7 @@
                     studentOccurrencesCount.textContent = "Carregando...";
                     
                     // Buscar estatísticas do aluno com tratamento CORS
-                    fetchWithCors(`${OCCURRENCE_SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`)
+                    fetchWithCors(`${SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`)
                         .then(data => {
                             if (data.status === "success") {
                                 studentOccurrencesCount.textContent = data.totalOccurrences;
@@ -1258,7 +1257,7 @@
                     };
                     
                     // Enviar dados para o Google Sheets com tratamento CORS
-                    const result = await fetchWithCors(OCCURRENCE_SCRIPT_URL, {
+                    const result = await fetchWithCors(SCRIPT_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
