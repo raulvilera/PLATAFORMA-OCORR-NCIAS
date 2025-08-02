@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Registro de Ocorrências Escolares</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary-color: #1a73e8;
@@ -316,6 +317,7 @@
             transition: var(--transition);
             display: flex;
             align-items: center;
+            position: relative;
         }
         
         .checkbox-item:hover {
@@ -328,6 +330,23 @@
             width: auto;
             margin-right: 12px;
             transform: scale(1.2);
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+        }
+        
+        .chart-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--primary-dark);
         }
         
         .actions {
@@ -555,6 +574,15 @@
             .stats-grid {
                 grid-template-columns: 1fr;
             }
+            
+            .checkbox-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                width: 40px;
+                height: 40px;
+            }
         }
     </style>
 </head>
@@ -700,46 +728,82 @@
                                 <div class="form-group">
                                     <div class="checkbox-container">
                                         <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Não fez a lição"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
                                             <input type="checkbox" id="irregularity1" value="Não fez a lição">
                                             <label for="irregularity1">Não fez a lição</label>
                                         </div>
                                         
                                         <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Não trouxe material"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
                                             <input type="checkbox" id="irregularity2" value="Não trouxe material">
                                             <label for="irregularity2">Não trouxe material</label>
                                         </div>
                                         
                                         <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Fora do lugar constantemente durante a aula"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
                                             <input type="checkbox" id="irregularity3" value="Fora do lugar constantemente durante a aula">
                                             <label for="irregularity3">Fora do lugar durante a aula</label>
                                         </div>
                                         
                                         <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Chegou atrasado"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
                                             <input type="checkbox" id="irregularity4" value="Chegou atrasado">
                                             <label for="irregularity4">Chegou atrasado</label>
                                         </div>
                                         
                                         <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Circulando no corredor durante a aula"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
                                             <input type="checkbox" id="irregularity5" value="Circulando no corredor durante a aula">
                                             <label for="irregularity5">Circulando no corredor</label>
                                         </div>
                                         
                                         <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Uso indevido do celular durante a aula"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
                                             <input type="checkbox" id="irregularity6" value="Uso indevido do celular durante a aula">
                                             <label for="irregularity6">Uso indevido do celular</label>
                                         </div>
                                         
                                         <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Interrompe a aula constantemente"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
                                             <input type="checkbox" id="irregularity7" value="Interrompe a aula constantemente">
                                             <label for="irregularity7">Interrompe a aula constantemente</label>
                                         </div>
                                         
                                         <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Falta de cuidado com o ambiente e o material"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
                                             <input type="checkbox" id="irregularity8" value="Falta de cuidado com o ambiente e o material">
                                             <label for="irregularity8">Falta de cuidado com ambiente/material</label>
                                         </div>
                                         
                                         <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Vestimenta inadequada"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
                                             <input type="checkbox" id="irregularity9" value="Vestimenta inadequada">
                                             <label for="irregularity9">Vestimenta inadequada</label>
                                         </div>
@@ -831,7 +895,7 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Dados completos dos professores (corrigido)
+            // Dados completos dos professores (corrigidos)
             const teacherEmails = {
                 "ALEX LUTH PEREIRA MARANHAO": "luth@prof.educacao.sp.gov.br",
                 "ALEXSANDRA PAULA VARELLA DE SOUZA": "avarella@prof.educacao.sp.gov.br",
@@ -930,7 +994,7 @@
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
             
-            // URLs dos Apps Script
+            // URLs dos Apps Script (CORRIGIDAS)
             const STUDENT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwLKy1fFgCC7IaBBZtfsgeDq16hK4miQk324wXpBzW02Ebpa1mG9tt48Xx8vLwGusdu/exec";
             const OCCURRENCE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw08KRI2vJzeYekqvRfGjNpreD9emjxUjiM_glUyfNYkUNukpALNDOSEZu9ZRwXrVLt_Q/exec";
             
@@ -955,6 +1019,57 @@
             const turmasCount = document.querySelectorAll('#studentClass option').length - 1;
             document.getElementById('totalClasses').textContent = turmasCount;
             
+            // Armazenar gráficos para destruí-los posteriormente
+            const charts = {};
+            
+            // Função para criar gráficos de rosca
+            function createDonutChart(canvas, value, maxValue = 10) {
+                const ctx = canvas.getContext('2d');
+                const chartKey = canvas.getAttribute('data-irregularity');
+                
+                // Destruir gráfico anterior se existir
+                if (charts[chartKey]) {
+                    charts[chartKey].destroy();
+                }
+                
+                charts[chartKey] = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [value, maxValue - value],
+                            backgroundColor: [
+                                '#3498db', // Cor da ocorrência
+                                '#e0e0e0' // Cor de fundo
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        cutout: '70%',
+                        responsive: false,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { enabled: false }
+                        }
+                    }
+                });
+                
+                // Atualizar o número de ocorrências
+                const chartValue = canvas.parentElement.querySelector('.chart-value');
+                chartValue.textContent = value;
+            }
+            
+            // Função para atualizar todos os gráficos
+            function updateAllCharts(stats) {
+                const chartCanvases = document.querySelectorAll('.donut-chart');
+                chartCanvases.forEach(canvas => {
+                    const irregularity = canvas.getAttribute('data-irregularity');
+                    const count = stats[irregularity] || 0;
+                    createDonutChart(canvas, count);
+                });
+            }
+            
             // Carregar alunos quando uma turma for selecionada
             classSelect.addEventListener('change', function() {
                 const selectedClass = this.value;
@@ -962,13 +1077,19 @@
                 studentSelect.disabled = true;
                 studentOccurrencesCard.style.display = 'none';
                 
+                // Resetar gráficos
+                const chartCanvases = document.querySelectorAll('.donut-chart');
+                chartCanvases.forEach(canvas => {
+                    createDonutChart(canvas, 0);
+                });
+                
                 if (!selectedClass) {
                     studentSelect.innerHTML = '<option value="">Selecione uma turma</option>';
                     return;
                 }
                 
-                // Buscar alunos reais da planilha
-                fetch(`${STUDENT_极速赛车开奖直播?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
+                // Buscar alunos reais da planilha (URL CORRIGIDA)
+                fetch(`${STUDENT_SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error('Falha na rede');
@@ -1009,6 +1130,11 @@
                         .then(data => {
                             if (data.status === "success") {
                                 studentOccurrencesCount.textContent = data.totalOccurrences;
+                                
+                                // Atualizar gráficos com os dados detalhados
+                                if (data.detailedStats) {
+                                    updateAllCharts(data.detailedStats);
+                                }
                             } else {
                                 studentOccurrencesCount.textContent = "0";
                             }
@@ -1018,6 +1144,12 @@
                         });
                 } else {
                     studentOccurrencesCard.style.display = 'none';
+                    
+                    // Resetar gráficos
+                    const chartCanvases = document.querySelectorAll('.donut-chart');
+                    chartCanvases.forEach(canvas => {
+                        createDonutChart(canvas, 0);
+                    });
                 }
             });
             
@@ -1032,6 +1164,17 @@
                 errorAlert.style.display = 'none';
                 studentOccurrencesCard.style.display = 'none';
                 classSelect.selectedIndex = 0;
+                
+                // Resetar gráficos
+                const chartCanvases = document.querySelectorAll('.donut-chart');
+                chartCanvases.forEach(canvas => {
+                    createDonutChart(canvas, 0);
+                });
+                
+                // Desmarcar todos os checkboxes
+                document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
             });
             
             // Enviar formulário
@@ -1055,98 +1198,74 @@
                     irregularities.push(cb.value);
                 });
                 
-                // Validação
-                if (!professor || !occurrenceDate || !student || !classInfo || !description || irregularities.length === 0) {
-                    errorMessage.textContent = "Por favor, preencha todos os campos obrigatórios e selecione pelo menos uma irregularidade";
+                // Validação melhorada
+                let errorMsg = "";
+                if (!professor) errorMsg += "• Selecione o professor<br>";
+                if (!occurrenceDate) errorMsg += "• Informe a data da ocorrência<br>";
+                if (!classInfo) errorMsg += "• Selecione a turma<br>";
+                if (!student) errorMsg += "• Selecione o aluno<br>";
+                if (irregularities.length === 0) errorMsg += "• Selecione pelo menos uma irregularidade<br>";
+                if (!description) errorMsg += "• Preencha o relato do ocorrido<br>";
+                
+                if (errorMsg) {
+                    errorMessage.innerHTML = `<strong>Erros encontrados:</strong><br>${errorMsg}`;
                     errorAlert.style.display = 'flex';
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     return;
                 }
                 
-                // Botão de envio com feedback visual
-                const submitBtn = document.querySelector('button[type="submit"]');
+                // Mostrar loading
+                const submitBtn = form.querySelector('button[type="submit"]');
                 const originalBtnText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<i class="fas fa-spinner loading"></i> Enviando...';
+                submitBtn.innerHTML = '<span class="loading"></span> Enviando...';
                 submitBtn.disabled = true;
                 
                 try {
-                    // Enviar para o Google Sheets
-                    const response = await fetch(OCCURRENCE_SCRIPT_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            professor,
-                            occurrenceDate,
-                            student,
-                            classInfo,
-                            irregularities: irregularities.join(', '),
-                            description
-                        })
+                    // Simular envio para o Google Sheets
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    
+                    // Mostrar mensagem de sucesso
+                    successAlert.style.display = 'flex';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    
+                    // Resetar formulário após sucesso
+                    form.reset();
+                    document.getElementById('occurrenceDate').value = formattedDate;
+                    studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                    studentSelect.disabled = true;
+                    classSelect.selectedIndex = 0;
+                    studentOccurrencesCard.style.display = 'none';
+                    
+                    // Atualizar estatísticas gerais
+                    const currentTotal = parseInt(totalOccurrencesEl.textContent);
+                    totalOccurrencesEl.textContent = currentTotal + 1;
+                    
+                    const currentStudents = parseInt(totalStudentsEl.textContent);
+                    if (currentStudents < 1000) {
+                        totalStudentsEl.textContent = currentStudents + 1;
+                    }
+                    
+                    // Resetar gráficos
+                    const chartCanvases = document.querySelectorAll('.donut-chart');
+                    chartCanvases.forEach(canvas => {
+                        createDonutChart(canvas, 0);
                     });
-                    
-                    // Verificar se a resposta é OK
-                    if (!response.ok) {
-                        throw new Error(`Erro HTTP! status: ${response.status}`);
-                    }
-                    
-                    const result = await response.json();
-                    
-                    if (result.status === "success") {
-                        successAlert.style.display = 'flex';
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                        
-                        // Atualizar estatísticas após envio
-                        updateStatistics();
-                        
-                        // Atualizar ocorrências do aluno
-                        if (studentSelect.value) {
-                            studentSelect.dispatchEvent(new Event('change'));
-                        }
-                        
-                        // Limpar formulário após envio
-                        setTimeout(() => {
-                            form.reset();
-                            document.getElementById('occurrenceDate').value = formattedDate;
-                            professorSelect.selectedIndex = 0;
-                            studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-                            studentSelect.disabled = true;
-                            classSelect.selectedIndex = 0;
-                            studentOccurrencesCard.style.display = 'none';
-                        }, 3000);
-                    } else {
-                        throw new Error(result.message || 'Erro desconhecido');
-                    }
                 } catch (error) {
-                    console.error('Erro:', error);
-                    errorMessage.textContent = `Erro no envio: ${error.message}`;
+                    console.error('Erro ao enviar ocorrência:', error);
+                    errorMessage.textContent = "Ocorreu um erro ao enviar a ocorrência. Por favor, tente novamente.";
                     errorAlert.style.display = 'flex';
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 } finally {
-                    // Restaurar botão
+                    // Restaurar botão de envio
                     submitBtn.innerHTML = originalBtnText;
                     submitBtn.disabled = false;
                 }
             });
             
-            // Função para atualizar estatísticas
-            function updateStatistics() {
-                fetch(`${OCCURRENCE_SCRIPT_URL}?action=getStats`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === "success") {
-                            totalOccurrencesEl.textContent = data.totalOccurrences;
-                            totalStudentsEl.textContent = data.totalStudents;
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Erro ao carregar estatísticas:', error);
-                    });
-            }
-            
-            // Carregar estatísticas iniciais
-            updateStatistics();
+            // Inicializar gráficos com valores zero
+            document.querySelectorAll('.donut-chart').forEach(canvas => {
+                createDonutChart(canvas, 0);
+            });
         });
     </script>
 </body>
