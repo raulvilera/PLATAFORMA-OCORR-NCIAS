@@ -958,8 +958,8 @@
             const totalClassesEl = document.getElementById('totalClasses');
             const totalTeachersEl = document.getElementById('totalTeachers');
             
-            // URL do Google Apps Script (substitua pela sua URL)
-            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxK6-uWSJE1Zw0kAMgDqrlfPHqzsT_QiPXqhdCYu3L9ENPh0Ys31CmypzR7mTtgOh9f/exec";
+            // URL do Google Apps Script
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3nKAZR6cNue_8NZ8JwFqbHHO4T7zaivWvx948-gwfvOnMD7xR9Gie-vRXG_VMEl-H/exec";
             
             // Preencher dropdown de professores
             const teacherNames = Object.keys(teacherEmails);
@@ -994,27 +994,27 @@
                     return;
                 }
                 
-                // Simular busca de alunos (na implementação real, substitua por chamada ao Google Sheets)
-                setTimeout(() => {
-                    const classes = {
-                        "6° ANO A MANHA": ["Ana Silva", "Bruno Oliveira", "Carlos Santos", "Daniela Lima", "Eduardo Costa"],
-                        "6° ANO B MANHA": ["Fabiana Souza", "Gabriel Martins", "Helena Pereira", "Igor Almeida", "Juliana Castro"],
-                        "7° ANO A TARDE": ["Lucas Fernandes", "Mariana Gomes", "Nicolas Ribeiro", "Olivia Dias", "Pedro Cardoso"],
-                        "1ª SERIE A MANHA": ["Rafaela Nunes", "Sergio Ramos", "Tatiana Barros", "Vitor Hugo", "Wanessa Mendes"],
-                        "3ª SERIE C MANHA": ["Xavier Ferreira", "Yasmin Carvalho", "Zilda Rodrigues", "Anderson Santos", "Beatriz Lima"]
-                    };
-                    
-                    const students = classes[selectedClass] || [];
-                    
-                    studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
-                    students.forEach(student => {
-                        const option = document.createElement('option');
-                        option.value = student;
-                        option.textContent = student;
-                        studentSelect.appendChild(option);
+                // Buscar alunos reais da planilha
+                fetch(`${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
+                            data.students.forEach(student => {
+                                const option = document.createElement('option');
+                                option.value = student;
+                                option.textContent = student;
+                                studentSelect.appendChild(option);
+                            });
+                            studentSelect.disabled = false;
+                        } else {
+                            studentSelect.innerHTML = `<option value="">${data.message || 'Erro ao carregar alunos'}</option>`;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao carregar alunos:', error);
+                        studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
                     });
-                    studentSelect.disabled = false;
-                }, 800);
             });
             
             // Gráfico de ocorrências por tipo
@@ -1033,112 +1033,99 @@
                         studentChart.destroy();
                     }
                     
-                    // Simular busca de estatísticas do aluno (na implementação real, substitua por chamada ao Google Sheets)
-                    setTimeout(() => {
-                        // Gerar dados de exemplo para o gráfico
-                        const irregularityTypes = [
-                            "Não fez a lição",
-                            "Não trouxe material",
-                            "Fora do lugar durante a aula",
-                            "Chegou atrasado",
-                            "Circulando no corredor",
-                            "Uso indevido do celular",
-                            "Interrompe a aula constantemente",
-                            "Falta de cuidado com ambiente/material",
-                            "Vestimenta inadequada"
-                        ];
-                        
-                        // Gerar contagens aleatórias para exemplo
-                        const irregularityCounts = {};
-                        let total = 0;
-                        
-                        irregularityTypes.forEach(type => {
-                            const count = Math.floor(Math.random() * 5);
-                            irregularityCounts[type] = count;
-                            total += count;
-                        });
-                        
-                        // Atualizar contagem total
-                        studentOccurrencesCount.textContent = total;
-                        
-                        // Preparar dados para o gráfico
-                        const labels = Object.keys(irregularityCounts);
-                        const counts = Object.values(irregularityCounts);
-                        
-                        // Configurar cores
-                        const backgroundColors = labels.map((_, index) => {
-                            return `var(--chart-color-${index + 1})`;
-                        });
-                        
-                        // Criar gráfico de barras
-                        const ctx = studentIrregularitiesChart.getContext('2d');
-                        studentChart = new Chart(ctx, {
-                            type: 'bar',
-                            data: {
-                                labels: labels,
-                                datasets: [{
-                                    label: 'Ocorrências por Tipo',
-                                    data: counts,
-                                    backgroundColor: backgroundColors,
-                                    borderColor: 'rgba(255, 255, 255, 0.8)',
-                                    borderWidth: 1
-                                }]
-                            },
-                            options: {
-                                responsive: true,
-                                maintainAspectRatio: false,
-                                plugins: {
-                                    legend: {
-                                        display: false
+                    // Buscar estatísticas reais do aluno
+                    fetch(`${SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === "success") {
+                                // Atualizar contagem total
+                                studentOccurrencesCount.textContent = data.totalOccurrences;
+                                
+                                // Preparar dados para o gráfico
+                                const labels = Object.keys(data.irregularityCounts);
+                                const counts = Object.values(data.irregularityCounts);
+                                
+                                // Configurar cores
+                                const backgroundColors = labels.map((_, index) => {
+                                    return `var(--chart-color-${index + 1})`;
+                                });
+                                
+                                // Criar gráfico de barras
+                                const ctx = studentIrregularitiesChart.getContext('2d');
+                                studentChart = new Chart(ctx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: labels,
+                                        datasets: [{
+                                            label: 'Ocorrências por Tipo',
+                                            data: counts,
+                                            backgroundColor: backgroundColors,
+                                            borderColor: 'rgba(255, 255, 255, 0.8)',
+                                            borderWidth: 1
+                                        }]
                                     },
-                                    title: {
-                                        display: true,
-                                        text: 'Distribuição de Ocorrências',
-                                        color: 'white',
-                                        font: {
-                                            size: 16
-                                        }
-                                    },
-                                    tooltip: {
-                                        backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                                        titleFont: {
-                                            size: 14
-                                        },
-                                        bodyFont: {
-                                            size: 13
-                                        },
-                                        padding: 10,
-                                        displayColors: false
-                                    }
-                                },
-                                scales: {
-                                    y: {
-                                        beginAtZero: true,
-                                        ticks: {
-                                            color: 'white',
-                                            font: {
-                                                size: 12
+                                    options: {
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        plugins: {
+                                            legend: {
+                                                display: false
+                                            },
+                                            title: {
+                                                display: true,
+                                                text: 'Distribuição de Ocorrências',
+                                                color: 'white',
+                                                font: {
+                                                    size: 16
+                                                }
+                                            },
+                                            tooltip: {
+                                                backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                                                titleFont: {
+                                                    size: 14
+                                                },
+                                                bodyFont: {
+                                                    size: 13
+                                                },
+                                                padding: 10,
+                                                displayColors: false
                                             }
                                         },
-                                        grid: {
-                                            color: 'rgba(255, 255, 255, 0.1)'
-                                        }
-                                    },
-                                    x: {
-                                        ticks: {
-                                            color: 'white',
-                                            font: {
-                                                size: 11
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true,
+                                                ticks: {
+                                                    color: 'white',
+                                                    font: {
+                                                        size: 12
+                                                    }
+                                                },
+                                                grid: {
+                                                    color: 'rgba(255, 255, 255, 0.1)'
+                                                }
+                                            },
+                                            x: {
+                                                ticks: {
+                                                    color: 'white',
+                                                    font: {
+                                                        size: 11
+                                                    }
+                                                },
+                                                grid: {
+                                                    display: false
+                                                }
                                             }
-                                        },
-                                        grid: {
-                                            display: false
                                         }
                                     }
-                                }
+                                });
+                            } else {
+                                studentOccurrencesCount.textContent = '0';
                             }
+                        })
+                        .catch(error => {
+                            console.error('Erro ao carregar estatísticas do aluno:', error);
+                            studentOccurrencesCount.textContent = '0';
                         });
-                    }, 500);
                 } else {
                     studentOccurrencesCard.style.display = 'none';
                 }
@@ -1195,8 +1182,28 @@
                 submitBtn.disabled = true;
                 
                 try {
-                    // Simular envio para o Google Sheets
-                    setTimeout(() => {
+                    // Enviar para o Google Sheets
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            professor,
+                            occurrenceDate,
+                            student,
+                            classInfo,
+                            description,
+                            irregularities
+                        })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.status === "success") {
+                        successAlert.style.display = 'flex';
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        
                         // Atualizar estatísticas após envio
                         updateStatistics();
                         
@@ -1206,19 +1213,25 @@
                             studentSelect.dispatchEvent(new Event('change'));
                         }
                         
-                        // Mostrar alerta de sucesso
-                        successAlert.style.display = 'flex';
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                        
-                        // Restaurar botão
-                        submitBtn.innerHTML = originalBtnText;
-                        submitBtn.disabled = false;
-                    }, 1500);
+                        // Limpar formulário após envio
+                        setTimeout(() => {
+                            form.reset();
+                            document.getElementById('occurrenceDate').value = formattedDate;
+                            professorSelect.selectedIndex = 0;
+                            studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                            studentSelect.disabled = true;
+                            classSelect.selectedIndex = 0;
+                            studentOccurrencesCard.style.display = 'none';
+                        }, 3000);
+                    } else {
+                        throw new Error(result.message || 'Erro desconhecido');
+                    }
                 } catch (error) {
                     console.error('Erro:', error);
                     errorMessage.textContent = `Erro no envio: ${error.message}`;
                     errorAlert.style.display = 'flex';
                     window.scrollTo({ top: 0, behavior: 'smooth' });
+                } finally {
                     // Restaurar botão
                     submitBtn.innerHTML = originalBtnText;
                     submitBtn.disabled = false;
@@ -1227,9 +1240,17 @@
             
             // Função para atualizar estatísticas
             function updateStatistics() {
-                // Gerar estatísticas aleatórias para demonstração
-                totalOccurrencesEl.textContent = Math.floor(Math.random() * 1000) + 500;
-                totalStudentsEl.textContent = Math.floor(Math.random() * 300) + 200;
+                fetch(`${SCRIPT_URL}?action=getStats`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === "success") {
+                            totalOccurrencesEl.textContent = data.totalOccurrences;
+                            totalStudentsEl.textContent = data.totalStudents;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao carregar estatísticas:', error);
+                    });
             }
             
             // Carregar estatísticas iniciais
@@ -1238,4 +1259,3 @@
     </script>
 </body>
 </html>
-
