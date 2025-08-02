@@ -116,6 +116,19 @@
             border-radius: 16px;
             padding: 25px;
             box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(to top, rgba(255,255,255,0.3), transparent);
+            z-index: 1;
         }
         
         .stats-grid {
@@ -123,6 +136,8 @@
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 20px;
             margin-top: 20px;
+            position: relative;
+            z-index: 2;
         }
         
         .stat-item {
@@ -131,6 +146,7 @@
             padding: 15px;
             text-align: center;
             backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
         
         .stat-value {
@@ -152,6 +168,18 @@
             margin-bottom: 25px;
             border: 1px solid var(--border-color);
             transition: var(--transition);
+            position: relative;
+        }
+        
+        .card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(to top, rgba(255,255,255,0.8), transparent);
+            z-index: 1;
         }
         
         .card:hover {
@@ -168,10 +196,64 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            position: relative;
         }
         
         .card-body {
             padding: 30px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .student-occurrences-card {
+            background: linear-gradient(135deg, #2ecc71 0%, #3498db 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            margin-top: 25px;
+        }
+        
+        .student-occurrences-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(to top, rgba(255,255,255,0.3), transparent);
+            z-index: 1;
+        }
+        
+        .student-occurrences-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .student-occurrences-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .student-occurrences-count {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 10px 0;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+        
+        .student-occurrences-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
         
         .form-group {
@@ -694,13 +776,21 @@
                                 <div class="stat-label">Alunos envolvidos</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-value" id="totalClasses">18</div>
+                                <div class="stat-value" id="totalClasses">40</div>
                                 <div class="stat-label">Turmas monitoradas</div>
                             </div>
                             <div class="stat-item">
-                                <div class="stat-value" id="totalTeachers">24</div>
+                                <div class="stat-value" id="totalTeachers">64</div>
                                 <div class="stat-label">Professores ativos</div>
                             </div>
+                        </div>
+                    </div>
+                    
+                    <div class="student-occurrences-card" id="studentOccurrencesCard" style="display: none;">
+                        <div class="student-occurrences-content">
+                            <div class="student-occurrences-name" id="studentOccurrencesName">Nome do Aluno</div>
+                            <div class="student-occurrences-count" id="studentOccurrencesCount">0</div>
+                            <div class="student-occurrences-label">Ocorrências registradas</div>
                         </div>
                     </div>
                     
@@ -718,6 +808,7 @@
                                 <li>Integração em tempo real com planilha Google</li>
                                 <li>Estatísticas atualizadas</li>
                                 <li>Interface amigável e responsiva</li>
+                                <li>Acompanhamento individual por aluno</li>
                             </ul>
                         </div>
                     </div>
@@ -835,28 +926,44 @@
             const professorSelect = document.getElementById('professor');
             const totalOccurrencesEl = document.getElementById('totalOccurrences');
             const totalStudentsEl = document.getElementById('totalStudents');
+            const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
+            const studentOccurrencesName = document.getElementById('studentOccurrencesName');
+            const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
+            
+            // Estatísticas atualizadas
+            const totalClassesEl = document.getElementById('totalClasses');
+            const totalTeachersEl = document.getElementById('totalTeachers');
             
             // URL do Google Apps Script (substitua pela sua URL)
             const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxo84F3MSRH93Neux90NT_T2DFLYFfIMNOgSrk5V3o7YK0sRagjQslFzcUmaZwiQRM/exec";
             
             // Preencher dropdown de professores
-            Object.keys(teacherEmails).forEach(teacherName => {
+            const teacherNames = Object.keys(teacherEmails);
+            teacherNames.forEach(teacherName => {
                 const option = document.createElement('option');
                 option.value = teacherName;
                 option.textContent = teacherName;
                 professorSelect.appendChild(option);
             });
             
+            // Atualizar estatísticas de professores
+            totalTeachersEl.textContent = teacherNames.length;
+            
             // Preencher data atual como padrão
             const today = new Date();
             const formattedDate = today.toISOString().split('T')[0];
             document.getElementById('occurrenceDate').value = formattedDate;
+            
+            // Contar turmas disponíveis
+            const turmasCount = document.querySelectorAll('#studentClass option').length - 1;
+            totalClassesEl.textContent = turmasCount;
             
             // Carregar alunos quando uma turma for selecionada
             classSelect.addEventListener('change', function() {
                 const selectedClass = this.value;
                 studentSelect.innerHTML = '<option value="">Carregando alunos... <span class="loading"></span></option>';
                 studentSelect.disabled = true;
+                studentOccurrencesCard.style.display = 'none';
                 
                 if (!selectedClass) {
                     studentSelect.innerHTML = '<option value="">Selecione uma turma</option>';
@@ -886,6 +993,22 @@
                     });
             });
             
+            // Quando um aluno é selecionado
+            studentSelect.addEventListener('change', function() {
+                if (this.value) {
+                    // Mostrar o card de ocorrências do aluno
+                    studentOccurrencesCard.style.display = 'block';
+                    studentOccurrencesName.textContent = this.value;
+                    
+                    // Simular busca de ocorrências do aluno
+                    // Na implementação real, substituir por chamada ao servidor
+                    const randomOccurrences = Math.floor(Math.random() * 10) + 1;
+                    studentOccurrencesCount.textContent = randomOccurrences;
+                } else {
+                    studentOccurrencesCard.style.display = 'none';
+                }
+            });
+            
             // Limpar formulário
             clearBtn.addEventListener('click', function() {
                 form.reset();
@@ -895,6 +1018,7 @@
                 studentSelect.disabled = true;
                 successAlert.style.display = 'none';
                 errorAlert.style.display = 'none';
+                studentOccurrencesCard.style.display = 'none';
                 
                 // Resetar seleção de turma
                 classSelect.selectedIndex = 0;
@@ -929,16 +1053,6 @@
                     return;
                 }
                 
-                // Preparar dados para envio
-                const data = {
-                    professor,
-                    occurrenceDate,
-                    student,
-                    classInfo,
-                    description,
-                    irregularities
-                };
-                
                 // Botão de envio com feedback visual
                 const submitBtn = document.querySelector('button[type="submit"]');
                 const originalBtnText = submitBtn.innerHTML;
@@ -952,7 +1066,14 @@
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(data)
+                        body: JSON.stringify({
+                            professor,
+                            occurrenceDate,
+                            student,
+                            classInfo,
+                            description,
+                            irregularities
+                        })
                     });
                     
                     const result = await response.json();
@@ -964,6 +1085,12 @@
                         // Atualizar estatísticas após envio
                         updateStatistics();
                         
+                        // Atualizar ocorrências do aluno
+                        if (studentSelect.value) {
+                            const currentCount = parseInt(studentOccurrencesCount.textContent);
+                            studentOccurrencesCount.textContent = currentCount + 1;
+                        }
+                        
                         // Limpar formulário após envio
                         setTimeout(() => {
                             form.reset();
@@ -972,6 +1099,7 @@
                             studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
                             studentSelect.disabled = true;
                             classSelect.selectedIndex = 0;
+                            studentOccurrencesCard.style.display = 'none';
                         }, 3000);
                     } else {
                         throw new Error(result.message || 'Erro desconhecido');
@@ -1008,5 +1136,4 @@
         });
     </script>
 </body>
-
 </html>
