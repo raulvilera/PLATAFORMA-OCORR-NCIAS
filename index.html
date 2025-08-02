@@ -994,7 +994,7 @@
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
             
-            // URLs dos Apps Script (CORRIGIDAS)
+            // URLs dos Apps Script com tratamento CORS
             const STUDENT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwLKy1fFgCC7IaBBZtfsgeDq16hK4miQk324wXpBzW02Ebpa1mG9tt48Xx8vLwGusdu/exec";
             const OCCURRENCE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqApfcKAyxe6RfBg-2312-KzsZMVOZ7eAtDCSW5egUbO8vcLcGW3s8EaV36E_IGUsRXA/exec";
             
@@ -1070,6 +1070,39 @@
                 });
             }
             
+            // Função para fazer requisições com tratamento CORS
+            async function fetchWithCors(url, options = {}) {
+                try {
+                    // Adicionar cabeçalhos CORS à requisição
+                    const corsHeaders = {
+                        'Access-Control-Allow-Origin': '*',
+                        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+                        'Access-Control-Allow-Headers': 'Content-Type'
+                    };
+                    
+                    // Criar requisição com headers
+                    const requestOptions = {
+                        ...options,
+                        headers: {
+                            ...corsHeaders,
+                            ...(options.headers || {})
+                        },
+                        mode: 'cors'
+                    };
+                    
+                    const response = await fetch(url, requestOptions);
+                    
+                    if (!response.ok) {
+                        throw new Error('Falha na rede');
+                    }
+                    
+                    return await response.json();
+                } catch (error) {
+                    console.error('Erro na requisição:', error);
+                    throw error;
+                }
+            }
+            
             // Carregar alunos quando uma turma for selecionada
             classSelect.addEventListener('change', function() {
                 const selectedClass = this.value;
@@ -1088,14 +1121,8 @@
                     return;
                 }
                 
-                // Buscar alunos reais da planilha (URL CORRIGIDA)
-                fetch(`${STUDENT_SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Falha na rede');
-                        }
-                        return response.json();
-                    })
+                // Buscar alunos reais da planilha com tratamento CORS
+                fetchWithCors(`${STUDENT_SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
                     .then(data => {
                         if (data.status === "success") {
                             studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
@@ -1124,9 +1151,8 @@
                     studentOccurrencesName.textContent = this.value;
                     studentOccurrencesCount.textContent = "Carregando...";
                     
-                    // Buscar estatísticas do aluno
-                    fetch(`${OCCURRENCE_SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`)
-                        .then(response => response.json())
+                    // Buscar estatísticas do aluno com tratamento CORS
+                    fetchWithCors(`${OCCURRENCE_SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`)
                         .then(data => {
                             if (data.status === "success") {
                                 studentOccurrencesCount.textContent = data.totalOccurrences;
@@ -1177,7 +1203,7 @@
                 });
             });
             
-            // Enviar formulário - CORREÇÃO PRINCIPAL
+            // Enviar formulário com tratamento CORS
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
@@ -1231,16 +1257,14 @@
                         description: description
                     };
                     
-                    // Enviar dados para o Google Sheets
-                    const response = await fetch(OCCURRENCE_SCRIPT_URL, {
+                    // Enviar dados para o Google Sheets com tratamento CORS
+                    const result = await fetchWithCors(OCCURRENCE_SCRIPT_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify(formData)
                     });
-                    
-                    const result = await response.json();
                     
                     if (result.status === "success") {
                         // Mostrar mensagem de sucesso
