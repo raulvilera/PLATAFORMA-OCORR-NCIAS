@@ -6,6 +6,9 @@
     <title>Sistema de Registro de Ocorrências Escolares</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+     <title>Sistema de Registro de Ocorrências Escolares</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary-color: #1a73e8;
@@ -766,7 +769,7 @@
                                 
                                 <div class="form-group">
                                     <label for="description" class="required">Breve relato do ocorrido</label>
-                                    <textarea id="description" placeholder="Descreva detalhadamente a ocorrência..."></textarea>
+                                    <textarea id="description" placeholder="Descreva detalhadamente a ocorrência..." required></textarea>
                                 </div>
                                 
                                 <div class="actions">
@@ -810,10 +813,6 @@
                             <div class="student-occurrences-name" id="studentOccurrencesName">Nome do Aluno</div>
                             <div class="student-occurrences-count" id="studentOccurrencesCount">0</div>
                             <div class="student-occurrences-label">Ocorrências registradas</div>
-                            
-                            <div class="chart-container">
-                                <canvas id="studentIrregularitiesChart"></canvas>
-                            </div>
                         </div>
                     </div>
                     
@@ -831,7 +830,6 @@
                                 <li>Integração em tempo real com planilha Google</li>
                                 <li>Estatísticas atualizadas</li>
                                 <li>Interface amigável e responsiva</li>
-                                <li>Acompanhamento individual por aluno com gráficos</li>
                             </ul>
                         </div>
                     </div>
@@ -952,14 +950,10 @@
             const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
-            const studentIrregularitiesChart = document.getElementById('studentIrregularitiesChart');
             
-            // Estatísticas atualizadas
-            const totalClassesEl = document.getElementById('totalClasses');
-            const totalTeachersEl = document.getElementById('totalTeachers');
-            
-            // URL do Google Apps Script
-            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_b3-ysD1HYKpeG0AUG8yHxdu6UyqVCLZFqAehFBHAyBYUlbVhTZaNspODjmqZpAw_/exec";
+            // URLs dos Apps Script
+            const STUDENT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwLKy1fFgCC7IaBBZtfsgeDq16hK4miQk324wXpBzW02Ebpa1mG9tt48Xx8vLwGusdu/exec";
+            const OCCURRENCE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw08KRI2vJzeYekqvRfGjNpreD9emjxUjiM_glUyfNYkUNukpALNDOSEZu9ZRwXrVLt_Q/exec";
             
             // Preencher dropdown de professores
             const teacherNames = Object.keys(teacherEmails);
@@ -971,7 +965,7 @@
             });
             
             // Atualizar estatísticas de professores
-            totalTeachersEl.textContent = teacherNames.length;
+            document.getElementById('totalTeachers').textContent = teacherNames.length;
             
             // Preencher data atual como padrão
             const today = new Date();
@@ -980,12 +974,12 @@
             
             // Contar turmas disponíveis
             const turmasCount = document.querySelectorAll('#studentClass option').length - 1;
-            totalClassesEl.textContent = turmasCount;
+            document.getElementById('totalClasses').textContent = turmasCount;
             
             // Carregar alunos quando uma turma for selecionada
             classSelect.addEventListener('change', function() {
                 const selectedClass = this.value;
-                studentSelect.innerHTML = '<option value="">Carregando alunos... <span class="loading"></span></option>';
+                studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
                 studentSelect.disabled = true;
                 studentOccurrencesCard.style.display = 'none';
                 
@@ -995,7 +989,7 @@
                 }
                 
                 // Buscar alunos reais da planilha
-                fetch(`${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
+                fetch(`${STUDENT_SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === "success") {
@@ -1017,114 +1011,26 @@
                     });
             });
             
-            // Gráfico de ocorrências por tipo
-            let studentChart = null;
-            
             // Quando um aluno é selecionado
             studentSelect.addEventListener('change', function() {
                 if (this.value) {
                     // Mostrar o card de ocorrências do aluno
                     studentOccurrencesCard.style.display = 'block';
                     studentOccurrencesName.textContent = this.value;
-                    studentOccurrencesCount.textContent = "0";
+                    studentOccurrencesCount.textContent = "Carregando...";
                     
-                    // Destruir gráfico anterior se existir
-                    if (studentChart) {
-                        studentChart.destroy();
-                    }
-                    
-                    // Buscar estatísticas reais do aluno
-                    fetch(`${SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`)
+                    // Buscar estatísticas do aluno
+                    fetch(`${OCCURRENCE_SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`)
                         .then(response => response.json())
                         .then(data => {
                             if (data.status === "success") {
-                                // Atualizar contagem total
                                 studentOccurrencesCount.textContent = data.totalOccurrences;
-                                
-                                // Preparar dados para o gráfico
-                                const labels = Object.keys(data.irregularityCounts);
-                                const counts = Object.values(data.irregularityCounts);
-                                
-                                // Configurar cores
-                                const backgroundColors = labels.map((_, index) => {
-                                    return `var(--chart-color-${index + 1})`;
-                                });
-                                
-                                // Criar gráfico de barras
-                                const ctx = studentIrregularitiesChart.getContext('2d');
-                                studentChart = new Chart(ctx, {
-                                    type: 'bar',
-                                    data: {
-                                        labels: labels,
-                                        datasets: [{
-                                            label: 'Ocorrências por Tipo',
-                                            data: counts,
-                                            backgroundColor: backgroundColors,
-                                            borderColor: 'rgba(255, 255, 255, 0.8)',
-                                            borderWidth: 1
-                                        }]
-                                    },
-                                    options: {
-                                        responsive: true,
-                                        maintainAspectRatio: false,
-                                        plugins: {
-                                            legend: {
-                                                display: false
-                                            },
-                                            title: {
-                                                display: true,
-                                                text: 'Distribuição de Ocorrências',
-                                                color: 'white',
-                                                font: {
-                                                    size: 16
-                                                }
-                                            },
-                                            tooltip: {
-                                                backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                                                titleFont: {
-                                                    size: 14
-                                                },
-                                                bodyFont: {
-                                                    size: 13
-                                                },
-                                                padding: 10,
-                                                displayColors: false
-                                            }
-                                        },
-                                        scales: {
-                                            y: {
-                                                beginAtZero: true,
-                                                ticks: {
-                                                    color: 'white',
-                                                    font: {
-                                                        size: 12
-                                                    }
-                                                },
-                                                grid: {
-                                                    color: 'rgba(255, 255, 255, 0.1)'
-                                                }
-                                            },
-                                            x: {
-                                                ticks: {
-                                                    color: 'white',
-                                                    font: {
-                                                        size: 11
-                                                    }
-                                                },
-                                                grid: {
-                                                    display: false
-                                                }
-                                            }
-                                        }
-                                    }
-                                });
                             } else {
-                                studentOccurrencesCount.textContent = '0';
+                                studentOccurrencesCount.textContent = "0";
                             }
                         })
-                        .catch(error => {
-                            console.error('Erro ao carregar estatísticas do aluno:', error);
-                            studentOccurrencesCount.textContent = '0';
+                        .catch(() => {
+                            studentOccurrencesCount.textContent = "0";
                         });
                 } else {
                     studentOccurrencesCard.style.display = 'none';
@@ -1141,8 +1047,6 @@
                 successAlert.style.display = 'none';
                 errorAlert.style.display = 'none';
                 studentOccurrencesCard.style.display = 'none';
-                
-                // Resetar seleção de turma
                 classSelect.selectedIndex = 0;
             });
             
@@ -1183,7 +1087,7 @@
                 
                 try {
                     // Enviar para o Google Sheets
-                    const response = await fetch(SCRIPT_URL, {
+                    const response = await fetch(OCCURRENCE_SCRIPT_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -1193,8 +1097,8 @@
                             occurrenceDate,
                             student,
                             classInfo,
-                            description,
-                            irregularities
+                            irregularities: irregularities.join(', '),
+                            description
                         })
                     });
                     
@@ -1209,7 +1113,6 @@
                         
                         // Atualizar ocorrências do aluno
                         if (studentSelect.value) {
-                            // Recarregar estatísticas do aluno
                             studentSelect.dispatchEvent(new Event('change'));
                         }
                         
@@ -1240,7 +1143,7 @@
             
             // Função para atualizar estatísticas
             function updateStatistics() {
-                fetch(`${SCRIPT_URL}?action=getStats`)
+                fetch(`${OCCURRENCE_SCRIPT_URL}?action=getStats`)
                     .then(response => response.json())
                     .then(data => {
                         if (data.status === "success") {
@@ -1259,4 +1162,3 @@
     </script>
 </body>
 </html>
-
