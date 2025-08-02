@@ -6,10 +6,6 @@
     <title>Sistema de Registro de Ocorrências Escolares</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
     <style>
         :root {
             --primary-color: #1a73e8;
@@ -18,7 +14,6 @@
             --accent-color: #f1c40f;
             --success-color: #2ecc71;
             --error-color: #e74c3c;
-            --firebase-color: #FFA611;
             --border-color: #dadce0;
             --text-color: #202124;
             --light-text: #5f6368;
@@ -399,17 +394,6 @@
             transform: translateY(-3px);
         }
         
-        .btn-firebase {
-            background: linear-gradient(135deg, var(--firebase-color) 0%, #F57C00 100%);
-            color: white;
-        }
-        
-        .btn-firebase:hover {
-            background: linear-gradient(135deg, #E67E22 0%, #D35400 100%);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(245, 124, 0, 0.35);
-        }
-        
         .btn-lg {
             padding: 18px 35px;
             font-size: 17px;
@@ -469,18 +453,6 @@
             color: #c0392b;
         }
         
-        .alert-warning {
-            background: linear-gradient(135deg, rgba(241, 196, 15, 0.15) 0%, rgba(243, 156, 18, 0.15) 100%);
-            border: 1px solid #f39c12;
-            color: #d35400;
-        }
-        
-        .alert-firebase {
-            background: linear-gradient(135deg, rgba(255, 166, 17, 0.15) 0%, rgba(245, 124, 0, 0.15) 100%);
-            border: 1px solid var(--firebase-color);
-            color: #e67e22;
-        }
-        
         .loading {
             display: inline-block;
             width: 24px;
@@ -490,11 +462,6 @@
             border-radius: 50%;
             animation: spin 1s linear infinite;
             vertical-align: middle;
-        }
-        
-        .firebase-loading {
-            border: 4px solid rgba(255, 166, 17, 0.2);
-            border-top-color: var(--firebase-color);
         }
         
         @keyframes spin {
@@ -568,10 +535,6 @@
             background-color: var(--error-color);
         }
         
-        .status-firebase {
-            background-color: var(--firebase-color);
-        }
-        
         .integration-status {
             background: #e8f5e9;
             padding: 15px;
@@ -580,78 +543,6 @@
             display: flex;
             align-items: center;
             gap: 15px;
-        }
-        
-        .firebase-integration {
-            background: #fff3e0;
-        }
-        
-        .debug-panel {
-            background: #f9f9f9;
-            border: 1px solid #e1e5eb;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 20px;
-            font-family: monospace;
-            font-size: 14px;
-            max-height: 200px;
-            overflow-y: auto;
-            display: none;
-        }
-        
-        .debug-toggle {
-            background: #f1c40f;
-            color: #333;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-            font-weight: 600;
-            transition: background 0.3s;
-        }
-        
-        .debug-toggle:hover {
-            background: #f39c12;
-        }
-        
-        .firebase-config {
-            background: #fff3e0;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 20px 0;
-        }
-        
-        .firebase-config h3 {
-            color: var(--firebase-color);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .firebase-config input {
-            margin-bottom: 10px;
-        }
-        
-        .firebase-config .btn {
-            width: 100%;
-        }
-        
-        .firebase-success {
-            color: var(--success-color);
-            font-weight: 600;
-            text-align: center;
-            margin-top: 10px;
-            display: none;
-        }
-        
-        .firebase-error {
-            color: var(--error-color);
-            font-weight: 600;
-            text-align: center;
-            margin-top: 10px;
-            display: none;
         }
         
         @media (max-width: 992px) {
@@ -704,7 +595,7 @@
                 </div>
                 <div class="logo-text">
                     <h1>Registro de Ocorrências Escolares</h1>
-                    <p>Sistema integrado com Firebase</p>
+                    <p>Sistema integrado com Google Sheets</p>
                 </div>
             </div>
         </div>
@@ -718,7 +609,7 @@
                         <i class="fas fa-check-circle"></i> 
                         <div>
                             <strong>Ocorrência registrada com sucesso!</strong>
-                            <p>Os dados foram enviados para o Firebase.</p>
+                            <p>Os dados foram enviados para a planilha de ocorrências.</p>
                         </div>
                     </div>
                     
@@ -730,45 +621,13 @@
                         </div>
                     </div>
                     
-                    <div class="alert alert-warning" id="connectionAlert" style="display: none;">
-                        <i class="fas fa-exclamation-triangle"></i> 
-                        <div>
-                            <strong>Problema na conexão</strong>
-                            <p id="connectionMessage">Verificando status da integração...</p>
-                        </div>
-                    </div>
-                    
-                    <div class="alert alert-firebase" id="firebaseAlert" style="display: none;">
-                        <i class="fas fa-fire"></i> 
-                        <div>
-                            <strong>Configuração Firebase</strong>
-                            <p id="firebaseMessage">Por favor, configure o Firebase para usar o sistema.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="integration-status firebase-integration" id="integrationStatus">
-                        <i class="fas fa-fire"></i>
+                    <div class="integration-status">
+                        <i class="fas fa-plug"></i>
                         <div>
                             <strong>Status de integração:</strong> 
-                            <span class="status-indicator status-firebase"></span>
-                            <span id="statusText">Conectado ao Firebase</span>
+                            <span class="status-indicator status-connected"></span>
+                            Conectado à planilha Google Sheets
                         </div>
-                    </div>
-                    
-                    <div class="firebase-config" id="firebaseConfig">
-                        <h3><i class="fas fa-cog"></i> Configuração Firebase</h3>
-                        <p>Para usar o sistema, insira as credenciais do Firebase:</p>
-                        <input type="text" id="apiKey" placeholder="apiKey" class="form-control">
-                        <input type="text" id="authDomain" placeholder="authDomain" class="form-control">
-                        <input type="text" id="projectId" placeholder="projectId" class="form-control">
-                        <input type="text" id="storageBucket" placeholder="storageBucket" class="form-control">
-                        <input type="text" id="messagingSenderId" placeholder="messagingSenderId" class="form-control">
-                        <input type="text" id="appId" placeholder="appId" class="form-control">
-                        <button id="saveFirebaseConfig" class="btn btn-firebase">
-                            <i class="fas fa-save"></i> Salvar Configuração
-                        </button>
-                        <div class="firebase-success" id="firebaseSuccess">Configuração salva com sucesso!</div>
-                        <div class="firebase-error" id="firebaseError">Erro ao salvar configuração. Verifique os dados.</div>
                     </div>
                     
                     <div class="card">
@@ -965,14 +824,6 @@
                                     </button>
                                 </div>
                             </form>
-                            
-                            <button id="debugToggle" class="debug-toggle">
-                                <i class="fas fa-bug"></i> Mostrar informações de depuração
-                            </button>
-                            
-                            <div class="debug-panel" id="debugPanel">
-                                <div id="debugInfo">Informações de depuração aparecerão aqui...</div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -1010,25 +861,18 @@
                     
                     <div class="card">
                         <div class="card-header">
-                            <i class="fas fa-fire"></i> Sobre o Firebase
+                            <i class="fas fa-info-circle"></i> Sobre o Sistema
                         </div>
                         <div class="card-body">
-                            <p>Este sistema está integrado com Firebase, uma plataforma de desenvolvimento de aplicativos do Google que oferece:</p>
+                            <p>Este sistema permite o registro de ocorrências escolares com integração direta ao Google Sheets.</p>
                             <br>
+                            <p><strong>Funcionalidades:</strong></p>
                             <ul style="padding-left: 20px; margin-top: 10px;">
-                                <li>Banco de dados em tempo real</li>
-                                <li>Armazenamento seguro e escalável</li>
-                                <li>Autenticação de usuários</li>
-                                <li>Monitoramento de desempenho</li>
-                                <li>Análises detalhadas</li>
-                            </ul>
-                            <br>
-                            <p><strong>Vantagens em relação ao Google Sheets:</strong></p>
-                            <ul style="padding-left: 20px; margin-top: 10px;">
-                                <li>Maior confiabilidade e desempenho</li>
-                                <li>Escalabilidade automática</li>
-                                <li>Segurança avançada</li>
-                                <li>Operações em tempo real</li>
+                                <li>Seleção de turma com carregamento automático dos alunos</li>
+                                <li>Registro detalhado de ocorrências</li>
+                                <li>Integração em tempo real com planilha Google</li>
+                                <li>Estatísticas atualizadas</li>
+                                <li>Interface amigável e responsiva</li>
                             </ul>
                         </div>
                     </div>
@@ -1045,13 +889,13 @@
             <a href="#"><i class="fas fa-flag"></i> Denunciar</a>
         </div>
         <div style="margin-top: 10px;">
-            Sistema de Gestão Escolar © 2025 - Integrado com Firebase
+            Sistema de Gestão Escolar © 2025
         </div>
     </footer>
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Dados completos dos professores
+            // Dados completos dos professores (corrigidos)
             const teacherEmails = {
                 "ALEX LUTH PEREIRA MARANHAO": "luth@prof.educacao.sp.gov.br",
                 "ALEXSANDRA PAULA VARELLA DE SOUZA": "avarella@prof.educacao.sp.gov.br",
@@ -1140,33 +984,19 @@
             const clearBtn = document.getElementById('clearBtn');
             const successAlert = document.getElementById('successAlert');
             const errorAlert = document.getElementById('errorAlert');
-            const connectionAlert = document.getElementById('connectionAlert');
-            const firebaseAlert = document.getElementById('firebaseAlert');
-            const connectionMessage = document.getElementById('connectionMessage');
             const errorMessage = document.getElementById('errorMessage');
-            const firebaseMessage = document.getElementById('firebaseMessage');
             const studentSelect = document.getElementById('student');
             const classSelect = document.getElementById('studentClass');
             const professorSelect = document.getElementById('professor');
-            const integrationStatus = document.getElementById('integrationStatus');
-            const statusText = document.getElementById('statusText');
-            const statusIndicator = document.querySelector('.status-indicator');
-            const debugPanel = document.getElementById('debugPanel');
-            const debugInfo = document.getElementById('debugInfo');
-            const debugToggle = document.getElementById('debugToggle');
             const totalOccurrencesEl = document.getElementById('totalOccurrences');
             const totalStudentsEl = document.getElementById('totalStudents');
             const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
-            const firebaseConfig = document.getElementById('firebaseConfig');
-            const saveFirebaseBtn = document.getElementById('saveFirebaseConfig');
-            const firebaseSuccess = document.getElementById('firebaseSuccess');
-            const firebaseError = document.getElementById('firebaseError');
             
-            // Variáveis Firebase
-            let db = null;
-            let firebaseInitialized = false;
+            // URLs dos Apps Script (CORRIGIDAS)
+            const STUDENT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwLKy1fFgCC7IaBBZtfsgeDq16hK4miQk324wXpBzW02Ebpa1mG9tt48Xx8vLwGusdu/exec";
+            const OCCURRENCE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqApfcKAyxe6RfBg-2312-KzsZMVOZ7eAtDCSW5egUbO8vcLcGW3s8EaV36E_IGUsRXA/exec";
             
             // Preencher dropdown de professores
             const teacherNames = Object.keys(teacherEmails);
@@ -1240,175 +1070,6 @@
                 });
             }
             
-            // Verificar conexão com Firebase
-            async function checkConnection() {
-                if (!firebaseInitialized) {
-                    updateConnectionStatus(false, "Firebase não configurado");
-                    firebaseAlert.style.display = 'flex';
-                    return;
-                }
-                
-                try {
-                    // Testar conexão com o Firestore
-                    const testDoc = await db.collection('test').doc('connection').get();
-                    
-                    if (testDoc.exists) {
-                        updateConnectionStatus(true, "Conectado ao Firebase Firestore");
-                        firebaseAlert.style.display = 'none';
-                    } else {
-                        updateConnectionStatus(false, "Erro na integração com o Firestore");
-                    }
-                    
-                    // Atualizar estatísticas gerais
-                    updateGlobalStats();
-                } catch (error) {
-                    console.error('Erro na conexão:', error);
-                    updateConnectionStatus(false, `Falha na conexão: ${error.message}`);
-                }
-            }
-            
-            // Atualizar estatísticas gerais
-            async function updateGlobalStats() {
-                try {
-                    // Total de ocorrências
-                    const occurrencesSnapshot = await db.collection('occurrences').get();
-                    totalOccurrencesEl.textContent = occurrencesSnapshot.size;
-                    
-                    // Total de alunos únicos
-                    const students = new Set();
-                    occurrencesSnapshot.forEach(doc => {
-                        students.add(doc.data().student);
-                    });
-                    totalStudentsEl.textContent = students.size;
-                    
-                } catch (error) {
-                    console.error('Erro ao atualizar estatísticas:', error);
-                }
-            }
-            
-            // Atualizar status da conexão
-            function updateConnectionStatus(isConnected, message) {
-                if (isConnected) {
-                    statusIndicator.className = "status-indicator status-connected";
-                    connectionAlert.style.display = 'none';
-                    integrationStatus.style.display = 'flex';
-                } else {
-                    statusIndicator.className = "status-indicator status-disconnected";
-                    connectionAlert.style.display = 'flex';
-                    connectionMessage.textContent = message;
-                }
-                statusText.textContent = message;
-            }
-            
-            // Toggle para depuração
-            let debugVisible = false;
-            debugToggle.addEventListener('click', function() {
-                debugVisible = !debugVisible;
-                debugPanel.style.display = debugVisible ? 'block' : 'none';
-                debugToggle.innerHTML = `<i class="fas fa-bug"></i> ${debugVisible ? 'Ocultar' : 'Mostrar'} informações de depuração`;
-            });
-            
-            // Adicionar informação de depuração
-            function addDebugInfo(message) {
-                const timestamp = new Date().toLocaleTimeString();
-                const debugEntry = document.createElement('div');
-                debugEntry.innerHTML = `<span style="color: #888;">[${timestamp}]</span> ${message}`;
-                debugInfo.appendChild(debugEntry);
-                debugPanel.scrollTop = debugPanel.scrollHeight;
-            }
-            
-            // Salvar configuração Firebase
-            saveFirebaseBtn.addEventListener('click', function() {
-                const apiKey = document.getElementById('apiKey').value;
-                const authDomain = document.getElementById('authDomain').value;
-                const projectId = document.getElementById('projectId').value;
-                const storageBucket = document.getElementById('storageBucket').value;
-                const messagingSenderId = document.getElementById('messagingSenderId').value;
-                const appId = document.getElementById('appId').value;
-                
-                if (!apiKey || !authDomain || !projectId) {
-                    firebaseError.textContent = "Por favor, preencha pelo menos apiKey, authDomain e projectId";
-                    firebaseError.style.display = 'block';
-                    firebaseSuccess.style.display = 'none';
-                    return;
-                }
-                
-                const firebaseConfig = {
-                    apiKey: apiKey,
-                    authDomain: authDomain,
-                    projectId: projectId,
-                    storageBucket: storageBucket,
-                    messagingSenderId: messagingSenderId,
-                    appId: appId
-                };
-                
-                // Salvar no localStorage
-                localStorage.setItem('firebaseConfig', JSON.stringify(firebaseConfig));
-                
-                try {
-                    // Inicializar Firebase
-                    firebase.initializeApp(firebaseConfig);
-                    db = firebase.firestore();
-                    firebaseInitialized = true;
-                    
-                    firebaseSuccess.style.display = 'block';
-                    firebaseError.style.display = 'none';
-                    addDebugInfo("Firebase configurado com sucesso!");
-                    
-                    // Esconder painel de configuração após 3 segundos
-                    setTimeout(() => {
-                        firebaseConfig.style.display = 'none';
-                        firebaseAlert.style.display = 'none';
-                        checkConnection();
-                    }, 3000);
-                    
-                } catch (error) {
-                    console.error('Erro ao inicializar Firebase:', error);
-                    firebaseError.textContent = `Erro ao configurar Firebase: ${error.message}`;
-                    firebaseError.style.display = 'block';
-                    firebaseSuccess.style.display = 'none';
-                    addDebugInfo(`Erro ao inicializar Firebase: ${error.message}`);
-                }
-            });
-            
-            // Carregar configuração salva
-            function loadFirebaseConfig() {
-                const savedConfig = localStorage.getItem('firebaseConfig');
-                if (savedConfig) {
-                    try {
-                        const config = JSON.parse(savedConfig);
-                        
-                        // Preencher campos
-                        document.getElementById('apiKey').value = config.apiKey || '';
-                        document.getElementById('authDomain').value = config.authDomain || '';
-                        document.getElementById('projectId').value = config.projectId || '';
-                        document.getElementById('storageBucket').value = config.storageBucket || '';
-                        document.getElementById('messagingSenderId').value = config.messagingSenderId || '';
-                        document.getElementById('appId').value = config.appId || '';
-                        
-                        // Inicializar Firebase
-                        firebase.initializeApp(config);
-                        db = firebase.firestore();
-                        firebaseInitialized = true;
-                        
-                        // Esconder painel de configuração
-                        firebaseConfig.style.display = 'none';
-                        firebaseAlert.style.display = 'none';
-                        
-                        checkConnection();
-                        
-                    } catch (error) {
-                        console.error('Erro ao carregar configuração:', error);
-                        firebaseConfig.style.display = 'block';
-                        firebaseAlert.style.display = 'flex';
-                        firebaseMessage.textContent = "Erro ao carregar configuração salva. Por favor, reconfigure.";
-                    }
-                } else {
-                    firebaseConfig.style.display = 'block';
-                    firebaseAlert.style.display = 'flex';
-                }
-            }
-            
             // Carregar alunos quando uma turma for selecionada
             classSelect.addEventListener('change', function() {
                 const selectedClass = this.value;
@@ -1427,20 +1088,32 @@
                     return;
                 }
                 
-                // Simular dados de alunos (em um sistema real, viria do Firebase)
-                const students = [];
-                for (let i = 1; i <= 30; i++) {
-                    students.push(`Aluno ${i} ${selectedClass}`);
-                }
-                
-                studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
-                students.forEach(student => {
-                    const option = document.createElement('option');
-                    option.value = student;
-                    option.textContent = student;
-                    studentSelect.appendChild(option);
-                });
-                studentSelect.disabled = false;
+                // Buscar alunos reais da planilha (URL CORRIGIDA)
+                fetch(`${STUDENT_SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Falha na rede');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.status === "success") {
+                            studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
+                            data.students.forEach(student => {
+                                const option = document.createElement('option');
+                                option.value = student;
+                                option.textContent = student;
+                                studentSelect.appendChild(option);
+                            });
+                            studentSelect.disabled = false;
+                        } else {
+                            studentSelect.innerHTML = `<option value="">${data.message || 'Erro ao carregar alunos'}</option>`;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao carregar alunos:', error);
+                        studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
+                    });
             });
             
             // Quando um aluno é selecionado
@@ -1451,32 +1124,24 @@
                     studentOccurrencesName.textContent = this.value;
                     studentOccurrencesCount.textContent = "Carregando...";
                     
-                    // Gerar estatísticas simuladas
-                    setTimeout(() => {
-                        const randomOccurrences = Math.floor(Math.random() * 15);
-                        studentOccurrencesCount.textContent = randomOccurrences;
-                        
-                        // Gerar estatísticas detalhadas simuladas
-                        const detailedStats = {};
-                        const irregularities = [
-                            "Não fez a lição",
-                            "Não trouxe material",
-                            "Fora do lugar constantemente durante a aula",
-                            "Chegou atrasado",
-                            "Circulando no corredor durante a aula",
-                            "Uso indevido do celular durante a aula",
-                            "Interrompe a aula constantemente",
-                            "Falta de cuidado com o ambiente e o material",
-                            "Vestimenta inadequada"
-                        ];
-                        
-                        irregularities.forEach(irr => {
-                            detailedStats[irr] = Math.floor(Math.random() * 5);
+                    // Buscar estatísticas do aluno
+                    fetch(`${OCCURRENCE_SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === "success") {
+                                studentOccurrencesCount.textContent = data.totalOccurrences;
+                                
+                                // Atualizar gráficos com os dados detalhados
+                                if (data.detailedStats) {
+                                    updateAllCharts(data.detailedStats);
+                                }
+                            } else {
+                                studentOccurrencesCount.textContent = "0";
+                            }
+                        })
+                        .catch(() => {
+                            studentOccurrencesCount.textContent = "0";
                         });
-                        
-                        // Atualizar gráficos
-                        updateAllCharts(detailedStats);
-                    }, 800);
                 } else {
                     studentOccurrencesCard.style.display = 'none';
                     
@@ -1497,7 +1162,6 @@
                 studentSelect.disabled = true;
                 successAlert.style.display = 'none';
                 errorAlert.style.display = 'none';
-                connectionAlert.style.display = 'none';
                 studentOccurrencesCard.style.display = 'none';
                 classSelect.selectedIndex = 0;
                 
@@ -1513,22 +1177,13 @@
                 });
             });
             
-            // Enviar formulário - Integração com Firebase
+            // Enviar formulário - CORREÇÃO PRINCIPAL
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
                 // Esconder alertas
                 successAlert.style.display = 'none';
                 errorAlert.style.display = 'none';
-                connectionAlert.style.display = 'none';
-                
-                // Verificar se Firebase está configurado
-                if (!firebaseInitialized) {
-                    firebaseMessage.textContent = "Por favor, configure o Firebase antes de enviar ocorrências";
-                    firebaseAlert.style.display = 'flex';
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    return;
-                }
                 
                 // Coletar dados do formulário
                 const professor = professorSelect.value;
@@ -1543,7 +1198,7 @@
                     irregularities.push(cb.value);
                 });
                 
-                // Validação
+                // Validação melhorada
                 let errorMsg = "";
                 if (!professor) errorMsg += "• Selecione o professor<br>";
                 if (!occurrenceDate) errorMsg += "• Informe a data da ocorrência<br>";
@@ -1562,68 +1217,64 @@
                 // Mostrar loading
                 const submitBtn = form.querySelector('button[type="submit"]');
                 const originalBtnText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<span class="loading firebase-loading"></span> Enviando...';
+                submitBtn.innerHTML = '<span class="loading"></span> Enviando...';
                 submitBtn.disabled = true;
-                
-                // Registrar depuração
-                addDebugInfo("Iniciando envio da ocorrência...");
                 
                 try {
                     // Preparar dados para envio
-                    const occurrenceData = {
+                    const formData = {
                         professor: professor,
                         date: occurrenceDate,
                         student: student,
                         class: classInfo,
-                        irregularities: irregularities,
-                        description: description,
-                        timestamp: new Date().toISOString()
+                        irregularities: irregularities.join(', '),
+                        description: description
                     };
                     
-                    addDebugInfo(`Dados preparados: ${JSON.stringify(occurrenceData)}`);
+                    // Enviar dados para o Google Sheets
+                    const response = await fetch(OCCURRENCE_SCRIPT_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
                     
-                    // Enviar dados para o Firebase
-                    await db.collection('occurrences').add(occurrenceData);
+                    const result = await response.json();
                     
-                    addDebugInfo("Ocorrência registrada com sucesso no Firebase!");
-                    
-                    // Mostrar mensagem de sucesso
-                    successAlert.style.display = 'flex';
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                    
-                    // Resetar formulário após sucesso
-                    form.reset();
-                    document.getElementById('occurrenceDate').value = formattedDate;
-                    studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-                    studentSelect.disabled = true;
-                    classSelect.selectedIndex = 0;
-                    studentOccurrencesCard.style.display = 'none';
-                    
-                    // Atualizar estatísticas gerais
-                    const currentTotal = parseInt(totalOccurrencesEl.textContent);
-                    totalOccurrencesEl.textContent = currentTotal + 1;
-                    
-                    const currentStudents = parseInt(totalStudentsEl.textContent);
-                    if (currentStudents < 1000) {
-                        totalStudentsEl.textContent = currentStudents + 1;
+                    if (result.status === "success") {
+                        // Mostrar mensagem de sucesso
+                        successAlert.style.display = 'flex';
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        
+                        // Resetar formulário após sucesso
+                        form.reset();
+                        document.getElementById('occurrenceDate').value = formattedDate;
+                        studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                        studentSelect.disabled = true;
+                        classSelect.selectedIndex = 0;
+                        studentOccurrencesCard.style.display = 'none';
+                        
+                        // Atualizar estatísticas gerais
+                        const currentTotal = parseInt(totalOccurrencesEl.textContent);
+                        totalOccurrencesEl.textContent = currentTotal + 1;
+                        
+                        const currentStudents = parseInt(totalStudentsEl.textContent);
+                        if (currentStudents < 1000) {
+                            totalStudentsEl.textContent = currentStudents + 1;
+                        }
+                        
+                        // Resetar gráficos
+                        const chartCanvases = document.querySelectorAll('.donut-chart');
+                        chartCanvases.forEach(canvas => {
+                            createDonutChart(canvas, 0);
+                        });
+                    } else {
+                        throw new Error(result.message || "Erro ao enviar dados");
                     }
-                    
                 } catch (error) {
                     console.error('Erro ao enviar ocorrência:', error);
-                    addDebugInfo(`Erro: ${error.message}`);
-                    
-                    // Mensagem de erro detalhada
-                    let errorText = "Ocorreu um erro ao enviar a ocorrência. ";
-                    
-                    if (error.message.includes("permission-denied")) {
-                        errorText += "Verifique as regras de segurança do Firebase.";
-                    } else if (error.message.includes("network-error")) {
-                        errorText += "Verifique sua conexão com a internet.";
-                    } else {
-                        errorText += "Por favor, tente novamente mais tarde.";
-                    }
-                    
-                    errorMessage.textContent = errorText;
+                    errorMessage.textContent = "Ocorreu um erro ao enviar a ocorrência. Por favor, tente novamente.";
                     errorAlert.style.display = 'flex';
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 } finally {
@@ -1632,10 +1283,6 @@
                     submitBtn.disabled = false;
                 }
             });
-            
-            // Inicialização
-            loadFirebaseConfig();
-            addDebugInfo("Sistema inicializado.");
             
             // Inicializar gráficos com valores zero
             document.querySelectorAll('.donut-chart').forEach(canvas => {
