@@ -6,9 +6,6 @@
     <title>Sistema de Registro de Ocorrências Escolares</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-     <title>Sistema de Registro de Ocorrências Escolares</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary-color: #1a73e8;
@@ -25,15 +22,6 @@
             --footer-bg: #ffffff;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
-            --chart-color-1: #3498db;
-            --chart-color-2: #2ecc71;
-            --chart-color-3: #9b59b6;
-            --chart-color-4: #e74c3c;
-            --chart-color-5: #f1c40f;
-            --chart-color-6: #1abc9c;
-            --chart-color-7: #d35400;
-            --chart-color-8: #34495e;
-            --chart-color-9: #7f8c8d;
         }
         
         * {
@@ -272,12 +260,6 @@
             text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
         
-        .chart-container {
-            width: 100%;
-            margin-top: 20px;
-            height: 250px;
-        }
-        
         .form-group {
             margin-bottom: 25px;
         }
@@ -506,7 +488,6 @@
             gap: 12px;
         }
         
-        /* Estilo para dropdowns com cores alternadas */
         select option:nth-child(even) {
             background-color: #f0f5ff;
         }
@@ -515,7 +496,6 @@
             background-color: white;
         }
         
-        /* Estilo para dropdowns quando abertos */
         select:focus option:checked {
             background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             color: white;
@@ -667,12 +647,12 @@
                                                 <option value="7° ANO E TARDE">7° ANO E TARDE</option>
                                                 <option value="7° ANO F TARDE">7° ANO F TARDE</option>
                                                 <option value="8° ANO A TARDE">8° ANO A TARDE</option>
-                                                <option value="8° ANO B TARDE">8° ANO B TARDE</option>
+                                                <极速赛车开奖直播>
                                                 <option value="8° ANO C TARDE">8° ANO C TARDE</option>
                                                 <option value="8° ANO D TARDE">8° ANO D TARDE</option>
                                                 <option value="9° ANO A TARDE">9° ANO A TARDE</option>
                                                 <option value="9° ANO B TARDE">9° ANO B TARDE</option>
-                                                <option value="9° ANO C TARDE">9° ANO C TARDE</option>
+                                                <option value="9°极速赛车开奖直播>
                                                 <option value="9° ANO D TARDE">9° ANO D TARDE</option>
                                                 <option value="1ª SERIE A MANHA">1ª SERIE A MANHA</option>
                                                 <option value="1ª SERIE B MANHA">1ª SERIE B MANHA</option>
@@ -842,7 +822,7 @@
         <div class="footer-links">
             <a href="#"><i class="fas fa-envelope"></i> Contato</a>
             <a href="#"><i class="fas fa-file-contract"></i> Termos de Serviço</a>
-            <a href="#"><i class="fas fa-shield-alt"></i> Política de Privacidade</a>
+            <a href="#"><i class="fas fa-shield-alt"></极速赛车开奖直播>
             <a href="#"><i class="fas fa-flag"></i> Denunciar</a>
         </div>
         <div style="margin-top: 10px;">
@@ -871,7 +851,7 @@
                 "CLAUDINEIA DE AGUIAR LIMA": "aguiarl@prof.educacao.sp.gov.br",
                 "DANIEL DE FREITAS ALMEIDA": "danielalmeida@prof.educacao.sp.gov.br",
                 "DANIEL LOPES BARBOSA": "daniellopesbarbosa@prof.educacao.sp.gov.br",
-                "DANIELA FERREIRA LIMA": "danielaflima@prof.educacao.sp.gov.br",
+                "DANIELA F极速赛车开奖直播>
                 "DANIELLE LUCIA BATISTA DE ALMEIDA": "danielelucia@prof.educacao.sp.gov.br",
                 "EDIANE VIEIRA DA SILVA": "ediane@prof.educacao.sp.gov.br",
                 "EDILEUSA NUNES PEREIRA": "edileusa@prof.educacao.sp.gov.br",
@@ -952,8 +932,8 @@
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
             
             // URLs dos Apps Script
-            const STUDENT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbykJl6bhUmlnwVD-svmTsnzAP9oB25LSW4scpQ-zBPIXiQ-twCQLJ56pMLAJvBXS7o/exec";
-            const OCCURRENCE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlm8TfafogKOAxY4votdMaX1oW9ope6U_6g3DkqAAlzUx9hM2mHiLAcJo3PDQRQX5veg/exec";
+            const STUDENT_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwLKy1fFgCC7IaBBZtfsgeDq16hK4miQk324wXpBzW02Ebpa1mG9tt48Xx8vLwGusdu/exec";
+            const OCCURRENCE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw08KRI2vJzeYekqvRfGjNpreD9emjxUjiM_glUyfNYkUNukpALNDOSEZu9ZRwXrVLt_Q/exec";
             
             // Preencher dropdown de professores
             const teacherNames = Object.keys(teacherEmails);
@@ -974,7 +954,7 @@
             
             // Contar turmas disponíveis
             const turmasCount = document.querySelectorAll('#studentClass option').length - 1;
-            document.getElementById('totalClasses').textContent = turmasCount;
+            document.getElementById('totalClasses').textContent = turmas极速赛车开奖直播;
             
             // Carregar alunos quando uma turma for selecionada
             classSelect.addEventListener('change', function() {
@@ -1102,6 +1082,11 @@
                         })
                     });
                     
+                    // Verificar se a resposta é OK
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
                     const result = await response.json();
                     
                     if (result.status === "success") {
@@ -1162,5 +1147,3 @@
     </script>
 </body>
 </html>
-
-
