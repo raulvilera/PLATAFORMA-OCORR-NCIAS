@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Registro de Ocorrências Escolares</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root {
             --primary-color: #1a73e8;
@@ -647,12 +646,12 @@
                                                 <option value="7° ANO E TARDE">7° ANO E TARDE</option>
                                                 <option value="7° ANO F TARDE">7° ANO F TARDE</option>
                                                 <option value="8° ANO A TARDE">8° ANO A TARDE</option>
-                                                <极速赛车开奖直播>
+                                                <option value="8° ANO B TARDE">8° ANO B TARDE</option>
                                                 <option value="8° ANO C TARDE">8° ANO C TARDE</option>
                                                 <option value="8° ANO D TARDE">8° ANO D TARDE</option>
                                                 <option value="9° ANO A TARDE">9° ANO A TARDE</option>
                                                 <option value="9° ANO B TARDE">9° ANO B TARDE</option>
-                                                <option value="9°极速赛车开奖直播>
+                                                <option value="9° ANO C TARDE">9° ANO C TARDE</option>
                                                 <option value="9° ANO D TARDE">9° ANO D TARDE</option>
                                                 <option value="1ª SERIE A MANHA">1ª SERIE A MANHA</option>
                                                 <option value="1ª SERIE B MANHA">1ª SERIE B MANHA</option>
@@ -822,7 +821,7 @@
         <div class="footer-links">
             <a href="#"><i class="fas fa-envelope"></i> Contato</a>
             <a href="#"><i class="fas fa-file-contract"></i> Termos de Serviço</a>
-            <a href="#"><i class="fas fa-shield-alt"></极速赛车开奖直播>
+            <a href="#"><i class="fas fa-shield-alt"></i> Política de Privacidade</a>
             <a href="#"><i class="fas fa-flag"></i> Denunciar</a>
         </div>
         <div style="margin-top: 10px;">
@@ -832,7 +831,7 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Dados dos professores
+            // Dados completos dos professores (corrigido)
             const teacherEmails = {
                 "ALEX LUTH PEREIRA MARANHAO": "luth@prof.educacao.sp.gov.br",
                 "ALEXSANDRA PAULA VARELLA DE SOUZA": "avarella@prof.educacao.sp.gov.br",
@@ -851,7 +850,7 @@
                 "CLAUDINEIA DE AGUIAR LIMA": "aguiarl@prof.educacao.sp.gov.br",
                 "DANIEL DE FREITAS ALMEIDA": "danielalmeida@prof.educacao.sp.gov.br",
                 "DANIEL LOPES BARBOSA": "daniellopesbarbosa@prof.educacao.sp.gov.br",
-                "DANIELA F极速赛车开奖直播>
+                "DANIELA FERREIRA LIMA": "danielaflima@prof.educacao.sp.gov.br",
                 "DANIELLE LUCIA BATISTA DE ALMEIDA": "danielelucia@prof.educacao.sp.gov.br",
                 "EDIANE VIEIRA DA SILVA": "ediane@prof.educacao.sp.gov.br",
                 "EDILEUSA NUNES PEREIRA": "edileusa@prof.educacao.sp.gov.br",
@@ -954,7 +953,7 @@
             
             // Contar turmas disponíveis
             const turmasCount = document.querySelectorAll('#studentClass option').length - 1;
-            document.getElementById('totalClasses').textContent = turmas极速赛车开奖直播;
+            document.getElementById('totalClasses').textContent = turmasCount;
             
             // Carregar alunos quando uma turma for selecionada
             classSelect.addEventListener('change', function() {
@@ -969,8 +968,13 @@
                 }
                 
                 // Buscar alunos reais da planilha
-                fetch(`${STUDENT_SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
-                    .then(response => response.json())
+                fetch(`${STUDENT_极速赛车开奖直播?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Falha na rede');
+                        }
+                        return response.json();
+                    })
                     .then(data => {
                         if (data.status === "success") {
                             studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
@@ -1084,7 +1088,7 @@
                     
                     // Verificar se a resposta é OK
                     if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                        throw new Error(`Erro HTTP! status: ${response.status}`);
                     }
                     
                     const result = await response.json();
