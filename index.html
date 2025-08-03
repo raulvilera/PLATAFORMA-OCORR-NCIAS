@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* ESTILOS PERMANECEM OS MESMOS */
         :root {
             --primary-color: #1a73e8;
             --primary-dark: #0d47a1;
@@ -651,7 +650,7 @@
                                     <div class="form-col">
                                         <div class="form-group">
                                             <label for="occurrenceDate" class="required">Data da ocorrência</label>
-                                            <input type="date" id="occurrenceDate">
+                                            <input type="date" id="occurrenceDate" required>
                                         </div>
                                     </div>
                                 </div>
@@ -660,7 +659,7 @@
                                     <div class="form-col">
                                         <div class="form-group">
                                             <label for="studentClass" class="required">Turma</label>
-                                            <select id="studentClass" class="form-control" required>
+                                            <select id="studentClass" required>
                                                 <option value="">Selecione a turma</option>
                                                 <option value="6° ANO A MANHA">6° ANO A MANHA</option>
                                                 <option value="6° ANO B MANHA">6° ANO B MANHA</option>
@@ -714,7 +713,7 @@
                                         <div class="form-group">
                                             <label for="student" class="required">Nome do aluno</label>
                                             <div class="student-select-container">
-                                                <select id="student" class="form-control" required disabled>
+                                                <select id="student" required disabled>
                                                     <option value="">Selecione primeiro a turma</option>
                                                 </select>
                                             </div>
@@ -1100,10 +1099,22 @@
                         throw new Error('Falha na rede');
                     }
                     
-                    return await response.json();
+                    // Tentar parsear como JSON
+                    try {
+                        return await response.json();
+                    } catch (e) {
+                        return {
+                            status: "error",
+                            message: "Resposta inválida do servidor",
+                            raw: await response.text()
+                        };
+                    }
                 } catch (error) {
                     console.error('Erro na requisição:', error);
-                    throw error;
+                    return {
+                        status: "error",
+                        message: error.message || "Erro na requisição"
+                    };
                 }
             }
             
@@ -1167,10 +1178,12 @@
                                 }
                             } else {
                                 studentOccurrencesCount.textContent = "0";
+                                console.error('Erro ao buscar estatísticas:', data?.message);
                             }
                         })
-                        .catch(() => {
+                        .catch(error => {
                             studentOccurrencesCount.textContent = "0";
+                            console.error('Erro ao buscar estatísticas:', error);
                         });
                 } else {
                     studentOccurrencesCard.style.display = 'none';
@@ -1270,6 +1283,7 @@
                         body: JSON.stringify(formData)
                     });
                     
+                    // Verificar se o resultado é válido
                     if (result && result.status === "success") {
                         // Mostrar mensagem de sucesso
                         successAlert.style.display = 'flex';
@@ -1298,11 +1312,13 @@
                             createDonutChart(canvas, 0);
                         });
                     } else {
-                        throw new Error(result?.message || "Erro ao enviar dados");
+                        // Tratar resposta de erro
+                        const errorMsg = result?.message || "Erro desconhecido ao enviar dados";
+                        throw new Error(errorMsg);
                     }
                 } catch (error) {
                     console.error('Erro ao enviar ocorrência:', error);
-                    errorMessage.textContent = "Ocorreu um erro ao enviar a ocorrência. Por favor, tente novamente.";
+                    errorMessage.textContent = `Ocorreu um erro ao enviar a ocorrência: ${error.message}`;
                     errorAlert.style.display = 'flex';
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 } finally {
