@@ -701,7 +701,7 @@
                                                 <option value="2ª SERIE H NOITE">2ª SERIE H NOITE</option>
                                                 <option value="3ª SERIE A MANHA">3ª SERIE A MANHA</option>
                                                 <option value="3ª SERIE B MANHA">3ª SERIE B MANHA</option>
-                                                <option value="3ª SERIE C MANHA">3ª SERie C MANHA</option>
+                                                <option value="3ª SERIE C MANHA">3ª SERIE C MANHA</option>
                                                 <option value="3ª SERIE D NOITE">3ª SERIE D NOITE</option>
                                                 <option value="3ª SERIE E NOITE">3ª SERIE E NOITE</option>
                                                 <option value="3ª SERIE F NOITE">3ª SERIE F NOITE</option>
@@ -1070,17 +1070,31 @@
                 });
             }
             
+            // SOLUÇÃO PARA CORS: Usar proxy para requisições
+            function getProxyUrl(url) {
+                // Somente usar proxy quando hospedado no GitHub
+                if (window.location.hostname.includes('github.io')) {
+                    return `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
+                }
+                return url;
+            }
+            
             // Função para fazer requisições com tratamento CORS (CORRIGIDA)
             async function safeFetch(url, options = {}) {
                 try {
-                    // Configuração padrão para CORS
-                    const defaultOptions = {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 15000);
+                    
+                    const fetchOptions = {
+                        ...options,
+                        signal: controller.signal,
                         mode: 'cors',
-                        redirect: 'follow',
-                        ...options
+                        redirect: 'follow'
                     };
                     
-                    const response = await fetch(url, defaultOptions);
+                    const response = await fetch(getProxyUrl(url), fetchOptions);
+                    
+                    clearTimeout(timeoutId);
                     
                     if (!response.ok) {
                         throw new Error('Falha na rede');
