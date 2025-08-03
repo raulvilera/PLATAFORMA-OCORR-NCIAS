@@ -1063,52 +1063,40 @@
                 chartValue.textContent = value;
             }
 
+            // SOLUÇÃO PARA CORS: Usar proxy para requisições quando necessário
+            function getProxyUrl(url) {
+                // Somente usar proxy quando hospedado no GitHub
+                if (window.location.hostname.includes('github.io')) {
+                    return `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+                }
+                return url;
+            }
+
             // Função para fazer requisições com tratamento CORS melhorado
             async function safeFetch(url, options = {}) {
                 try {
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 15000);
                     
-                    // Configuração padrão para todas as requisições
+                    const finalUrl = getProxyUrl(url);
                     const fetchOptions = {
-                        method: 'GET',
                         ...options,
                         signal: controller.signal,
                         mode: 'cors',
-                        redirect: 'follow',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            ...(options.headers || {})
-                        }
+                        redirect: 'follow'
                     };
-
-                    // Verificar se estamos no GitHub Pages e usar proxy se necessário
-                    let finalUrl = url;
-                    if (window.location.hostname.includes('github.io')) {
-                        finalUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-                    }
 
                     const response = await fetch(finalUrl, fetchOptions);
                     clearTimeout(timeoutId);
 
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    // Processar resposta diferente se usamos proxy
-                    let data;
                     if (window.location.hostname.includes('github.io')) {
-                        const proxyResponse = await response.json();
-                        if (proxyResponse.contents) {
-                            data = JSON.parse(proxyResponse.contents);
-                        } else {
-                            throw new Error('Resposta inesperada do proxy');
-                        }
+                        // Processar resposta do proxy
+                        const data = await response.json();
+                        return JSON.parse(data.contents);
                     } else {
-                        data = await response.json();
+                        // Resposta direta
+                        return await response.json();
                     }
-
-                    return data;
                 } catch (error) {
                     console.error('Erro na requisição:', error);
                     return {
@@ -1119,7 +1107,7 @@
             }
 
             // Carregar alunos quando uma turma for selecionada
-            classSelect.addEventListener('change', async function() {
+            classSelect.addEventListener('change', function() {
                 const selectedClass = this.value;
                 studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
                 studentSelect.disabled = true;
@@ -1136,60 +1124,60 @@
                     return;
                 }
 
-                try {
-                    // Buscar alunos da turma selecionada
-                    const url = `${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
-                    const data = await safeFetch(url);
-
-                    if (data && data.status === "success" && Array.isArray(data.students)) {
-                        studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
-                        data.students.forEach(student => {
-                            const option = document.createElement('option');
-                            option.value = student;
-                            option.textContent = student;
-                            studentSelect.appendChild(option);
-                        });
-                        studentSelect.disabled = false;
-                        
-                        // Atualizar estatísticas
-                        totalStudentsEl.textContent = data.students.length;
-                    } else {
-                        const errorMsg = data?.message || 'Formato de resposta inválido';
-                        studentSelect.innerHTML = `<option value="">Erro: ${errorMsg}</option>`;
-                        console.error('Resposta inesperada:', data);
-                    }
-                } catch (error) {
-                    console.error('Erro ao carregar alunos:', error);
-                    studentSelect.innerHTML = '<option value="">Erro ao carregar. Tente novamente.</option>';
-                }
+                // Buscar alunos reais da planilha com tratamento CORS melhorado
+                const url = `${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
+                safeFetch(url)
+                    .then(data => {
+                        if (data && data.status === "success" && Array.isArray(data.students)) {
+                            studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
+                            data.students.forEach(student => {
+                                const option = document.createElement('option');
+                                option.value = student;
+                                option.textContent = student;
+                                studentSelect.appendChild(option);
+                            });
+                            studentSelect.disabled = false;
+                            
+                            // Atualizar estatísticas
+                            totalStudentsEl.textContent = data.students.length;
+                        } else {
+                            const errorMsg = data?.message || 'Resposta inesperada do servidor';
+                            studentSelect.innerHTML = `<option value="">Erro: ${errorMsg}</option>`;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao carregar alunos:', error);
+                        studentSelect.innerHTML = '<option value="">Erro ao carregar. Tente novamente.</option>';
+                    });
             });
 
             // Quando um aluno é selecionado
-            studentSelect.addEventListener('change', async function() {
+            studentSelect.addEventListener('change', function() {
                 if (this.value) {
                     // Mostrar o card de ocorrências do aluno
                     studentOccurrencesCard.style.display = 'block';
                     studentOccurrencesName.textContent = this.value;
                     studentOccurrencesCount.textContent = "Carregando...";
 
-                    try {
-                        // Buscar estatísticas do aluno
-                        const url = `${SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
-                        const data = await safeFetch(url);
-
-                        if (data && data.status === "success") {
-                            studentOccurrencesCount.textContent = data.totalOccurrences;
-                            // Atualizar gráficos com os dados detalhados
-                            if (data.detailedStats) {
-                                updateAllCharts(data.detailedStats);
+                    // Buscar estatísticas do aluno com tratamento CORS
+                    const url = `${SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
+                    safeFetch(url)
+                        .then(data => {
+                            if (data && data.status === "success") {
+                                studentOccurrencesCount.textContent = data.totalOccurrences;
+                                // Atualizar gráficos com os dados detalhados
+                                if (data.detailedStats) {
+                                    updateAllCharts(data.detailedStats);
+                                }
+                            } else {
+                                studentOccurrencesCount.textContent = "0";
+                                console.error('Erro ao buscar estatísticas:', data?.message);
                             }
-                        } else {
-                            throw new Error(data?.message || 'Erro ao buscar estatísticas');
-                        }
-                    } catch (error) {
-                        studentOccurrencesCount.textContent = "0";
-                        console.error('Erro ao buscar estatísticas:', error);
-                    }
+                        })
+                        .catch(error => {
+                            studentOccurrencesCount.textContent = "0";
+                            console.error('Erro ao buscar estatísticas:', error);
+                        });
                 } else {
                     studentOccurrencesCard.style.display = 'none';
                     // Resetar gráficos
@@ -1234,7 +1222,7 @@
                 });
             });
 
-            // Enviar formulário
+            // Enviar formulário com tratamento CORS melhorado
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
@@ -1289,6 +1277,9 @@
                     // Enviar dados para o Google Sheets
                     const response = await safeFetch(SCRIPT_URL, {
                         method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
                         body: JSON.stringify({
                             action: 'addOccurrence',
                             ...formData
