@@ -400,6 +400,12 @@
             font-size: 17px;
         }
         
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
         footer {
             background-color: var(--footer-bg);
             border-top: 1px solid var(--border-color);
@@ -811,7 +817,7 @@
                                 </div>
                                 
                                 <div class="actions">
-                                    <button type="submit" class="btn btn-primary btn-lg">
+                                    <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
                                         <i class="fas fa-paper-plane"></i> Enviar Ocorrência
                                     </button>
                                     <button type="button" id="clearBtn" class="btn btn-secondary">
@@ -979,6 +985,7 @@
             // Elementos DOM
             const form = document.getElementById('occurrenceForm');
             const clearBtn = document.getElementById('clearBtn');
+            const submitBtn = document.getElementById('submitBtn');
             const successAlert = document.getElementById('successAlert');
             const errorAlert = document.getElementById('errorAlert');
             const errorMessage = document.getElementById('errorMessage');
@@ -991,8 +998,8 @@
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
 
-            // URL base do Apps Script (exemplo - substitua pelo seu)
-            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec";
+            // URL base do Apps Script (substitua pela sua URL real)
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxvAJG9lMz62bCwDPPVpPUn2aMoQugO4mPGX0_pAgM8QAy9y7SMqghFNls_IEnvh1X1/exec";
 
             // Preencher dropdown de professores
             const teacherNames = Object.keys(teacherEmails);
@@ -1235,7 +1242,7 @@
                     irregularities.push(cb.value);
                 });
 
-                // Validação simplificada
+                // Validação
                 let errorMsg = "";
                 if (!professor) errorMsg += "• Selecione o professor<br>";
                 if (!occurrenceDate) errorMsg += "• Informe a data da ocorrência<br>";
@@ -1251,7 +1258,6 @@
                 }
 
                 // Mostrar loading
-                const submitBtn = form.querySelector("button[type='submit']");
                 const originalBtnText = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<span class="loading"></span> Enviando...';
                 submitBtn.disabled = true;
@@ -1267,38 +1273,48 @@
                         description: description
                     };
 
-                    // Simular envio para o Google Sheets
-                    console.log('Dados a serem enviados:', formData);
-                    
-                    // Simular resposta bem-sucedida após 1.5 segundos
-                    await new Promise(resolve => setTimeout(resolve, 1500));
-                    
-                    // Mostrar mensagem de sucesso
-                    successAlert.style.display = 'flex';
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-
-                    // Resetar formulário após sucesso
-                    form.reset();
-                    document.getElementById('occurrenceDate').value = formattedDate;
-                    studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-                    studentSelect.disabled = true;
-                    classSelect.selectedIndex = 0;
-                    studentOccurrencesCard.style.display = 'none';
-
-                    // Atualizar estatísticas gerais
-                    const currentTotal = parseInt(totalOccurrencesEl.textContent);
-                    totalOccurrencesEl.textContent = currentTotal + 1;
-
-                    const currentStudents = parseInt(totalStudentsEl.textContent);
-                    if (currentStudents < 1000) {
-                        totalStudentsEl.textContent = currentStudents + 1;
-                    }
-
-                    // Resetar gráficos
-                    const chartCanvases = document.querySelectorAll('.donut-chart');
-                    chartCanvases.forEach(canvas => {
-                        createDonutChart(canvas, 0);
+                    // Enviar dados para o Google Sheets
+                    const response = await safeFetch(SCRIPT_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            action: 'addOccurrence',
+                            ...formData
+                        })
                     });
+
+                    if (response && response.status === "success") {
+                        // Mostrar mensagem de sucesso
+                        successAlert.style.display = 'flex';
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                        // Resetar formulário após sucesso
+                        form.reset();
+                        document.getElementById('occurrenceDate').value = formattedDate;
+                        studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                        studentSelect.disabled = true;
+                        classSelect.selectedIndex = 0;
+                        studentOccurrencesCard.style.display = 'none';
+
+                        // Atualizar estatísticas gerais
+                        const currentTotal = parseInt(totalOccurrencesEl.textContent);
+                        totalOccurrencesEl.textContent = currentTotal + 1;
+
+                        const currentStudents = parseInt(totalStudentsEl.textContent);
+                        if (currentStudents < 1000) {
+                            totalStudentsEl.textContent = currentStudents + 1;
+                        }
+
+                        // Resetar gráficos
+                        const chartCanvases = document.querySelectorAll('.donut-chart');
+                        chartCanvases.forEach(canvas => {
+                            createDonutChart(canvas, 0);
+                        });
+                    } else {
+                        throw new Error(response?.message || "Erro desconhecido ao enviar ocorrência");
+                    }
                 } catch (error) {
                     console.error('Erro ao enviar ocorrência:', error);
                     errorMessage.textContent = `Ocorreu um erro ao enviar a ocorrência: ${error.message}`;
@@ -1319,4 +1335,3 @@
     </script>
 </body>
 </html>
-
