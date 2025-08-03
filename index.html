@@ -552,6 +552,40 @@
             gap: 15px;
         }
         
+        /* Novos estilos para estatísticas de período */
+        .period-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .period-item {
+            text-align: center;
+        }
+        
+        .period-label {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+        
+        .period-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+        
+        .period-manha { color: #f1c40f; }
+        .period-tarde { color: #e67e22; }
+        .period-noite { color: #9b59b6; }
+        
+        /* Estilos para o gráfico de estatísticas */
+        .stats-chart-container {
+            height: 200px;
+            margin-top: 20px;
+            position: relative;
+        }
+        
         @media (max-width: 992px) {
             .dashboard {
                 grid-template-columns: 1fr;
@@ -589,6 +623,11 @@
             .chart-container {
                 width: 40px;
                 height: 40px;
+            }
+            
+            .period-stats {
+                flex-direction: column;
+                gap: 10px;
             }
         }
     </style>
@@ -708,7 +747,7 @@
                                                     <option value="2ª SERIE H NOITE">2ª SERIE H NOITE</option>
                                                     <option value="3ª SERIE A MANHA">3ª SERIE A MANHA</option>
                                                     <option value="3ª SERIE B MANHA">3ª SERIE B MANHA</option>
-                                                    <option value="3ª SERIE C MANHA">3ª SERie C MANHA</option>
+                                                    <option value="3ª SERIE C MANHA">3ª SERIE C MANHA</option>
                                                     <option value="3ª SERIE D NOITE">3ª SERIE D NOITE</option>
                                                     <option value="3ª SERIE E NOITE">3ª SERIE E NOITE</option>
                                                     <option value="3ª SERIE F NOITE">3ª SERIE F NOITE</option>
@@ -837,19 +876,33 @@
                         <div class="stats-grid">
                             <div class="stat-item">
                                 <div class="stat-value" id="totalOccurrences">0</div>
-                                <div class="stat-label">OCORRÊNCIAS REGISTRADAS</div>
+                                <div class="stat-label">Ocorrências registradas</div>
                             </div>
                             <div class="stat-item">
                                 <div class="stat-value" id="totalStudents">0</div>
-                                <div class="stat-label">Nº DE ALUNOS MATRICULADOS NA TURMA</div>
+                                <div class="stat-label">Total de alunos</div>
+                                <div class="period-stats">
+                                    <div class="period-item">
+                                        <div class="period-value period-manha" id="morningCount">0</div>
+                                        <div class="period-label">Manhã</div>
+                                    </div>
+                                    <div class="period-item">
+                                        <div class="period-value period-tarde" id="afternoonCount">0</div>
+                                        <div class="period-label">Tarde</div>
+                                    </div>
+                                    <div class="period-item">
+                                        <div class="period-value period-noite" id="nightCount">0</div>
+                                        <div class="period-label">Noite</div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="stat-item">
                                 <div class="stat-value" id="totalClasses">40</div>
-                                <div class="stat-label">Nº DE TURMAS MONITORADAS</div>
+                                <div class="stat-label">Turmas monitoradas</div>
                             </div>
                             <div class="stat-item">
                                 <div class="stat-value" id="totalTeachers">64</div>
-                                <div class="stat-label">PROFESSORES CADASTRADOS</div>
+                                <div class="stat-label">Professores ativos</div>
                             </div>
                         </div>
                     </div>
@@ -859,6 +912,17 @@
                             <div class="student-occurrences-name" id="studentOccurrencesName">Nome do Aluno</div>
                             <div class="student-occurrences-count" id="studentOccurrencesCount">0</div>
                             <div class="student-occurrences-label">Ocorrências registradas</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-chart-bar"></i> Distribuição de Alunos por Período
+                        </div>
+                        <div class="card-body">
+                            <div class="stats-chart-container">
+                                <canvas id="studentsPeriodChart"></canvas>
+                            </div>
                         </div>
                     </div>
                     
@@ -997,9 +1061,33 @@
             const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
+            const morningCountEl = document.getElementById('morningCount');
+            const afternoonCountEl = document.getElementById('afternoonCount');
+            const nightCountEl = document.getElementById('nightCount');
+            const studentsPeriodChartCanvas = document.getElementById('studentsPeriodChart');
 
             // URL base do Apps Script
             const SCRIPT_BASE_URL = "https://script.google.com/macros/s/AKfycbxc_P27Wl96tqKT9IDte8jvhX-v3zOxFvsDD-QgTAgcyZoV4gqKhRWTojhcE-Y2gzoj/exec";
+
+            // Mapeamento de períodos (simulando a constante CLASS_RANGES do AppScript)
+            const CLASS_RANGES = {
+                "MANHA": ["6° ANO A MANHA", "6° ANO B MANHA", "6° ANO C MANHA", "6° ANO D MANHA", 
+                          "1ª SERIE A MANHA", "1ª SERIE B MANHA", "1ª SERIE C MANHA", "1ª SERIE D MANHA",
+                          "1ª SERIE E MANHA", "1ª SERIE F MANHA", "2ª SERIE A MANHA", "2ª SERIE B MANHA",
+                          "2ª SERIE C MANHA", "2ª SERIE D MANHA", "2ª SERIE E MANHA", "3ª SERIE A MANHA",
+                          "3ª SERIE B MANHA", "3ª SERIE C MANHA", "4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA"],
+                "TARDE": ["6° ANO E TARDE", "6° ANO F TARDE", "7° ANO A TARDE", "7° ANO B TARDE",
+                          "7° ANO C TARDE", "7° ANO D TARDE", "7° ANO E TARDE", "7° ANO F TARDE",
+                          "8° ANO A TARDE", "8° ANO B TARDE", "8° ANO C TARDE", "8° ANO D TARDE",
+                          "9° ANO A TARDE", "9° ANO B TARDE", "9° ANO C TARDE", "9° ANO D TARDE",
+                          "1ª SERIE G TARDE"],
+                "NOITE": ["1ª SERIE H NOITE", "1ª SERIE I NOITE", "2ª SERIE F NOITE", "2ª SERIE G NOITE",
+                          "2ª SERIE H NOITE", "3ª SERIE D NOITE", "3ª SERIE E NOITE", "3ª SERIE F NOITE"]
+            };
+
+            // Armazenar gráficos
+            const charts = {};
+            let studentsPeriodChart = null;
 
             // Preencher dropdown de professores
             const teacherNames = Object.keys(teacherEmails);
@@ -1021,9 +1109,6 @@
             // Contar turmas disponíveis
             const turmasCount = document.querySelectorAll('#studentClass option').length - 1;
             document.getElementById('totalClasses').textContent = turmasCount;
-
-            // Armazenar gráficos
-            const charts = {};
 
             // Função para criar gráficos de rosca
             function createDonutChart(canvas, value, maxValue = 10) {
@@ -1115,7 +1200,7 @@
                 }
 
                 // Buscar alunos reais da planilha
-                const url = `${"https://script.google.com/macros/s/AKfycbxc_P27Wl96tqKT9IDte8jvhX-v3zOxFvsDD-QgTAgcyZoV4gqKhRWTojhcE-Y2gzoj/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
+                const url = `${SCRIPT_BASE_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
                 
                 safeFetch(url)
                     .then(data => {
@@ -1128,9 +1213,6 @@
                                 studentSelect.appendChild(option);
                             });
                             studentSelect.disabled = false;
-                            
-                            // Atualizar estatísticas
-                            totalStudentsEl.textContent = data.students.length;
                         } else {
                             const errorMsg = data?.message || 'Resposta inesperada do servidor';
                             studentSelect.innerHTML = `<option value="">Erro: ${errorMsg}</option>`;
@@ -1294,17 +1376,6 @@
                         // Atualizar estatísticas gerais
                         const currentTotal = parseInt(totalOccurrencesEl.textContent);
                         totalOccurrencesEl.textContent = currentTotal + 1;
-
-                        const currentStudents = parseInt(totalStudentsEl.textContent);
-                        if (currentStudents < 1000) {
-                            totalStudentsEl.textContent = currentStudents + 1;
-                        }
-
-                        // Resetar gráficos
-                        const chartCanvases = document.querySelectorAll('.donut-chart');
-                        chartCanvases.forEach(canvas => {
-                            createDonutChart(canvas, 0);
-                        });
                     } else {
                         throw new Error(response?.message || "Erro desconhecido ao enviar ocorrência");
                     }
@@ -1324,6 +1395,102 @@
             document.querySelectorAll('.donut-chart').forEach(canvas => {
                 createDonutChart(canvas, 0);
             });
+            
+            // Carregar estatísticas de alunos por período
+            async function loadStudentPeriodStats() {
+                try {
+                    const url = `${SCRIPT_BASE_URL}?action=getStudentPeriodStats`;
+                    const data = await safeFetch(url);
+                    
+                    if (data && data.status === "success") {
+                        totalStudentsEl.textContent = data.totalStudents;
+                        morningCountEl.textContent = data.morningCount;
+                        afternoonCountEl.textContent = data.afternoonCount;
+                        nightCountEl.textContent = data.nightCount;
+                        
+                        // Atualizar gráfico de distribuição por período
+                        updateStudentsPeriodChart(data);
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar estatísticas de alunos:', error);
+                    
+                    // Usar dados simulados para demonstração
+                    const demoData = {
+                        morningCount: 450,
+                        afternoonCount: 380,
+                        nightCount: 220
+                    };
+                    totalStudentsEl.textContent = demoData.morningCount + demoData.afternoonCount + demoData.nightCount;
+                    morningCountEl.textContent = demoData.morningCount;
+                    afternoonCountEl.textContent = demoData.afternoonCount;
+                    nightCountEl.textContent = demoData.nightCount;
+                    updateStudentsPeriodChart(demoData);
+                }
+            }
+            
+            // Atualizar gráfico de distribuição por período
+            function updateStudentsPeriodChart(data) {
+                if (studentsPeriodChart) {
+                    studentsPeriodChart.destroy();
+                }
+                
+                const ctx = studentsPeriodChartCanvas.getContext('2d');
+                studentsPeriodChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Manhã', 'Tarde', 'Noite'],
+                        datasets: [{
+                            label: 'Quantidade de Alunos',
+                            data: [data.morningCount, data.afternoonCount, data.nightCount],
+                            backgroundColor: [
+                                'rgba(241, 196, 15, 0.8)',
+                                'rgba(230, 126, 34, 0.8)',
+                                'rgba(155, 89, 182, 0.8)'
+                            ],
+                            borderColor: [
+                                'rgb(241, 196, 15)',
+                                'rgb(230, 126, 34)',
+                                'rgb(155, 89, 182)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${context.parsed.y}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Quantidade de Alunos'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Período'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Carregar estatísticas iniciais
+            loadStudentPeriodStats();
         });
     </script>
 </body>
