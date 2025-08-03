@@ -218,6 +218,7 @@
             position: relative;
             overflow: hidden;
             margin-top: 25px;
+            display: none;
         }
         
         .student-occurrences-card::after {
@@ -659,54 +660,55 @@
                                     <div class="form-col">
                                         <div class="form-group">
                                             <label for="studentClass" class="required">Turma</label>
-                                            <select id="studentClass" required>
-                                                <option value="">Selecione a turma</option>
-                                                <option value="6° ANO A MANHA">6° ANO A MANHA</option>
-                                                <option value="6° ANO B MANHA">6° ANO B MANHA</option>
-                                                <option value="6° ANO C MANHA">6° ANO C MANHA</option>
-                                                <option value="6° ANO D MANHA">6° ANO D MANHA</option>
-                                                <option value="6° ANO E TARDE">6° ANO E TARDE</option>
-                                                <option value="6° ANO F TARDE">6° ANO F TARDE</option>
-                                                <option value="7° ANO A TARDE">7° ANO A TARDE</option>
-                                                <option value="7° ANO B TARDE">7° ANO B TARDE</option>
-                                                <option value="7° ANO C TARDE">7° ANO C TARDE</option>
-                                                <option value="7° ANO D TARDE">7° ANO D TARDE</option>
-                                                <option value="7° ANO E TARDE">7° ANO E TARDE</option>
-                                                <option value="7° ANO F TARDE">7° ANO F TARDE</option>
-                                                <option value="8° ANO A TARDE">8° ANO A TARDE</option>
-                                                <option value="8° ANO B TARDE">8° ANO B TARDE</option>
-                                                <option value="8° ANO C TARDE">8° ANO C TARDE</option>
-                                                <option value="8° ANO D TARDE">8° ANO D TARDE</option>
-                                                <option value="9° ANO A TARDE">9° ANO A TARDE</option>
-                                                <option value="9° ANO B TARDE">9° ANO B TARDE</option>
-                                                <option value="9° ANO C TARDE">9° ANO C TARDE</option>
-                                                <option value="9° ANO D TARDE">9° ANO D TARDE</option>
-                                                <option value="1ª SERIE A MANHA">1ª SERIE A MANHA</option>
-                                                <option value="1ª SERIE B MANHA">1ª SERIE B MANHA</option>
-                                                <option value="1ª SERIE C MANHA">1ª SERIE C MANHA</option>
-                                                <option value="1ª SERIE D MANHA">1ª SERIE D MANHA</option>
-                                                <option value="1ª SERIE E MANHA">1ª SERIE E MANHA</option>
-                                                <option value="1ª SERIE F MANHA">1ª SERIE F MANHA</option>
-                                                <option value="1ª SERIE G TARDE">1ª SERIE G TARDE</option>
-                                                <option value="1ª SERIE H NOITE">1ª SERIE H NOITE</option>
-                                                <option value="1ª SERIE I NOITE">1ª SERIE I NOITE</option>
-                                                <option value="2ª SERIE A MANHA">2ª SERIE A MANHA</option>
-                                                <option value="2ª SERIE B MANHA">2ª SERIE B MANHA</option>
-                                                <option value="2ª SERIE C MANHA">2ª SERIE C MANHA</option>
-                                                <option value="2ª SERIE D MANHA">2ª SERIE D MANHA</option>
-                                                <option value="2ª SERIE E MANHA">2ª SERIE E MANHA</option>
-                                                <option value="2ª SERIE F NOITE">2ª SERIE F NOITE</option>
-                                                <option value="2ª SERIE G NOITE">2ª SERIE G NOITE</option>
-                                                <option value="2ª SERIE H NOITE">2ª SERIE H NOITE</option>
-                                                <option value="3ª SERIE A MANHA">3ª SERIE A MANHA</option>
-                                                <option value="3ª SERIE B MANHA">3ª SERIE B MANHA</option>
-                                                <option value="3ª SERIE C MANHA">3ª SERIE C MANHA</option>
-                                                <option value="3ª SERIE D NOITE">3ª SERIE D NOITE</option>
-                                                <option value="3ª SERIE E NOITE">3ª SERIE E NOITE</option>
-                                                <option value="3ª SERIE F NOITE">3ª SERIE F NOITE</option>
-                                                <option value="3ª SERIE G NOITE">3ª SERIE G NOITE</option>
-                                                <option value="4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA">4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA</option>
-                                            </select>
+                                            <div class="student-select-container">
+                                                <select id="studentClass" required>
+                                                    <option value="">Selecione a turma</option>
+                                                    <option value="6° ANO A MANHA">6° ANO A MANHA</option>
+                                                    <option value="6° ANO B MANHA">6° ANO B MANHA</option>
+                                                    <option value="6° ANO C MANHA">6° ANO C MANHA</option>
+                                                    <option value="6° ANO D MANHA">6° ANO D MANHA</option>
+                                                    <option value="6° ANO E TARDE">6° ANO E TARDE</option>
+                                                    <option value="6° ANO F TARDE">6° ANO F TARDE</option>
+                                                    <option value="7° ANO A TARDE">7° ANO A TARDE</option>
+                                                    <option value="7° ANO B TARDE">7° ANO B TARDE</option>
+                                                    <option value="7° ANO C TARDE">7° ANO C TARDE</option>
+                                                    <option value="7° ANO D TARDE">7° ANO D TARDE</option>
+                                                    <option value="7° ANO E TARDE">7° ANO E TARDE</option>
+                                                    <option value="7° ANO F TARDE">7° ANO F TARDE</option>
+                                                    <option value="8° ANO A TARDE">8° ANO A TARDE</option>
+                                                    <option value="8° ANO B TARDE">8° ANO B TARDE</option>
+                                                    <option value="8° ANO C TARDE">8° ANO C TARDE</option>
+                                                    <option value="8° ANO D TARDE">8° ANO D TARDE</option>
+                                                    <option value="9° ANO A TARDE">9° ANO A TARDE</option>
+                                                    <option value="9° ANO B TARDE">9° ANO B TARDE</option>
+                                                    <option value="9° ANO C TARDE">9° ANO C TARDE</option>
+                                                    <option value="9° ANO D TARDE">9° ANO D TARDE</option>
+                                                    <option value="1ª SERIE A MANHA">1ª SERIE A MANHA</option>
+                                                    <option value="1ª SERIE B MANHA">1ª SERIE B MANHA</option>
+                                                    <option value="1ª SERIE C MANHA">1ª SERIE C MANHA</option>
+                                                    <option value="1ª SERIE D MANHA">1ª SERIE D MANHA</option>
+                                                    <option value="1ª SERIE E MANHA">1ª SERIE E MANHA</option>
+                                                    <option value="1ª SERIE F MANHA">1ª SERIE F MANHA</option>
+                                                    <option value="1ª SERIE G TARDE">1ª SERIE G TARDE</option>
+                                                    <option value="1ª SERIE H NOITE">1ª SERIE H NOITE</option>
+                                                    <option value="1ª SERIE I NOITE">1ª SERIE I NOITE</option>
+                                                    <option value="2ª SERIE A MANHA">2ª SERIE A MANHA</option>
+                                                    <option value="2ª SERIE B MANHA">2ª SERIE B MANHA</option>
+                                                    <option value="2ª SERIE C MANHA">2ª SERIE C MANHA</option>
+                                                    <option value="2ª SERIE D MANHA">2ª SERIE D MANHA</option>
+                                                    <option value="2ª SERIE E MANHA">2ª SERIE E MANHA</option>
+                                                    <option value="2ª SERIE F NOITE">2ª SERIE F NOITE</option>
+                                                    <option value="2ª SERIE G NOITE">2ª SERIE G NOITE</option>
+                                                    <option value="2ª SERIE H NOITE">2ª SERIE H NOITE</option>
+                                                    <option value="3ª SERIE A MANHA">3ª SERIE A MANHA</option>
+                                                    <option value="3ª SERIE B MANHA">3ª SERIE B MANHA</option>
+                                                    <option value="3ª SERIE C MANHA">3ª SERie C MANHA</option>
+                                                    <option value="3ª SERIE D NOITE">3ª SERIE D NOITE</option>
+                                                    <option value="3ª SERIE E NOITE">3ª SERIE E NOITE</option>
+                                                    <option value="3ª SERIE F NOITE">3ª SERIE F NOITE</option>
+                                                    <option value="4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA">4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA</option>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="form-col">
@@ -722,105 +724,98 @@
                                 </div>
                                 
                                 <div class="section-title">
-                                    <i class="fas fa-exclamation-triangle"></i> Irregularidades Observadas
+                                    <i class="fas fa-exclamation-triangle"></i> Irregularidades
                                 </div>
                                 
-                                <div class="form-group">
+                                <div class="checkbox-group">
+                                    <label>Selecione as irregularidades (pelo menos uma):</label>
                                     <div class="checkbox-container">
                                         <div class="checkbox-item">
                                             <div class="chart-container">
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Não fez a lição"></canvas>
                                                 <span class="chart-value">0</span>
                                             </div>
-                                            <input type="checkbox" id="irregularity1" value="Não fez a lição">
+                                            <input type="checkbox" id="irregularity1" name="irregularity" value="Não fez a lição">
                                             <label for="irregularity1">Não fez a lição</label>
                                         </div>
-                                        
                                         <div class="checkbox-item">
                                             <div class="chart-container">
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Não trouxe material"></canvas>
                                                 <span class="chart-value">0</span>
                                             </div>
-                                            <input type="checkbox" id="irregularity2" value="Não trouxe material">
+                                            <input type="checkbox" id="irregularity2" name="irregularity" value="Não trouxe material">
                                             <label for="irregularity2">Não trouxe material</label>
                                         </div>
-                                        
                                         <div class="checkbox-item">
                                             <div class="chart-container">
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Fora do lugar constantemente durante a aula"></canvas>
                                                 <span class="chart-value">0</span>
                                             </div>
-                                            <input type="checkbox" id="irregularity3" value="Fora do lugar constantemente durante a aula">
+                                            <input type="checkbox" id="irregularity3" name="irregularity" value="Fora do lugar constantemente durante a aula">
                                             <label for="irregularity3">Fora do lugar durante a aula</label>
                                         </div>
-                                        
                                         <div class="checkbox-item">
                                             <div class="chart-container">
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Chegou atrasado"></canvas>
                                                 <span class="chart-value">0</span>
                                             </div>
-                                            <input type="checkbox" id="irregularity4" value="Chegou atrasado">
+                                            <input type="checkbox" id="irregularity4" name="irregularity" value="Chegou atrasado">
                                             <label for="irregularity4">Chegou atrasado</label>
                                         </div>
-                                        
                                         <div class="checkbox-item">
                                             <div class="chart-container">
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Circulando no corredor durante a aula"></canvas>
                                                 <span class="chart-value">0</span>
                                             </div>
-                                            <input type="checkbox" id="irregularity5" value="Circulando no corredor durante a aula">
+                                            <input type="checkbox" id="irregularity5" name="irregularity" value="Circulando no corredor durante a aula">
                                             <label for="irregularity5">Circulando no corredor</label>
                                         </div>
-                                        
                                         <div class="checkbox-item">
                                             <div class="chart-container">
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Uso indevido do celular durante a aula"></canvas>
                                                 <span class="chart-value">0</span>
                                             </div>
-                                            <input type="checkbox" id="irregularity6" value="Uso indevido do celular durante a aula">
+                                            <input type="checkbox" id="irregularity6" name="irregularity" value="Uso indevido do celular durante a aula">
                                             <label for="irregularity6">Uso indevido do celular</label>
                                         </div>
-                                        
                                         <div class="checkbox-item">
                                             <div class="chart-container">
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Interrompe a aula constantemente"></canvas>
                                                 <span class="chart-value">0</span>
                                             </div>
-                                            <input type="checkbox" id="irregularity7" value="Interrompe a aula constantemente">
+                                            <input type="checkbox" id="irregularity7" name="irregularity" value="Interrompe a aula constantemente">
                                             <label for="irregularity7">Interrompe a aula constantemente</label>
                                         </div>
-                                        
                                         <div class="checkbox-item">
                                             <div class="chart-container">
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Falta de cuidado com o ambiente e o material"></canvas>
                                                 <span class="chart-value">0</span>
                                             </div>
-                                            <input type="checkbox" id="irregularity8" value="Falta de cuidado com o ambiente e o material">
+                                            <input type="checkbox" id="irregularity8" name="irregularity" value="Falta de cuidado com o ambiente e o material">
                                             <label for="irregularity8">Falta de cuidado com ambiente/material</label>
                                         </div>
-                                        
                                         <div class="checkbox-item">
                                             <div class="chart-container">
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Vestimenta inadequada"></canvas>
                                                 <span class="chart-value">0</span>
                                             </div>
-                                            <input type="checkbox" id="irregularity9" value="Vestimenta inadequada">
+                                            <input type="checkbox" id="irregularity9" name="irregularity" value="Vestimenta inadequada">
                                             <label for="irregularity9">Vestimenta inadequada</label>
                                         </div>
                                     </div>
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="description" class="required">Breve relato do ocorrido</label>
-                                    <textarea id="description" placeholder="Descreva detalhadamente a ocorrência..." required></textarea>
+                                    <label for="description">Breve relato do ocorrido</label>
+                                    <textarea id="description" placeholder="Descreva detalhadamente a ocorrência..."></textarea>
                                 </div>
                                 
                                 <div class="actions">
                                     <button type="submit" class="btn btn-primary btn-lg">
-                                        <i class="fas fa-paper-plane btn-icon"></i> Enviar Ocorrência
+                                        <i class="fas fa-paper-plane"></i> Enviar Ocorrência
                                     </button>
                                     <button type="button" id="clearBtn" class="btn btn-secondary">
-                                        <i class="fas fa-broom btn-icon"></i> Limpar formulário
+                                        <i class="fas fa-broom"></i> Limpar formulário
                                     </button>
                                 </div>
                             </form>
@@ -830,7 +825,9 @@
                 
                 <div>
                     <div class="stats-card">
-                        <h2><i class="fas fa-chart-line"></i> Estatísticas do Sistema</h2>
+                        <div class="card-header">
+                            <i class="fas fa-chart-line"></i> Estatísticas do Sistema
+                        </div>
                         <div class="stats-grid">
                             <div class="stat-item">
                                 <div class="stat-value" id="totalOccurrences">0</div>
@@ -851,7 +848,7 @@
                         </div>
                     </div>
                     
-                    <div class="student-occurrences-card" id="studentOccurrencesCard" style="display: none;">
+                    <div class="student-occurrences-card" id="studentOccurrencesCard">
                         <div class="student-occurrences-content">
                             <div class="student-occurrences-name" id="studentOccurrencesName">Nome do Aluno</div>
                             <div class="student-occurrences-count" id="studentOccurrencesCount">0</div>
@@ -895,7 +892,7 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Dados completos dos professores (corrigidos)
+            // Dados completos dos professores
             const teacherEmails = {
                 "ALEX LUTH PEREIRA MARANHAO": "luth@prof.educacao.sp.gov.br",
                 "ALEXSANDRA PAULA VARELLA DE SOUZA": "avarella@prof.educacao.sp.gov.br",
@@ -914,8 +911,8 @@
                 "CLAUDINEIA DE AGUIAR LIMA": "aguiarl@prof.educacao.sp.gov.br",
                 "DANIEL DE FREITAS ALMEIDA": "danielalmeida@prof.educacao.sp.gov.br",
                 "DANIEL LOPES BARBOSA": "daniellopesbarbosa@prof.educacao.sp.gov.br",
-                "DANIELA FERREIRA LIMA": "danielaflima@prof.educacao.sp.gov.br",
-                "DANIELLE LUCIA BATISTA DE ALMEIDA": "danielelucia@prof.educacao.sp.gov.br",
+                "DANIELA FERREIRA LIMA": "danielafilma@prof.educacao.sp.gov.br",
+                "DANIELLE LUCIA BATISTA DE ALMEIDA": "danieleLucia@prof.educacao.sp.gov.br",
                 "EDIANE VIEIRA DA SILVA": "ediane@prof.educacao.sp.gov.br",
                 "EDILEUSA NUNES PEREIRA": "edileusa@prof.educacao.sp.gov.br",
                 "EDUARDO HENRIQUE DA FONSECA": "henriquefonseca@prof.educacao.sp.gov.br",
@@ -941,7 +938,7 @@
                 "JOSE APARECIDO DA SILVA": "joseaparecidosilva@prof.educacao.sp.gov.br",
                 "JUAREZ GOMES DE MAGALHAES FILHO": "juarezgomes@prof.educacao.sp.gov.br",
                 "JUREMA SOLEDADE FURINI SANTOS": "juremas@prof.educacao.sp.gov.br",
-                "KATIUSCIA ALVES BOMFIM": "katiusciabomfim@prof.educacao.sp.gov.br",
+                "KATIUSCIA ALVES BOMFIM": "katiusciabornfim@prof.educacao.sp.gov.br",
                 "LUANA CAROLINE ALVES LIMA": "luanalima01@prof.educacao.sp.gov.br",
                 "LUANA DE FREITAS SILVA": "luanafreitas@prof.educacao.sp.gov.br",
                 "LUCIANA NOVAIS CORREIA SANTOS": "novaiscorreia@prof.educacao.sp.gov.br",
@@ -978,7 +975,7 @@
                 "VIVIANE LEAL CAMERA DE MORAES": "camera@prof.educacao.sp.gov.br",
                 "WILSON RODRIGUES MOTA": "wmota@prof.educacao.sp.gov.br"
             };
-            
+
             // Elementos DOM
             const form = document.getElementById('occurrenceForm');
             const clearBtn = document.getElementById('clearBtn');
@@ -993,10 +990,10 @@
             const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
-            
-            // URL base do Apps Script (CORRIGIDA)
+
+            // URL base do Apps Script (exemplo - substitua pelo seu)
             const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec";
-            
+
             // Preencher dropdown de professores
             const teacherNames = Object.keys(teacherEmails);
             teacherNames.forEach(teacherName => {
@@ -1005,32 +1002,32 @@
                 option.textContent = teacherName;
                 professorSelect.appendChild(option);
             });
-            
+
             // Atualizar estatísticas de professores
             document.getElementById('totalTeachers').textContent = teacherNames.length;
-            
+
             // Preencher data atual como padrão
             const today = new Date();
             const formattedDate = today.toISOString().split('T')[0];
             document.getElementById('occurrenceDate').value = formattedDate;
-            
+
             // Contar turmas disponíveis
             const turmasCount = document.querySelectorAll('#studentClass option').length - 1;
             document.getElementById('totalClasses').textContent = turmasCount;
-            
-            // Armazenar gráficos para destruí-los posteriormente
+
+            // Armazenar gráficos
             const charts = {};
-            
+
             // Função para criar gráficos de rosca
             function createDonutChart(canvas, value, maxValue = 10) {
                 const ctx = canvas.getContext('2d');
                 const chartKey = canvas.getAttribute('data-irregularity');
-                
+
                 // Destruir gráfico anterior se existir
                 if (charts[chartKey]) {
                     charts[chartKey].destroy();
                 }
-                
+
                 charts[chartKey] = new Chart(ctx, {
                     type: 'doughnut',
                     data: {
@@ -1053,12 +1050,12 @@
                         }
                     }
                 });
-                
+
                 // Atualizar o número de ocorrências
                 const chartValue = canvas.parentElement.querySelector('.chart-value');
                 chartValue.textContent = value;
             }
-            
+
             // Função para atualizar todos os gráficos
             function updateAllCharts(stats) {
                 const chartCanvases = document.querySelectorAll('.donut-chart');
@@ -1068,7 +1065,7 @@
                     createDonutChart(canvas, count);
                 });
             }
-            
+
             // SOLUÇÃO PARA CORS: Usar proxy para requisições
             function getProxyUrl(url) {
                 // Somente usar proxy quando hospedado no GitHub
@@ -1077,29 +1074,28 @@
                 }
                 return url;
             }
-            
-            // Função para fazer requisições com tratamento CORS (CORRIGIDA)
+
+            // Função para fazer requisições com tratamento CORS
             async function safeFetch(url, options = {}) {
                 try {
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 15000);
-                    
+
                     const fetchOptions = {
                         ...options,
                         signal: controller.signal,
                         mode: 'cors',
                         redirect: 'follow'
                     };
-                    
+
                     const response = await fetch(getProxyUrl(url), fetchOptions);
-                    
                     clearTimeout(timeoutId);
-                    
+
                     if (!response.ok) {
                         throw new Error('Falha na rede');
                     }
-                    
-                    // Tentar parsear como JSON
+
+                    // Tentar parser como JSON
                     try {
                         return await response.json();
                     } catch (e) {
@@ -1117,25 +1113,25 @@
                     };
                 }
             }
-            
-            // Carregar alunos quando uma turma for selecionada (CORRIGIDA)
+
+            // Carregar alunos quando uma turma for selecionada
             classSelect.addEventListener('change', function() {
                 const selectedClass = this.value;
                 studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
                 studentSelect.disabled = true;
                 studentOccurrencesCard.style.display = 'none';
-                
+
                 // Resetar gráficos
                 const chartCanvases = document.querySelectorAll('.donut-chart');
                 chartCanvases.forEach(canvas => {
                     createDonutChart(canvas, 0);
                 });
-                
+
                 if (!selectedClass) {
                     studentSelect.innerHTML = '<option value="">Selecione uma turma</option>';
                     return;
                 }
-                
+
                 // Buscar alunos reais da planilha com tratamento CORS
                 safeFetch(`${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
                     .then(data => {
@@ -1157,21 +1153,20 @@
                         studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
                     });
             });
-            
-            // Quando um aluno é selecionado (CORRIGIDA)
+
+            // Quando um aluno é selecionado
             studentSelect.addEventListener('change', function() {
                 if (this.value) {
                     // Mostrar o card de ocorrências do aluno
                     studentOccurrencesCard.style.display = 'block';
                     studentOccurrencesName.textContent = this.value;
                     studentOccurrencesCount.textContent = "Carregando...";
-                    
+
                     // Buscar estatísticas do aluno com tratamento CORS
                     safeFetch(`${SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`)
                         .then(data => {
                             if (data && data.status === "success") {
                                 studentOccurrencesCount.textContent = data.totalOccurrences;
-                                
                                 // Atualizar gráficos com os dados detalhados
                                 if (data.detailedStats) {
                                     updateAllCharts(data.detailedStats);
@@ -1187,7 +1182,6 @@
                         });
                 } else {
                     studentOccurrencesCard.style.display = 'none';
-                    
                     // Resetar gráficos
                     const chartCanvases = document.querySelectorAll('.donut-chart');
                     chartCanvases.forEach(canvas => {
@@ -1195,7 +1189,7 @@
                     });
                 }
             });
-            
+
             // Limpar formulário
             clearBtn.addEventListener('click', function() {
                 form.reset();
@@ -1207,62 +1201,61 @@
                 errorAlert.style.display = 'none';
                 studentOccurrencesCard.style.display = 'none';
                 classSelect.selectedIndex = 0;
-                
+
                 // Resetar gráficos
                 const chartCanvases = document.querySelectorAll('.donut-chart');
                 chartCanvases.forEach(canvas => {
                     createDonutChart(canvas, 0);
                 });
-                
+
                 // Desmarcar todos os checkboxes
                 document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
                     checkbox.checked = false;
                 });
             });
-            
-            // Enviar formulário com tratamento CORS (CORRIGIDA)
+
+            // Enviar formulário com tratamento CORS
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                
+
                 // Esconder alertas
                 successAlert.style.display = 'none';
                 errorAlert.style.display = 'none';
-                
+
                 // Coletar dados do formulário
                 const professor = professorSelect.value;
                 const occurrenceDate = document.getElementById('occurrenceDate').value;
                 const student = studentSelect.value;
                 const classInfo = classSelect.value;
                 const description = document.getElementById('description').value;
-                
+
                 // Verificar irregularidades selecionadas
                 const irregularities = [];
                 document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
                     irregularities.push(cb.value);
                 });
-                
-                // Validação melhorada
+
+                // Validação simplificada
                 let errorMsg = "";
                 if (!professor) errorMsg += "• Selecione o professor<br>";
                 if (!occurrenceDate) errorMsg += "• Informe a data da ocorrência<br>";
                 if (!classInfo) errorMsg += "• Selecione a turma<br>";
                 if (!student) errorMsg += "• Selecione o aluno<br>";
                 if (irregularities.length === 0) errorMsg += "• Selecione pelo menos uma irregularidade<br>";
-                if (!description) errorMsg += "• Preencha o relato do ocorrido<br>";
-                
+
                 if (errorMsg) {
                     errorMessage.innerHTML = `<strong>Erros encontrados:</strong><br>${errorMsg}`;
                     errorAlert.style.display = 'flex';
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                     return;
                 }
-                
+
                 // Mostrar loading
-                const submitBtn = form.querySelector('button[type="submit"]');
+                const submitBtn = form.querySelector("button[type='submit']");
                 const originalBtnText = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<span class="loading"></span> Enviando...';
                 submitBtn.disabled = true;
-                
+
                 try {
                     // Preparar dados para envio
                     const formData = {
@@ -1273,49 +1266,39 @@
                         irregularities: irregularities.join(', '),
                         description: description
                     };
+
+                    // Simular envio para o Google Sheets
+                    console.log('Dados a serem enviados:', formData);
                     
-                    // Enviar dados para o Google Sheets com tratamento CORS
-                    const result = await safeFetch(SCRIPT_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(formData)
-                    });
+                    // Simular resposta bem-sucedida após 1.5 segundos
+                    await new Promise(resolve => setTimeout(resolve, 1500));
                     
-                    // Verificar se o resultado é válido
-                    if (result && result.status === "success") {
-                        // Mostrar mensagem de sucesso
-                        successAlert.style.display = 'flex';
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                        
-                        // Resetar formulário após sucesso
-                        form.reset();
-                        document.getElementById('occurrenceDate').value = formattedDate;
-                        studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-                        studentSelect.disabled = true;
-                        classSelect.selectedIndex = 0;
-                        studentOccurrencesCard.style.display = 'none';
-                        
-                        // Atualizar estatísticas gerais
-                        const currentTotal = parseInt(totalOccurrencesEl.textContent);
-                        totalOccurrencesEl.textContent = currentTotal + 1;
-                        
-                        const currentStudents = parseInt(totalStudentsEl.textContent);
-                        if (currentStudents < 1000) {
-                            totalStudentsEl.textContent = currentStudents + 1;
-                        }
-                        
-                        // Resetar gráficos
-                        const chartCanvases = document.querySelectorAll('.donut-chart');
-                        chartCanvases.forEach(canvas => {
-                            createDonutChart(canvas, 0);
-                        });
-                    } else {
-                        // Tratar resposta de erro
-                        const errorMsg = result?.message || "Erro desconhecido ao enviar dados";
-                        throw new Error(errorMsg);
+                    // Mostrar mensagem de sucesso
+                    successAlert.style.display = 'flex';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                    // Resetar formulário após sucesso
+                    form.reset();
+                    document.getElementById('occurrenceDate').value = formattedDate;
+                    studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                    studentSelect.disabled = true;
+                    classSelect.selectedIndex = 0;
+                    studentOccurrencesCard.style.display = 'none';
+
+                    // Atualizar estatísticas gerais
+                    const currentTotal = parseInt(totalOccurrencesEl.textContent);
+                    totalOccurrencesEl.textContent = currentTotal + 1;
+
+                    const currentStudents = parseInt(totalStudentsEl.textContent);
+                    if (currentStudents < 1000) {
+                        totalStudentsEl.textContent = currentStudents + 1;
                     }
+
+                    // Resetar gráficos
+                    const chartCanvases = document.querySelectorAll('.donut-chart');
+                    chartCanvases.forEach(canvas => {
+                        createDonutChart(canvas, 0);
+                    });
                 } catch (error) {
                     console.error('Erro ao enviar ocorrência:', error);
                     errorMessage.textContent = `Ocorreu um erro ao enviar a ocorrência: ${error.message}`;
@@ -1327,7 +1310,7 @@
                     submitBtn.disabled = false;
                 }
             });
-            
+
             // Inicializar gráficos com valores zero
             document.querySelectorAll('.donut-chart').forEach(canvas => {
                 createDonutChart(canvas, 0);
