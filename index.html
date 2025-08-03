@@ -998,8 +998,8 @@
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
 
-            // URL base do Apps Script (substitua pela sua URL real)
-            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzV_QW15J3zo5F-ZWu-vuMT_TvSw1qTVCyT7S-CBj3j-Z4jvpa9khIEbYJpkQ29_Aw9/exec";
+            // URL base do Apps Script
+            const SCRIPT_BASE_URL = "https://script.google.com/macros/s/AKfycbzV_QW15J3zo5F-ZWu-vuMT_TvSw1qTVCyT7S-CBj3j-Z4jvpa9khIEbYJpkQ29_Aw9/exec";
 
             // Preencher dropdown de professores
             const teacherNames = Object.keys(teacherEmails);
@@ -1063,22 +1063,12 @@
                 chartValue.textContent = value;
             }
 
-            // SOLUÇÃO PARA CORS: Usar proxy para requisições quando necessário
-            function getProxyUrl(url) {
-                // Somente usar proxy quando hospedado no GitHub
-                if (window.location.hostname.includes('github.io')) {
-                    return `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-                }
-                return url;
-            }
-
-            // Função para fazer requisições com tratamento CORS melhorado
+            // Função para fazer requisições seguras
             async function safeFetch(url, options = {}) {
                 try {
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 15000);
                     
-                    const finalUrl = getProxyUrl(url);
                     const fetchOptions = {
                         ...options,
                         signal: controller.signal,
@@ -1086,17 +1076,17 @@
                         redirect: 'follow'
                     };
 
-                    const response = await fetch(finalUrl, fetchOptions);
+                    const response = await fetch(url, fetchOptions);
                     clearTimeout(timeoutId);
 
-                    if (window.location.hostname.includes('github.io')) {
-                        // Processar resposta do proxy
-                        const data = await response.json();
-                        return JSON.parse(data.contents);
-                    } else {
-                        // Resposta direta
-                        return await response.json();
+                    // Verificar se a resposta é JSON válido
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const text = await response.text();
+                        throw new Error(`Resposta inválida: ${text.substring(0, 100)}`);
                     }
+
+                    return await response.json();
                 } catch (error) {
                     console.error('Erro na requisição:', error);
                     return {
@@ -1124,8 +1114,9 @@
                     return;
                 }
 
-                // Buscar alunos reais da planilha com tratamento CORS melhorado
-                const url = `${"https://script.google.com/macros/s/AKfycbxnv3vQ4bxZOmw3ICSZhD6hNpcWBlNB2mv0xeT_wpPq4D6AMCVt-JC2DpjpczZ8oTW4/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
+                // Buscar alunos reais da planilha
+                const url = `${SCRIPT_BASE_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
+                
                 safeFetch(url)
                     .then(data => {
                         if (data && data.status === "success" && Array.isArray(data.students)) {
@@ -1159,8 +1150,9 @@
                     studentOccurrencesName.textContent = this.value;
                     studentOccurrencesCount.textContent = "Carregando...";
 
-                    // Buscar estatísticas do aluno com tratamento CORS
-                    const url = `${SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
+                    // Buscar estatísticas do aluno
+                    const url = `${SCRIPT_BASE_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
+                    
                     safeFetch(url)
                         .then(data => {
                             if (data && data.status === "success") {
@@ -1222,7 +1214,7 @@
                 });
             });
 
-            // Enviar formulário com tratamento CORS melhorado
+            // Enviar formulário
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
@@ -1275,7 +1267,7 @@
                     };
 
                     // Enviar dados para o Google Sheets
-                    const response = await safeFetch(SCRIPT_URL, {
+                    const response = await safeFetch(SCRIPT_BASE_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
