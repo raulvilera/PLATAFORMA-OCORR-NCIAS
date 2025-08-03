@@ -999,7 +999,7 @@
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
 
             // URL base do Apps Script
-            const SCRIPT_BASE_URL = "https://script.google.com/macros/s/AKfycbzV_QW15J3zo5F-ZWu-vuMT_TvSw1qTVCyT7S-CBj3j-Z4jvpa9khIEbYJpkQ29_Aw9/exec";
+            const SCRIPT_BASE_URL = "https://script.google.com/macros/s/AKfycbxc_P27Wl96tqKT9IDte8jvhX-v3zOxFvsDD-QgTAgcyZoV4gqKhRWTojhcE-Y2gzoj/exec";
 
             // Preencher dropdown de professores
             const teacherNames = Object.keys(teacherEmails);
@@ -1115,7 +1115,7 @@
                 }
 
                 // Buscar alunos reais da planilha
-                const url = `${"https://script.google.com/macros/s/AKfycbzV_QW15J3zo5F-ZWu-vuMT_TvSw1qTVCyT7S-CBj3j-Z4jvpa9khIEbYJpkQ29_Aw9/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
+                const url = `${"https://script.google.com/macros/s/AKfycbxc_P27Wl96tqKT9IDte8jvhX-v3zOxFvsDD-QgTAgcyZoV4gqKhRWTojhcE-Y2gzoj/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
                 
                 safeFetch(url)
                     .then(data => {
