@@ -995,7 +995,7 @@
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
             
             // URL base do Apps Script
-            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5ijnF20xyITO36SLOfskJuB3VYhIXYRovWBAsw5cp0YtxOGBnwlcZ56D_j6c9rY0m/exec";
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec";
             
             // Preencher dropdown de professores
             const teacherNames = Object.keys(teacherEmails);
@@ -1257,7 +1257,7 @@
                     };
                     
                     // Enviar dados para o Google Sheets com tratamento CORS
-                    const result = await fetchWithCors("https://script.google.com/macros/s/AKfycby5ijnF20xyITO36SLOfskJuB3VYhIXYRovWBAsw5cp0YtxOGBnwlcZ56D_j6c9rY0m/exec", {
+                    const result = await fetchWithCors("https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -1315,4 +1315,5 @@
     </script>
 </body>
 </html>
+
 
