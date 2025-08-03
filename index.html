@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* ESTILOS PERMANECEM OS MESMOS */
         :root {
             --primary-color: #1a73e8;
             --primary-dark: #0d47a1;
@@ -700,7 +701,7 @@
                                                 <option value="2ª SERIE H NOITE">2ª SERIE H NOITE</option>
                                                 <option value="3ª SERIE A MANHA">3ª SERIE A MANHA</option>
                                                 <option value="3ª SERIE B MANHA">3ª SERIE B MANHA</option>
-                                                <option value="3ª SERIE C MANHA">3ª SERIE C MANHA</option>
+                                                <option value="3ª SERIE C MANHA">3ª SERie C MANHA</option>
                                                 <option value="3ª SERIE D NOITE">3ª SERIE D NOITE</option>
                                                 <option value="3ª SERIE E NOITE">3ª SERIE E NOITE</option>
                                                 <option value="3ª SERIE F NOITE">3ª SERIE F NOITE</option>
@@ -994,7 +995,7 @@
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
             
-            // URL base do Apps Script
+            // URL base do Apps Script (CORRIGIDA)
             const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec";
             
             // Preencher dropdown de professores
@@ -1069,27 +1070,17 @@
                 });
             }
             
-            // Função para fazer requisições com tratamento CORS
-            async function fetchWithCors(url, options = {}) {
+            // Função para fazer requisições com tratamento CORS (CORRIGIDA)
+            async function safeFetch(url, options = {}) {
                 try {
-                    // Adicionar cabeçalhos CORS à requisição
-                    const corsHeaders = {
-                        'Access-Control-Allow-Origin': '*',
-                        'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-                        'Access-Control-Allow-Headers': 'Content-Type'
+                    // Configuração padrão para CORS
+                    const defaultOptions = {
+                        mode: 'cors',
+                        redirect: 'follow',
+                        ...options
                     };
                     
-                    // Criar requisição com headers
-                    const requestOptions = {
-                        ...options,
-                        headers: {
-                            ...corsHeaders,
-                            ...(options.headers || {})
-                        },
-                        mode: 'cors'
-                    };
-                    
-                    const response = await fetch(url, requestOptions);
+                    const response = await fetch(url, defaultOptions);
                     
                     if (!response.ok) {
                         throw new Error('Falha na rede');
@@ -1102,7 +1093,7 @@
                 }
             }
             
-            // Carregar alunos quando uma turma for selecionada
+            // Carregar alunos quando uma turma for selecionada (CORRIGIDA)
             classSelect.addEventListener('change', function() {
                 const selectedClass = this.value;
                 studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
@@ -1121,9 +1112,9 @@
                 }
                 
                 // Buscar alunos reais da planilha com tratamento CORS
-                fetchWithCors(`${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
+                safeFetch(`${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`)
                     .then(data => {
-                        if (data.status === "success") {
+                        if (data && data.status === "success") {
                             studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
                             data.students.forEach(student => {
                                 const option = document.createElement('option');
@@ -1133,7 +1124,7 @@
                             });
                             studentSelect.disabled = false;
                         } else {
-                            studentSelect.innerHTML = `<option value="">${data.message || 'Erro ao carregar alunos'}</option>`;
+                            studentSelect.innerHTML = `<option value="">${data?.message || 'Erro ao carregar alunos'}</option>`;
                         }
                     })
                     .catch(error => {
@@ -1142,7 +1133,7 @@
                     });
             });
             
-            // Quando um aluno é selecionado
+            // Quando um aluno é selecionado (CORRIGIDA)
             studentSelect.addEventListener('change', function() {
                 if (this.value) {
                     // Mostrar o card de ocorrências do aluno
@@ -1151,9 +1142,9 @@
                     studentOccurrencesCount.textContent = "Carregando...";
                     
                     // Buscar estatísticas do aluno com tratamento CORS
-                    fetchWithCors(`${SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`)
+                    safeFetch(`${SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`)
                         .then(data => {
-                            if (data.status === "success") {
+                            if (data && data.status === "success") {
                                 studentOccurrencesCount.textContent = data.totalOccurrences;
                                 
                                 // Atualizar gráficos com os dados detalhados
@@ -1202,7 +1193,7 @@
                 });
             });
             
-            // Enviar formulário com tratamento CORS
+            // Enviar formulário com tratamento CORS (CORRIGIDA)
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
@@ -1257,7 +1248,7 @@
                     };
                     
                     // Enviar dados para o Google Sheets com tratamento CORS
-                    const result = await fetchWithCors("https://script.google.com/macros/s/AKfycbyH5KsXTAD10JAtGJhVLUGFh9nk8Gt7sb2rwx9QFX-g8uE0kDrBqDZ7cgZBQf0p3-nF/exec", {
+                    const result = await safeFetch(SCRIPT_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -1265,7 +1256,7 @@
                         body: JSON.stringify(formData)
                     });
                     
-                    if (result.status === "success") {
+                    if (result && result.status === "success") {
                         // Mostrar mensagem de sucesso
                         successAlert.style.display = 'flex';
                         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1293,7 +1284,7 @@
                             createDonutChart(canvas, 0);
                         });
                     } else {
-                        throw new Error(result.message || "Erro ao enviar dados");
+                        throw new Error(result?.message || "Erro ao enviar dados");
                     }
                 } catch (error) {
                     console.error('Erro ao enviar ocorrência:', error);
@@ -1315,5 +1306,3 @@
     </script>
 </body>
 </html>
-
-
