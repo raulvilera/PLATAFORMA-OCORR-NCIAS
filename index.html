@@ -1409,6 +1409,11 @@
                     const response = await fetch(url, fetchOptions);
                     clearTimeout(timeoutId);
 
+                    // Verificar status da resposta
+                    if (!response.ok) {
+                        throw new Error(`Erro ${response.status}: ${response.statusText}`);
+                    }
+
                     // Verificar se a resposta é JSON válido
                     const contentType = response.headers.get('content-type');
                     if (!contentType || !contentType.includes('application/json')) {
@@ -1421,7 +1426,7 @@
                     console.error('Erro na requisição:', error);
                     return {
                         status: "error",
-                        message: error.message || "Erro na requisição"
+                        message: error.message || "Erro na conexão com o servidor"
                     };
                 }
             }
@@ -1479,7 +1484,7 @@
                     })
                     .catch(error => {
                         console.error('Erro ao carregar alunos:', error);
-                        studentSelect.innerHTML = '<option value="">Erro ao carregar. Tente novamente.</option>';
+                        studentSelect.innerHTML = `<option value="">Erro: ${error.message || 'Falha ao carregar alunos'}</option>`;
                     })
                     .finally(() => {
                         hideLoading();
