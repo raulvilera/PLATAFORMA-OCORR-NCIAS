@@ -22,6 +22,10 @@
             --footer-bg: #ffffff;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
+            --hover-bg: #f0f5ff;
+            --morning-color: #3498db;
+            --afternoon-color: #f39c12;
+            --night-color: #9b59b6;
         }
         
         * {
@@ -151,6 +155,12 @@
             text-align: center;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: var(--transition);
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.25);
         }
         
         .stat-value {
@@ -263,6 +273,7 @@
         
         .form-group {
             margin-bottom: 25px;
+            position: relative;
         }
         
         label {
@@ -271,6 +282,13 @@
             font-weight: 600;
             color: var(--text-color);
             font-size: 1.1rem;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .form-group:hover label {
+            color: var(--primary-color);
+            transform: translateX(5px);
         }
         
         .required::after {
@@ -288,11 +306,19 @@
             background-color: #f8fafc;
         }
         
+        input:hover, select:hover, textarea:hover {
+            border-color: var(--primary-color);
+            background-color: var(--hover-bg);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
+            transform: translateY(-2px);
+        }
+        
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--primary-color);
             box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.2);
             background-color: white;
+            transform: translateY(-2px);
         }
         
         textarea {
@@ -319,25 +345,36 @@
             display: flex;
             align-items: center;
             position: relative;
+            cursor: pointer;
         }
         
         .checkbox-item:hover {
             background: #e8f0fe;
             border-color: var(--primary-color);
-            transform: translateX(5px);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .checkbox-item input {
             width: auto;
             margin-right: 12px;
             transform: scale(1.2);
+            cursor: pointer;
+        }
+        
+        .checkbox-item:hover label {
+            color: var(--primary-dark);
         }
         
         .chart-container {
-            position: relative;
             width: 50px;
             height: 50px;
             margin-right: 15px;
+            transition: var(--transition);
+        }
+        
+        .checkbox-item:hover .chart-container {
+            transform: scale(1.1);
         }
         
         .chart-value {
@@ -348,6 +385,7 @@
             font-weight: 700;
             font-size: 14px;
             color: var(--primary-dark);
+            transition: var(--transition);
         }
         
         .actions {
@@ -382,6 +420,10 @@
             background: linear-gradient(135deg, #0d62d9 0%, #0a4ebf 100%);
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(26, 115, 232, 0.35);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(1px);
         }
         
         .btn-secondary {
@@ -435,6 +477,7 @@
         .footer-links a:hover {
             color: var(--primary-dark);
             text-decoration: underline;
+            transform: translateY(-2px);
         }
         
         .alert {
@@ -446,6 +489,12 @@
             font-weight: 500;
             align-items: center;
             gap: 15px;
+            transition: var(--transition);
+        }
+        
+        .alert:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
         }
         
         .alert-success {
@@ -490,6 +539,12 @@
             pointer-events: none;
             color: var(--primary-color);
             font-size: 20px;
+            transition: var(--transition);
+        }
+        
+        .student-select-container:hover::after {
+            color: var(--primary-dark);
+            transform: translateY(-50%) scale(1.1);
         }
         
         .form-row {
@@ -511,6 +566,13 @@
             display: flex;
             align-items: center;
             gap: 12px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .section-title:hover {
+            color: var(--primary-dark);
+            transform: translateX(5px);
         }
         
         select option:nth-child(even) {
@@ -532,6 +594,7 @@
             border-radius: 50%;
             display: inline-block;
             margin-right: 8px;
+            transition: var(--transition);
         }
         
         .status-connected {
@@ -550,40 +613,205 @@
             display: flex;
             align-items: center;
             gap: 15px;
+            transition: var(--transition);
         }
         
-        /* Novos estilos para estatísticas de período */
+        .integration-status:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .date-input-container {
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .date-input-container:hover {
+            transform: translateY(-2px);
+        }
+        
+        .date-input-container input[type="date"] {
+            padding-right: 40px;
+            cursor: pointer;
+        }
+        
+        .date-input-container::after {
+            content: "\f073";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--primary-color);
+            font-size: 18px;
+            transition: var(--transition);
+        }
+        
+        .date-input-container:hover::after {
+            color: var(--primary-dark);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+        }
+        
+        select:hover {
+            background-color: #f0f5ff;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .loading-spinner {
+            border: 8px solid #f3f3f3;
+            border-top: 8px solid #3498db;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+        }
+        
+        .stats-chart-container {
+            height: 200px;
+            margin-top: 20px;
+            position: relative;
+        }
+        
         .period-stats {
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.85);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 10px;
         }
         
         .period-item {
             text-align: center;
+            flex: 1;
+            transition: var(--transition);
         }
         
-        .period-label {
-            font-size: 0.8rem;
-            opacity: 0.9;
+        .period-item:hover {
+            transform: scale(1.05);
         }
         
         .period-value {
-            font-size: 1.2rem;
-            font-weight: 700;
+            font-weight: 600;
+            font-size: 1rem;
         }
         
         .period-manha { color: #f1c40f; }
         .period-tarde { color: #e67e22; }
         .period-noite { color: #9b59b6; }
         
-        /* Estilos para o gráfico de estatísticas */
-        .stats-chart-container {
-            height: 200px;
-            margin-top: 20px;
+        .class-total-card {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--shadow);
             position: relative;
+            overflow: hidden;
+            margin-top: 25px;
+            display: none;
+        }
+        
+        .class-total-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(to top, rgba(255,255,255,0.3), transparent);
+            z-index: 1;
+        }
+        
+        .class-total-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .class-total-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .class-total-count {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+        
+        /* Novo card de alunos por turma */
+        .class-students-card {
+            background: linear-gradient(135deg, #3498db 0%, #1a73e8 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            margin-top: 25px;
+            display: none;
+        }
+        
+        .class-students-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(to top, rgba(255,255,255,0.3), transparent);
+            z-index: 1;
+        }
+        
+        .class-students-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .class-students-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .class-students-count {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.3);
         }
         
         @media (max-width: 992px) {
@@ -633,6 +861,10 @@
     </style>
 </head>
 <body>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
     <header>
         <div class="header-content">
             <div class="logo">
@@ -694,7 +926,7 @@
                                         </div>
                                     </div>
                                     <div class="form-col">
-                                        <div class="form-group">
+                                        <div class="form-group date-input-container">
                                             <label for="occurrenceDate" class="required">Data da ocorrência</label>
                                             <input type="date" id="occurrenceDate" required>
                                         </div>
@@ -878,6 +1110,19 @@
                                 <div class="stat-value" id="totalOccurrences">0</div>
                                 <div class="stat-label">Ocorrências registradas</div>
                             </div>
+                            
+                            <!-- Novo card entre "Ocorrências registradas" e "Total de alunos" -->
+                            <div class="stat-item" id="classStudentsCard" style="display: none;">
+                                <div class="stat-value" id="classStudentsCount">0</div>
+                                <div class="stat-label">Alunos na turma</div>
+                                <div class="period-stats">
+                                    <div class="period-item">
+                                        <div class="period-value" id="selectedClassPeriod">-</div>
+                                        <div class="period-label">Período</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
                             <div class="stat-item">
                                 <div class="stat-value" id="totalStudents">0</div>
                                 <div class="stat-label">Total de alunos</div>
@@ -1065,25 +1310,15 @@
             const afternoonCountEl = document.getElementById('afternoonCount');
             const nightCountEl = document.getElementById('nightCount');
             const studentsPeriodChartCanvas = document.getElementById('studentsPeriodChart');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const classStudentsCard = document.getElementById('classStudentsCard');
+            const classStudentsCount = document.getElementById('classStudentsCount');
+            const selectedClassPeriod = document.getElementById('selectedClassPeriod');
 
-            // URL base do Apps Script
-            const SCRIPT_BASE_URL = "https://script.google.com/macros/s/AKfycbxc_P27Wl96tqKT9IDte8jvhX-v3zOxFvsDD-QgTAgcyZoV4gqKhRWTojhcE-Y2gzoj/exec";
-
-            // Mapeamento de períodos (simulando a constante CLASS_RANGES do AppScript)
-            const CLASS_RANGES = {
-                "MANHA": ["6° ANO A MANHA", "6° ANO B MANHA", "6° ANO C MANHA", "6° ANO D MANHA", 
-                          "1ª SERIE A MANHA", "1ª SERIE B MANHA", "1ª SERIE C MANHA", "1ª SERIE D MANHA",
-                          "1ª SERIE E MANHA", "1ª SERIE F MANHA", "2ª SERIE A MANHA", "2ª SERIE B MANHA",
-                          "2ª SERIE C MANHA", "2ª SERIE D MANHA", "2ª SERIE E MANHA", "3ª SERIE A MANHA",
-                          "3ª SERIE B MANHA", "3ª SERIE C MANHA", "4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA"],
-                "TARDE": ["6° ANO E TARDE", "6° ANO F TARDE", "7° ANO A TARDE", "7° ANO B TARDE",
-                          "7° ANO C TARDE", "7° ANO D TARDE", "7° ANO E TARDE", "7° ANO F TARDE",
-                          "8° ANO A TARDE", "8° ANO B TARDE", "8° ANO C TARDE", "8° ANO D TARDE",
-                          "9° ANO A TARDE", "9° ANO B TARDE", "9° ANO C TARDE", "9° ANO D TARDE",
-                          "1ª SERIE G TARDE"],
-                "NOITE": ["1ª SERIE H NOITE", "1ª SERIE I NOITE", "2ª SERIE F NOITE", "2ª SERIE G NOITE",
-                          "2ª SERIE H NOITE", "3ª SERIE D NOITE", "3ª SERIE E NOITE", "3ª SERIE F NOITE"]
-            };
+            // Configurações da planilha
+            const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
+            const SHEET_NAME = "OCORRENCIASDOSPROFESSORES";
+            const SCRIPT_BASE_URL = "https://script.google.com/macros/s/AKfycbzKv7h9y9Ie9bQ8lQlF1XbMxG2K2QqyL8ZQ0TgZ4QjHj5v9yGJc/exec";
 
             // Armazenar gráficos
             const charts = {};
@@ -1109,6 +1344,16 @@
             // Contar turmas disponíveis
             const turmasCount = document.querySelectorAll('#studentClass option').length - 1;
             document.getElementById('totalClasses').textContent = turmasCount;
+
+            // Função para mostrar overlay de carregamento
+            function showLoading() {
+                loadingOverlay.style.display = 'flex';
+            }
+            
+            // Função para esconder overlay de carregamento
+            function hideLoading() {
+                loadingOverlay.style.display = 'none';
+            }
 
             // Função para criar gráficos de rosca
             function createDonutChart(canvas, value, maxValue = 10) {
@@ -1187,6 +1432,7 @@
                 studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
                 studentSelect.disabled = true;
                 studentOccurrencesCard.style.display = 'none';
+                classStudentsCard.style.display = 'none';
 
                 // Resetar gráficos
                 const chartCanvases = document.querySelectorAll('.donut-chart');
@@ -1199,8 +1445,10 @@
                     return;
                 }
 
+                showLoading();
+                
                 // Buscar alunos reais da planilha
-                const url = `${SCRIPT_BASE_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
+                const url = `${SCRIPT_BASE_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
                 
                 safeFetch(url)
                     .then(data => {
@@ -1213,6 +1461,17 @@
                                 studentSelect.appendChild(option);
                             });
                             studentSelect.disabled = false;
+                            
+                            // Atualizar o card com o total de alunos na turma
+                            classStudentsCount.textContent = data.students.length;
+                            
+                            // Determinar o período da turma
+                            const periodo = selectedClass.includes("MANHA") ? "Manhã" : 
+                                           selectedClass.includes("TARDE") ? "Tarde" : 
+                                           selectedClass.includes("NOITE") ? "Noite" : "Desconhecido";
+                            selectedClassPeriod.textContent = periodo;
+                            
+                            classStudentsCard.style.display = 'block';
                         } else {
                             const errorMsg = data?.message || 'Resposta inesperada do servidor';
                             studentSelect.innerHTML = `<option value="">Erro: ${errorMsg}</option>`;
@@ -1221,6 +1480,9 @@
                     .catch(error => {
                         console.error('Erro ao carregar alunos:', error);
                         studentSelect.innerHTML = '<option value="">Erro ao carregar. Tente novamente.</option>';
+                    })
+                    .finally(() => {
+                        hideLoading();
                     });
             });
 
@@ -1232,8 +1494,10 @@
                     studentOccurrencesName.textContent = this.value;
                     studentOccurrencesCount.textContent = "Carregando...";
 
+                    showLoading();
+                    
                     // Buscar estatísticas do aluno
-                    const url = `${SCRIPT_BASE_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
+                    const url = `${SCRIPT_BASE_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}&spreadsheetId=${SPREADSHEET_ID}`;
                     
                     safeFetch(url)
                         .then(data => {
@@ -1251,6 +1515,9 @@
                         .catch(error => {
                             studentOccurrencesCount.textContent = "0";
                             console.error('Erro ao buscar estatísticas:', error);
+                        })
+                        .finally(() => {
+                            hideLoading();
                         });
                 } else {
                     studentOccurrencesCard.style.display = 'none';
@@ -1282,6 +1549,7 @@
                 successAlert.style.display = 'none';
                 errorAlert.style.display = 'none';
                 studentOccurrencesCard.style.display = 'none';
+                classStudentsCard.style.display = 'none';
                 classSelect.selectedIndex = 0;
 
                 // Resetar gráficos
@@ -1336,6 +1604,7 @@
                 const originalBtnText = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<span class="loading"></span> Enviando...';
                 submitBtn.disabled = true;
+                showLoading();
 
                 try {
                     // Preparar dados para envio
@@ -1345,7 +1614,9 @@
                         student: student,
                         class: classInfo,
                         irregularities: irregularities.join(', '),
-                        description: description
+                        description: description,
+                        spreadsheetId: SPREADSHEET_ID,
+                        sheetName: SHEET_NAME
                     };
 
                     // Enviar dados para o Google Sheets
@@ -1372,62 +1643,34 @@
                         studentSelect.disabled = true;
                         classSelect.selectedIndex = 0;
                         studentOccurrencesCard.style.display = 'none';
+                        classStudentsCard.style.display = 'none';
 
                         // Atualizar estatísticas gerais
                         const currentTotal = parseInt(totalOccurrencesEl.textContent);
                         totalOccurrencesEl.textContent = currentTotal + 1;
+                        
+                        // Recarregar estatísticas de alunos por período
+                        loadStudentPeriodStats();
                     } else {
                         throw new Error(response?.message || "Erro desconhecido ao enviar ocorrência");
                     }
                 } catch (error) {
                     console.error('Erro ao enviar ocorrência:', error);
-                    errorMessage.textContent = `Ocorreu um erro ao enviar a ocorrência: ${error.message}`;
+                    if (error.message.includes("Failed to fetch")) {
+                        errorMessage.textContent = "Falha na conexão. Verifique sua internet e tente novamente.";
+                    } else {
+                        errorMessage.textContent = `Ocorreu um erro ao enviar a ocorrência: ${error.message}`;
+                    }
                     errorAlert.style.display = 'flex';
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 } finally {
                     // Restaurar botão de envio
                     submitBtn.innerHTML = originalBtnText;
                     submitBtn.disabled = false;
+                    hideLoading();
                 }
             });
 
-            // Inicializar gráficos com valores zero
-            document.querySelectorAll('.donut-chart').forEach(canvas => {
-                createDonutChart(canvas, 0);
-            });
-            
-            // Carregar estatísticas de alunos por período
-            async function loadStudentPeriodStats() {
-                try {
-                    const url = `${SCRIPT_BASE_URL}?action=getStudentPeriodStats`;
-                    const data = await safeFetch(url);
-                    
-                    if (data && data.status === "success") {
-                        totalStudentsEl.textContent = data.totalStudents;
-                        morningCountEl.textContent = data.morningCount;
-                        afternoonCountEl.textContent = data.afternoonCount;
-                        nightCountEl.textContent = data.nightCount;
-                        
-                        // Atualizar gráfico de distribuição por período
-                        updateStudentsPeriodChart(data);
-                    }
-                } catch (error) {
-                    console.error('Erro ao carregar estatísticas de alunos:', error);
-                    
-                    // Usar dados simulados para demonstração
-                    const demoData = {
-                        morningCount: 450,
-                        afternoonCount: 380,
-                        nightCount: 220
-                    };
-                    totalStudentsEl.textContent = demoData.morningCount + demoData.afternoonCount + demoData.nightCount;
-                    morningCountEl.textContent = demoData.morningCount;
-                    afternoonCountEl.textContent = demoData.afternoonCount;
-                    nightCountEl.textContent = demoData.nightCount;
-                    updateStudentsPeriodChart(demoData);
-                }
-            }
-            
             // Atualizar gráfico de distribuição por período
             function updateStudentsPeriodChart(data) {
                 if (studentsPeriodChart) {
@@ -1488,6 +1731,48 @@
                     }
                 });
             }
+            
+            // Carregar estatísticas de alunos por período
+            async function loadStudentPeriodStats() {
+                showLoading();
+                try {
+                    const url = `${SCRIPT_BASE_URL}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=BANCODEDADOSGERAL`;
+                    const data = await safeFetch(url);
+                    
+                    if (data && data.status === "success") {
+                        totalStudentsEl.textContent = data.totalStudents;
+                        morningCountEl.textContent = data.morningCount;
+                        afternoonCountEl.textContent = data.afternoonCount;
+                        nightCountEl.textContent = data.nightCount;
+                        
+                        // Atualizar gráfico de distribuição por período
+                        updateStudentsPeriodChart(data);
+                    } else {
+                        throw new Error(data?.message || "Erro ao carregar estatísticas de alunos");
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar estatísticas de alunos:', error);
+                    // Usar dados simulados para demonstração
+                    const demoData = {
+                        totalStudents: 1050,
+                        morningCount: 450,
+                        afternoonCount: 380,
+                        nightCount: 220
+                    };
+                    totalStudentsEl.textContent = demoData.totalStudents;
+                    morningCountEl.textContent = demoData.morningCount;
+                    afternoonCountEl.textContent = demoData.afternoonCount;
+                    nightCountEl.textContent = demoData.nightCount;
+                    updateStudentsPeriodChart(demoData);
+                } finally {
+                    hideLoading();
+                }
+            }
+            
+            // Inicializar gráficos com valores zero
+            document.querySelectorAll('.donut-chart').forEach(canvas => {
+                createDonutChart(canvas, 0);
+            });
             
             // Carregar estatísticas iniciais
             loadStudentPeriodStats();
