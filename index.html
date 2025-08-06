@@ -367,6 +367,7 @@
         }
         
         .chart-container {
+            position: relative;
             width: 50px;
             height: 50px;
             margin-right: 15px;
@@ -386,6 +387,7 @@
             font-size: 14px;
             color: var(--primary-dark);
             transition: var(--transition);
+            z-index: 10;
         }
         
         .actions {
@@ -895,7 +897,7 @@
                         <i class="fas fa-exclamation-circle"></i> 
                         <div>
                             <strong>Erro no preenchimento do formulário</strong>
-                            <p id="errorMessage">Por favor, preencha todos os campos obrigatórios e selecione pelo menos uma irregularidade.</p>
+                            <p id="errorMessage">Por favor, preencha todos os campos obrigatórios.</p>
                         </div>
                     </div>
                     
@@ -1006,7 +1008,7 @@
                                 </div>
                                 
                                 <div class="checkbox-group">
-                                    <label>Selecione as irregularidades (pelo menos uma):</label>
+                                    <label>Selecione as irregularidades (opcional):</label>
                                     <div class="checkbox-container">
                                         <div class="checkbox-item">
                                             <div class="chart-container">
@@ -1397,7 +1399,7 @@
             async function safeFetch(url, options = {}) {
                 try {
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 15000);
+                    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
                     
                     const fetchOptions = {
                         ...options,
@@ -1569,6 +1571,38 @@
                 });
             });
 
+            // Função para enviar dados com retentativas
+            async function sendFormData(formData, retries = 3) {
+                for (let attempt = 1; attempt <= retries; attempt++) {
+                    try {
+                        const response = await safeFetch(SCRIPT_BASE_URL, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                action: 'addOccurrence',
+                                ...formData
+                            })
+                        });
+
+                        if (response && response.status === "success") {
+                            return response;
+                        } else {
+                            throw new Error(response?.message || "Erro desconhecido ao enviar ocorrência");
+                        }
+                    } catch (error) {
+                        console.error(`Tentativa ${attempt} falhou:`, error);
+                        if (attempt < retries) {
+                            // Esperar antes de tentar novamente (exponencial backoff)
+                            await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+                        } else {
+                            throw error;
+                        }
+                    }
+                }
+            }
+
             // Enviar formulário
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -1590,13 +1624,12 @@
                     irregularities.push(cb.value);
                 });
 
-                // Validação
+                // Validação (removido a validação de irregularidades)
                 let errorMsg = "";
                 if (!professor) errorMsg += "• Selecione o professor<br>";
                 if (!occurrenceDate) errorMsg += "• Informe a data da ocorrência<br>";
                 if (!classInfo) errorMsg += "• Selecione a turma<br>";
                 if (!student) errorMsg += "• Selecione o aluno<br>";
-                if (irregularities.length === 0) errorMsg += "• Selecione pelo menos uma irregularidade<br>";
 
                 if (errorMsg) {
                     errorMessage.innerHTML = `<strong>Erros encontrados:</strong><br>${errorMsg}`;
@@ -1624,44 +1657,33 @@
                         sheetName: SHEET_NAME
                     };
 
-                    // Enviar dados para o Google Sheets
-                    const response = await safeFetch(SCRIPT_BASE_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            action: 'addOccurrence',
-                            ...formData
-                        })
-                    });
+                    // Enviar dados para o Google Sheets (com retentativas)
+                    const response = await sendFormData(formData);
 
-                    if (response && response.status === "success") {
-                        // Mostrar mensagem de sucesso
-                        successAlert.style.display = 'flex';
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    // Mostrar mensagem de sucesso
+                    successAlert.style.display = 'flex';
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
 
-                        // Resetar formulário após sucesso
-                        form.reset();
-                        document.getElementById('occurrenceDate').value = formattedDate;
-                        studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-                        studentSelect.disabled = true;
-                        classSelect.selectedIndex = 0;
-                        studentOccurrencesCard.style.display = 'none';
-                        classStudentsCard.style.display = 'none';
+                    // Resetar formulário após sucesso
+                    form.reset();
+                    document.getElementById('occurrenceDate').value = formattedDate;
+                    studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                    studentSelect.disabled = true;
+                    classSelect.selectedIndex = 0;
+                    studentOccurrencesCard.style.display = 'none';
+                    classStudentsCard.style.display = 'none';
 
-                        // Atualizar estatísticas gerais
-                        const currentTotal = parseInt(totalOccurrencesEl.textContent);
-                        totalOccurrencesEl.textContent = currentTotal + 1;
-                        
-                        // Recarregar estatísticas de alunos por período
-                        loadStudentPeriodStats();
-                    } else {
-                        throw new Error(response?.message || "Erro desconhecido ao enviar ocorrência");
-                    }
+                    // Atualizar estatísticas gerais
+                    const currentTotal = parseInt(totalOccurrencesEl.textContent);
+                    totalOccurrencesEl.textContent = currentTotal + 1;
+                    
+                    // Recarregar estatísticas de alunos por período
+                    loadStudentPeriodStats();
                 } catch (error) {
                     console.error('Erro ao enviar ocorrência:', error);
-                    if (error.message.includes("Failed to fetch")) {
+                    if (error.name === 'AbortError') {
+                        errorMessage.textContent = "A requisição demorou muito. Verifique sua conexão e tente novamente.";
+                    } else if (error.message.includes("Failed to fetch")) {
                         errorMessage.textContent = "Falha na conexão. Verifique sua internet e tente novamente.";
                     } else {
                         errorMessage.textContent = `Ocorreu um erro ao enviar a ocorrência: ${error.message}`;
