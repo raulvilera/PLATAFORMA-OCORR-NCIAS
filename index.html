@@ -1129,7 +1129,7 @@
                                                     <option value="2ª SERIE G NOITE">2ª SERIE G NOITE</option>
                                                     <option value="2ª SERIE H NOITE">2ª SERIE H NOITE</option>
                                                     <option value="3ª SERIE A MANHA">3ª SERIE A MANHA</option>
-                                                    <option value="3ª SERIE B MANHA">3ª SERIE B MANHA</option>
+                                                    <option value="3ª SERIE B MANHA">3ª SERie B MANHA</option>
                                                     <option value="3ª SERIE C MANHA">3ª SERIE C MANHA</option>
                                                     <option value="3ª SERIE D NOITE">3ª SERIE D NOITE</option>
                                                     <option value="3ª SERIE E NOITE">3ª SERIE E NOITE</option>
@@ -1502,7 +1502,6 @@
             // Configurações da planilha
             const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
             const SHEET_NAME = "OCORRENCIASDOSPROFESSORES";
-            // Substitua pela URL do seu Web App do Google Apps Script
             const SCRIPT_BASE_URL = "https://script.google.com/macros/s/AKfycbwr2-R9puLSqIOlwx1BHMxIul9iM1bbHdYNxBsgjSksFgOPf09oXzIU64u2ppaxwUnx/exec";
 
             // Armazenar gráficos
@@ -1771,7 +1770,7 @@
             async function sendFormData(formData, retries = 3) {
                 for (let attempt = 1; attempt <= retries; attempt++) {
                     try {
-                        const response = await safeFetch("https://script.google.com/macros/s/AKfycbwr2-R9puLSqIOlwx1BHMxIul9iM1bbHdYNxBsgjSksFgOPf09oXzIU64u2ppaxwUnx/exec", {
+                        const response = await safeFetch(SCRIPT_BASE_URL, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
