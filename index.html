@@ -1771,7 +1771,7 @@
             async function sendFormData(formData, retries = 3) {
                 for (let attempt = 1; attempt <= retries; attempt++) {
                     try {
-                        const response = await safeFetch(SCRIPT_BASE_URL, {
+                        const response = await safeFetch("https://script.google.com/macros/s/AKfycbwr2-R9puLSqIOlwx1BHMxIul9iM1bbHdYNxBsgjSksFgOPf09oXzIU64u2ppaxwUnx/exec", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
