@@ -6,6 +6,7 @@
     <title>Sistema de Registro de Ocorrências Escolares</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
             --primary-color: #1a73e8;
@@ -667,29 +668,6 @@
             background-color: #f0f5ff;
         }
         
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 255, 255, 0.8);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            display: none;
-        }
-        
-        .loading-spinner {
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #3498db;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-        }
-        
         .stats-chart-container {
             height: 200px;
             margin-top: 20px;
@@ -816,6 +794,133 @@
             text-shadow: 0 3px 6px rgba(0,0,0,0.3);
         }
         
+        /* Estilos para a tabela de registros */
+        .registros-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .registros-table th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        .registros-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+        
+        .registros-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .registros-table tr:hover {
+            background-color: var(--hover-bg);
+        }
+        
+        .registros-table .actions-cell {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .btn-action {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn-edit {
+            background-color: #f0f5ff;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .btn-edit:hover {
+            background-color: #e0eaff;
+        }
+        
+        .btn-delete {
+            background-color: #fff0f0;
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+        
+        .btn-delete:hover {
+            background-color: #ffe0e0;
+        }
+        
+        .registros-table .history-row {
+            background-color: #f9f9f9;
+        }
+        
+        .registros-table .history-row td {
+            padding: 10px 15px;
+            font-size: 0.9rem;
+        }
+        
+        .registros-table .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #f0f5ff;
+            border-radius: 8px;
+        }
+        
+        .registros-table .history-table th {
+            background-color: #d0e0ff;
+            color: var(--text-color);
+            padding: 10px;
+            font-size: 0.85rem;
+        }
+        
+        .registros-table .history-table td {
+            padding: 8px 10px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .registros-table .history-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .table-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+        
+        .no-records {
+            text-align: center;
+            padding: 20px;
+            color: var(--light-text);
+            font-style: italic;
+        }
+        
+        /* NOVO: Botões de ação acima da tabela */
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 18px;
+            margin: 25px 0;
+        }
+        
         @media (max-width: 992px) {
             .dashboard {
                 grid-template-columns: 1fr;
@@ -859,14 +964,30 @@
                 flex-direction: column;
                 gap: 10px;
             }
+            
+            .registros-table {
+                font-size: 0.9rem;
+            }
+            
+            .registros-table th, 
+            .registros-table td {
+                padding: 10px;
+            }
+            
+            .registros-table .actions-cell {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            /* Ajuste para mobile dos botões de ação */
+            .form-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner"></div>
-    </div>
-    
     <header>
         <div class="header-content">
             <div class="logo">
@@ -1090,10 +1211,41 @@
                                     <textarea id="description" placeholder="Descreva detalhadamente a ocorrência..."></textarea>
                                 </div>
                                 
-                                <div class="actions">
+                                <!-- NOVO: Botões de ação acima da tabela -->
+                                <div class="form-actions">
                                     <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
-                                        <i class="fas fa-paper-plane"></i> Enviar Ocorrência
+                                        <i class="fas fa-paper-plane"></i> CADASTRAR
                                     </button>
+                                    <button type="button" id="exportBtn" class="btn btn-secondary">
+                                        <i class="fas fa-file-export"></i> Exportar Dados
+                                    </button>
+                                </div>
+                                
+                                <!-- Tabela de registros abaixo dos botões -->
+                                <div class="form-group">
+                                    <label>Registros de Ocorrências</label>
+                                    <div class="table-container" style="overflow-x: auto;">
+                                        <table id="registrosTable" class="registros-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Data</th>
+                                                    <th>Professor</th>
+                                                    <th>Turma</th>
+                                                    <th>Aluno</th>
+                                                    <th>Irregularidades</th>
+                                                    <th>Descrição</th>
+                                                    <th>Ações</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Os registros serão carregados via JavaScript -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                
+                                <!-- Botão Limpar fica abaixo da tabela -->
+                                <div class="actions">
                                     <button type="button" id="clearBtn" class="btn btn-secondary">
                                         <i class="fas fa-broom"></i> Limpar formulário
                                     </button>
@@ -1312,10 +1464,9 @@
             const afternoonCountEl = document.getElementById('afternoonCount');
             const nightCountEl = document.getElementById('nightCount');
             const studentsPeriodChartCanvas = document.getElementById('studentsPeriodChart');
-            const loadingOverlay = document.getElementById('loadingOverlay');
-            const classStudentsCard = document.getElementById('classStudentsCard');
-            const classStudentsCount = document.getElementById('classStudentsCount');
-            const selectedClassPeriod = document.getElementById('selectedClassPeriod');
+            const exportBtn = document.getElementById('exportBtn');
+            const registrosTable = document.getElementById('registrosTable');
+            const registrosTableBody = registrosTable.querySelector('tbody');
 
             // Configurações da planilha
             const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
@@ -1346,16 +1497,6 @@
             // Contar turmas disponíveis
             const turmasCount = document.querySelectorAll('#studentClass option').length - 1;
             document.getElementById('totalClasses').textContent = turmasCount;
-
-            // Função para mostrar overlay de carregamento
-            function showLoading() {
-                loadingOverlay.style.display = 'flex';
-            }
-            
-            // Função para esconder overlay de carregamento
-            function hideLoading() {
-                loadingOverlay.style.display = 'none';
-            }
 
             // Função para criar gráficos de rosca
             function createDonutChart(canvas, value, maxValue = 10) {
@@ -1452,8 +1593,6 @@
                     return;
                 }
 
-                showLoading();
-                
                 // Buscar alunos reais da planilha
                 const url = `${SCRIPT_BASE_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
                 
@@ -1487,9 +1626,6 @@
                     .catch(error => {
                         console.error('Erro ao carregar alunos:', error);
                         studentSelect.innerHTML = `<option value="">Erro: ${error.message || 'Falha ao carregar alunos'}</option>`;
-                    })
-                    .finally(() => {
-                        hideLoading();
                     });
             });
 
@@ -1500,8 +1636,6 @@
                     studentOccurrencesCard.style.display = 'block';
                     studentOccurrencesName.textContent = this.value;
                     studentOccurrencesCount.textContent = "Carregando...";
-
-                    showLoading();
                     
                     // Buscar estatísticas do aluno
                     const url = `${SCRIPT_BASE_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}&spreadsheetId=${SPREADSHEET_ID}`;
@@ -1522,9 +1656,6 @@
                         .catch(error => {
                             studentOccurrencesCount.textContent = "0";
                             console.error('Erro ao buscar estatísticas:', error);
-                        })
-                        .finally(() => {
-                            hideLoading();
                         });
                 } else {
                     studentOccurrencesCard.style.display = 'none';
@@ -1603,6 +1734,121 @@
                 }
             }
 
+            // Função para carregar registros na tabela
+            async function loadRegistrosTable() {
+                registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Carregando registros...</td></tr>';
+                
+                try {
+                    const url = `${SCRIPT_BASE_URL}?action=getOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const data = await safeFetch(url);
+                    
+                    if (data && data.status === "success" && Array.isArray(data.occurrences)) {
+                        registrosTableBody.innerHTML = '';
+                        
+                        if (data.occurrences.length === 0) {
+                            registrosTableBody.innerHTML = '<tr><td colspan="7" class="no-records">Nenhum registro encontrado</td></tr>';
+                            return;
+                        }
+                        
+                        data.occurrences.forEach(occurrence => {
+                            const row = document.createElement('tr');
+                            row.setAttribute('data-student', occurrence.student);
+                            
+                            // Formatar data
+                            const dateObj = new Date(occurrence.date);
+                            const formattedDate = dateObj.toLocaleDateString('pt-BR');
+                            
+                            row.innerHTML = `
+                                <td>${formattedDate}</td>
+                                <td>${occurrence.professor}</td>
+                                <td>${occurrence.class}</td>
+                                <td>${occurrence.student}</td>
+                                <td>${occurrence.irregularities || '-'}</td>
+                                <td>${occurrence.description || '-'}</td>
+                                <td class="actions-cell">
+                                    <button class="btn-action btn-edit" data-id="${occurrence.id}">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </button>
+                                    <button class="btn-action btn-delete" data-id="${occurrence.id}">
+                                        <i class="fas fa-trash"></i> Excluir
+                                    </button>
+                                </td>
+                            `;
+                            
+                            registrosTableBody.appendChild(row);
+                            
+                            // Adicionar evento de duplo clique para expandir
+                            row.addEventListener('dblclick', async () => {
+                                // Se já estiver expandido, recolher
+                                if (row.nextElementSibling && row.nextElementSibling.classList.contains('history-row')) {
+                                    row.nextElementSibling.remove();
+                                    return;
+                                }
+                                
+                                // Buscar histórico do aluno
+                                const historyRow = document.createElement('tr');
+                                historyRow.className = 'history-row';
+                                historyRow.innerHTML = `<td colspan="7">Carregando histórico...</td>`;
+                                row.parentNode.insertBefore(historyRow, row.nextSibling);
+                                
+                                try {
+                                    const historyUrl = `${SCRIPT_BASE_URL}?action=getStudentHistory&student=${encodeURIComponent(occurrence.student)}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                                    const historyData = await safeFetch(historyUrl);
+                                    
+                                    if (historyData && historyData.status === "success" && Array.isArray(historyData.history)) {
+                                        let historyHTML = `<td colspan="7">
+                                            <table class="history-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Data</th>
+                                                        <th>Professor</th>
+                                                        <th>Turma</th>
+                                                        <th>Irregularidades</th>
+                                                        <th>Descrição</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>`;
+                                        
+                                        historyData.history.forEach(entry => {
+                                            const entryDate = new Date(entry.date).toLocaleDateString('pt-BR');
+                                            historyHTML += `
+                                                <tr>
+                                                    <td>${entryDate}</td>
+                                                    <td>${entry.professor}</td>
+                                                    <td>${entry.class}</td>
+                                                    <td>${entry.irregularities || '-'}</td>
+                                                    <td>${entry.description || '-'}</td>
+                                                </tr>
+                                            `;
+                                        });
+                                        
+                                        historyHTML += `</tbody></table></td>`;
+                                        historyRow.innerHTML = historyHTML;
+                                    } else {
+                                        historyRow.innerHTML = `<td colspan="7">Nenhum histórico encontrado.</td>`;
+                                    }
+                                } catch (error) {
+                                    console.error('Erro ao carregar histórico:', error);
+                                    historyRow.innerHTML = `<td colspan="7">Erro ao carregar histórico.</td>`;
+                                }
+                            });
+                            
+                            // Verificar se o professor logado é o mesmo que registrou para mostrar ações
+                            const actionsCell = row.querySelector('.actions-cell');
+                            const currentProfessor = professorSelect.value;
+                            if (currentProfessor !== occurrence.professor) {
+                                actionsCell.style.display = 'none';
+                            }
+                        });
+                    } else {
+                        registrosTableBody.innerHTML = '<tr><td colspan="7" class="no-records">Nenhum registro encontrado</td></tr>';
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar registros:', error);
+                    registrosTableBody.innerHTML = '<tr><td colspan="7" class="no-records">Erro ao carregar registros</td></tr>';
+                }
+            }
+
             // Enviar formulário
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
@@ -1640,9 +1886,8 @@
 
                 // Mostrar loading
                 const originalBtnText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<span class="loading"></span> Enviando...';
+                submitBtn.innerHTML = '<span class="loading"></span> Cadastrando...';
                 submitBtn.disabled = true;
-                showLoading();
 
                 try {
                     // Preparar dados para envio
@@ -1679,6 +1924,9 @@
                     
                     // Recarregar estatísticas de alunos por período
                     loadStudentPeriodStats();
+                    
+                    // Recarregar tabela de registros
+                    loadRegistrosTable();
                 } catch (error) {
                     console.error('Erro ao enviar ocorrência:', error);
                     if (error.name === 'AbortError') {
@@ -1694,7 +1942,6 @@
                     // Restaurar botão de envio
                     submitBtn.innerHTML = originalBtnText;
                     submitBtn.disabled = false;
-                    hideLoading();
                 }
             });
 
@@ -1761,7 +2008,6 @@
             
             // Carregar estatísticas de alunos por período
             async function loadStudentPeriodStats() {
-                showLoading();
                 try {
                     const url = `${SCRIPT_BASE_URL}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=BANCODEDADOSGERAL`;
                     const data = await safeFetch(url);
@@ -1791,11 +2037,93 @@
                     afternoonCountEl.textContent = demoData.afternoonCount;
                     nightCountEl.textContent = demoData.nightCount;
                     updateStudentsPeriodChart(demoData);
-                } finally {
-                    hideLoading();
                 }
             }
             
+            // Função para exportar dados para Excel
+            exportBtn.addEventListener('click', async function() {
+                try {
+                    const url = `${SCRIPT_BASE_URL}?action=getOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const data = await safeFetch(url);
+                    
+                    if (data && data.status === "success" && Array.isArray(data.occurrences)) {
+                        // Preparar dados para exportação
+                        const exportData = data.occurrences.map(occurrence => {
+                            return {
+                                'Data': new Date(occurrence.date).toLocaleDateString('pt-BR'),
+                                'Professor': occurrence.professor,
+                                'Turma': occurrence.class,
+                                'Aluno': occurrence.student,
+                                'Irregularidades': occurrence.irregularities || '',
+                                'Descrição': occurrence.description || ''
+                            };
+                        });
+                        
+                        // Criar planilha
+                        const worksheet = XLSX.utils.json_to_sheet(exportData);
+                        const workbook = XLSX.utils.book_new();
+                        XLSX.utils.book_append_sheet(workbook, worksheet, "OCORRENCIASDOSPROFESSORES");
+                        
+                        // Exportar para arquivo Excel
+                        XLSX.writeFile(workbook, 'ocorrencias_escolares.xlsx');
+                    } else {
+                        alert('Erro ao exportar dados: ' + (data?.message || 'Dados não encontrados'));
+                    }
+                } catch (error) {
+                    console.error('Erro ao exportar dados:', error);
+                    alert('Erro ao exportar dados: ' + error.message);
+                }
+            });
+            
+            // Delegation para botões de editar e excluir
+            registrosTable.addEventListener('click', function(e) {
+                const target = e.target;
+                const editBtn = target.closest('.btn-edit');
+                const deleteBtn = target.closest('.btn-delete');
+                
+                if (editBtn) {
+                    const occurrenceId = editBtn.getAttribute('data-id');
+                    alert('Edição de ocorrência: ' + occurrenceId + '\nEsta funcionalidade será implementada na próxima versão.');
+                }
+                
+                if (deleteBtn) {
+                    const occurrenceId = deleteBtn.getAttribute('data-id');
+                    if (confirm('Tem certeza que deseja excluir esta ocorrência?')) {
+                        deleteOccurrence(occurrenceId);
+                    }
+                }
+            });
+
+            async function deleteOccurrence(occurrenceId) {
+                try {
+                    const response = await safeFetch(SCRIPT_BASE_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            action: 'deleteOccurrence',
+                            id: occurrenceId,
+                            spreadsheetId: SPREADSHEET_ID,
+                            sheetName: SHEET_NAME
+                        })
+                    });
+                    
+                    if (response && response.status === "success") {
+                        alert('Ocorrência excluída com sucesso!');
+                        // Recarregar tabela
+                        loadRegistrosTable();
+                        // Atualizar estatísticas
+                        const currentTotal = parseInt(totalOccurrencesEl.textContent);
+                        totalOccurrencesEl.textContent = currentTotal - 1;
+                    } else {
+                        throw new Error(response?.message || "Erro ao excluir ocorrência");
+                    }
+                } catch (error) {
+                    alert('Erro ao excluir ocorrência: ' + error.message);
+                }
+            }
+
             // Inicializar gráficos com valores zero
             document.querySelectorAll('.donut-chart').forEach(canvas => {
                 createDonutChart(canvas, 0);
@@ -1803,6 +2131,9 @@
             
             // Carregar estatísticas iniciais
             loadStudentPeriodStats();
+            
+            // Carregar tabela de registros
+            loadRegistrosTable();
         });
     </script>
 </body>
