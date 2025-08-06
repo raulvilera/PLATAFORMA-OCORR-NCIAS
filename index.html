@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1987,14 +1988,20 @@
                         irregularities: irregularities.join(', '),
                         description: description,
                         spreadsheetId: SPREADSHEET_ID,
-                        sheetName: SHEET_NAME
+                        sheetName: SHEET_NAME,
+                        action: currentEditId ? 'updateOccurrence' : 'addOccurrence'
                     };
+
+                    // Se estiver editando, adicionar o ID da ocorrência
+                    if (currentEditId) {
+                        formData.id = currentEditId;
+                    }
 
                     // Enviar dados para o Google Sheets (com retentativas)
                     const response = await sendFormData(formData);
 
                     // Mostrar mensagem de sucesso
-                    showNotification('success', 'Ocorrência registrada com sucesso!');
+                    showNotification('success', currentEditId ? 'Ocorrência atualizada com sucesso!' : 'Ocorrência registrada com sucesso!');
 
                     // Resetar formulário após sucesso
                     form.reset();
@@ -2004,10 +2011,14 @@
                     classSelect.selectedIndex = 0;
                     studentOccurrencesCard.style.display = 'none';
                     classStudentsCard.style.display = 'none';
+                    currentEditId = null;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> CADASTRAR';
 
                     // Atualizar estatísticas gerais
-                    const currentTotal = parseInt(totalOccurrencesEl.textContent);
-                    totalOccurrencesEl.textContent = currentTotal + 1;
+                    if (!currentEditId) {
+                        const currentTotal = parseInt(totalOccurrencesEl.textContent);
+                        totalOccurrencesEl.textContent = currentTotal + 1;
+                    }
                     
                     // Recarregar estatísticas de alunos por período
                     loadStudentPeriodStats();
@@ -2019,7 +2030,6 @@
                     showNotification('error', 'Erro ao registrar ocorrência: ' + error.message);
                 } finally {
                     // Restaurar botão de envio
-                    submitBtn.innerHTML = originalBtnText;
                     submitBtn.disabled = false;
                 }
             });
