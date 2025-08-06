@@ -1502,11 +1502,13 @@
             // Configurações da planilha
             const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
             const SHEET_NAME = "OCORRENCIASDOSPROFESSORES";
+            // Substitua pela URL do seu Web App do Google Apps Script
             const SCRIPT_BASE_URL = "https://script.google.com/macros/s/AKfycbwr2-R9puLSqIOlwx1BHMxIul9iM1bbHdYNxBsgjSksFgOPf09oXzIU64u2ppaxwUnx/exec";
 
             // Armazenar gráficos
             const charts = {};
             let studentsPeriodChart = null;
+            let currentEditId = null; // Para controlar a edição
 
             // Preencher dropdown de professores
             const teacherNames = Object.keys(teacherEmails);
@@ -1745,6 +1747,8 @@
                 studentOccurrencesCard.style.display = 'none';
                 classStudentsCard.style.display = 'none';
                 classSelect.selectedIndex = 0;
+                currentEditId = null;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> CADASTRAR';
 
                 // Resetar gráficos
                 const chartCanvases = document.querySelectorAll('.donut-chart');
@@ -1813,7 +1817,7 @@
                         
                         data.occurrences.forEach(occurrence => {
                             const row = document.createElement('tr');
-                            row.setAttribute('data-student', occurrence.student);
+                            row.setAttribute('data-id', occurrence.id);
                             
                             // Formatar data
                             const dateObj = new Date(occurrence.date);
@@ -1893,13 +1897,6 @@
                                     historyRow.innerHTML = `<td colspan="7">Erro ao carregar histórico.</td>`;
                                 }
                             });
-                            
-                            // Verificar se o professor logado é o mesmo que registrou para mostrar ações
-                            const actionsCell = row.querySelector('.actions-cell');
-                            const currentProfessor = professorSelect.value;
-                            if (currentProfessor !== occurrence.professor) {
-                                actionsCell.style.display = 'none';
-                            }
                         });
                     } else {
                         registrosTableBody.innerHTML = '<tr><td colspan="7" class="no-records">Nenhum registro encontrado</td></tr>';
@@ -2150,7 +2147,7 @@
                 
                 if (editBtn) {
                     const occurrenceId = editBtn.getAttribute('data-id');
-                    showNotification('error', 'Edição ainda não implementada');
+                    editOccurrence(occurrenceId);
                 }
                 
                 if (deleteBtn) {
@@ -2161,6 +2158,58 @@
                 }
             });
 
+            // Função para editar ocorrência
+            async function editOccurrence(occurrenceId) {
+                try {
+                    const url = `${SCRIPT_BASE_URL}?action=getOccurrenceById&id=${occurrenceId}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const response = await safeFetch(url);
+                    
+                    if (response && response.status === "success" && response.occurrence) {
+                        const occurrence = response.occurrence;
+                        
+                        // Preencher formulário com os dados da ocorrência
+                        professorSelect.value = occurrence.professor;
+                        document.getElementById('occurrenceDate').value = occurrence.date;
+                        classSelect.value = occurrence.class;
+                        
+                        // Disparar evento para carregar alunos
+                        const event = new Event('change');
+                        classSelect.dispatchEvent(event);
+                        
+                        // Aguardar um pouco para o carregamento dos alunos
+                        setTimeout(() => {
+                            studentSelect.value = occurrence.student;
+                            
+                            // Disparar evento para carregar estatísticas do aluno
+                            studentSelect.dispatchEvent(new Event('change'));
+                            
+                            // Preencher irregularidades
+                            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                                checkbox.checked = occurrence.irregularities.includes(checkbox.value);
+                            });
+                            
+                            // Preencher descrição
+                            document.getElementById('description').value = occurrence.description || '';
+                            
+                            // Alterar botão para "Atualizar"
+                            submitBtn.innerHTML = '<i class="fas fa-sync-alt"></i> ATUALIZAR';
+                            currentEditId = occurrenceId;
+                            
+                            // Rolar para o topo do formulário
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            
+                            showNotification('success', 'Ocorrência carregada para edição');
+                        }, 500);
+                    } else {
+                        throw new Error(response?.message || "Erro ao carregar ocorrência para edição");
+                    }
+                } catch (error) {
+                    console.error('Erro ao editar ocorrência:', error);
+                    showNotification('error', 'Erro ao carregar ocorrência para edição');
+                }
+            }
+
+            // Função para excluir ocorrência
             async function deleteOccurrence(occurrenceId) {
                 try {
                     const response = await safeFetch(SCRIPT_BASE_URL, {
