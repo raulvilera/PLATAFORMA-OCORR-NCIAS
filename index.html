@@ -1453,7 +1453,7 @@
                 showLoading();
                 
                 // Buscar alunos reais da planilha
-                const url = `${"https://script.google.com/macros/s/AKfycbwr2-R9puLSqIOlwx1BHMxIul9iM1bbHdYNxBsgjSksFgOPf09oXzIU64u2ppaxwUnx/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
+                const url = `${SCRIPT_BASE_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
                 
                 safeFetch(url)
                     .then(data => {
@@ -1620,12 +1620,12 @@
                         class: classInfo,
                         irregularities: irregularities.join(', '),
                         description: description,
-                        spreadsheetId: "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio",
-                        sheetName: "OCORRENCIASDOSPROFESSORES"
+                        spreadsheetId: SPREADSHEET_ID,
+                        sheetName: SHEET_NAME
                     };
 
                     // Enviar dados para o Google Sheets
-                    const response = await safeFetch("https://script.google.com/macros/s/AKfycbwr2-R9puLSqIOlwx1BHMxIul9iM1bbHdYNxBsgjSksFgOPf09oXzIU64u2ppaxwUnx/execL", {
+                    const response = await safeFetch(SCRIPT_BASE_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -1741,7 +1741,7 @@
             async function loadStudentPeriodStats() {
                 showLoading();
                 try {
-                    const url = `${"https://script.google.com/macros/s/AKfycbwr2-R9puLSqIOlwx1BHMxIul9iM1bbHdYNxBsgjSksFgOPf09oXzIU64u2ppaxwUnx/exec"}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=BANCODEDADOSGERAL`;
+                    const url = `${SCRIPT_BASE_URL}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=BANCODEDADOSGERAL`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success") {
