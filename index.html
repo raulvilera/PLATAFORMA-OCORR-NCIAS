@@ -1480,7 +1480,6 @@
             const classSelect = document.getElementById('studentClass');
             const professorSelect = document.getElementById('professor');
             const totalOccurrencesEl = document.getElementById('totalOccurrences');
-            const totalStudentsEl = document.getElementById('totalStudents');
             const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
@@ -1508,6 +1507,7 @@
             const charts = {};
             let studentsPeriodChart = null;
             let currentEditId = null; // Para controlar a edição
+            let currentProfessorEmail = null; // Para verificar autoria
 
             // Preencher dropdown de professores
             const teacherNames = Object.keys(teacherEmails);
@@ -1770,15 +1770,15 @@
             async function sendFormData(formData, retries = 3) {
                 for (let attempt = 1; attempt <= retries; attempt++) {
                     try {
+                        // Corrigido: enviar como FormData para funcionar com Google Apps Script
+                        const formBody = new FormData();
+                        for (const key in formData) {
+                            formBody.append(key, formData[key]);
+                        }
+
                         const response = await safeFetch(SCRIPT_BASE_URL, {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                action: 'addOccurrence',
-                                ...formData
-                            })
+                            body: formBody
                         });
 
                         if (response && response.status === "success") {
@@ -1822,6 +1822,9 @@
                             const dateObj = new Date(occurrence.date);
                             const formattedDate = dateObj.toLocaleDateString('pt-BR');
                             
+                            // Verificar se o professor atual é o autor da ocorrência
+                            const isOwner = currentProfessorEmail === occurrence.professorEmail;
+                            
                             row.innerHTML = `
                                 <td>${formattedDate}</td>
                                 <td>${occurrence.professor}</td>
@@ -1830,12 +1833,14 @@
                                 <td>${occurrence.irregularities || '-'}</td>
                                 <td>${occurrence.description || '-'}</td>
                                 <td class="actions-cell">
-                                    <button class="btn-action btn-edit" data-id="${occurrence.id}">
-                                        <i class="fas fa-edit"></i> Editar
-                                    </button>
-                                    <button class="btn-action btn-delete" data-id="${occurrence.id}">
-                                        <i class="fas fa-trash"></i> Excluir
-                                    </button>
+                                    ${isOwner ? 
+                                        `<button class="btn-action btn-edit" data-id="${occurrence.id}">
+                                            <i class="fas fa-edit"></i> Editar
+                                        </button>
+                                        <button class="btn-action btn-delete" data-id="${occurrence.id}">
+                                            <i class="fas fa-trash"></i> Excluir
+                                        </button>` : 
+                                        '<span>Apenas o professor responsável</span>'}
                                 </td>
                             `;
                             
@@ -1897,6 +1902,9 @@
                                 }
                             });
                         });
+                        
+                        // Atualizar contador de ocorrências
+                        totalOccurrencesEl.textContent = data.occurrences.length;
                     } else {
                         registrosTableBody.innerHTML = '<tr><td colspan="7" class="no-records">Nenhum registro encontrado</td></tr>';
                     }
@@ -1905,6 +1913,13 @@
                     registrosTableBody.innerHTML = '<tr><td colspan="7" class="no-records">Erro ao carregar registros</td></tr>';
                 }
             }
+
+            // Armazenar e-mail do professor selecionado
+            professorSelect.addEventListener('change', function() {
+                const selectedProfessor = this.value;
+                currentProfessorEmail = teacherEmails[selectedProfessor];
+                loadRegistrosTable(); // Recarregar a tabela para atualizar permissões
+            });
 
             // Enviar formulário
             form.addEventListener('submit', async function(e) {
@@ -1965,6 +1980,7 @@
                     // Preparar dados para envio
                     const formData = {
                         professor: professor,
+                        professorEmail: teacherEmails[professor], // Adicionar e-mail do professor
                         date: occurrenceDate,
                         student: student,
                         class: classInfo,
@@ -2000,7 +2016,7 @@
                     loadRegistrosTable();
                 } catch (error) {
                     console.error('Erro ao enviar ocorrência:', error);
-                    showNotification('error', 'Erro ao registrar ocorrência');
+                    showNotification('error', 'Erro ao registrar ocorrência: ' + error.message);
                 } finally {
                     // Restaurar botão de envio
                     submitBtn.innerHTML = originalBtnText;
@@ -2076,7 +2092,7 @@
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success") {
-                        totalStudentsEl.textContent = data.totalStudents;
+                        document.getElementById('totalStudents').textContent = data.totalStudents;
                         morningCountEl.textContent = data.morningCount;
                         afternoonCountEl.textContent = data.afternoonCount;
                         nightCountEl.textContent = data.nightCount;
@@ -2095,7 +2111,7 @@
                         afternoonCount: 380,
                         nightCount: 220
                     };
-                    totalStudentsEl.textContent = demoData.totalStudents;
+                    document.getElementById('totalStudents').textContent = demoData.totalStudents;
                     morningCountEl.textContent = demoData.morningCount;
                     afternoonCountEl.textContent = demoData.afternoonCount;
                     nightCountEl.textContent = demoData.nightCount;
@@ -2166,6 +2182,12 @@
                     if (response && response.status === "success" && response.occurrence) {
                         const occurrence = response.occurrence;
                         
+                        // Verificar se o professor atual é o autor
+                        if (currentProfessorEmail !== occurrence.professorEmail) {
+                            showNotification('error', 'Você não tem permissão para editar esta ocorrência');
+                            return;
+                        }
+                        
                         // Preencher formulário com os dados da ocorrência
                         professorSelect.value = occurrence.professor;
                         document.getElementById('occurrenceDate').value = occurrence.date;
@@ -2184,7 +2206,8 @@
                             
                             // Preencher irregularidades
                             document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                                checkbox.checked = occurrence.irregularities.includes(checkbox.value);
+                                checkbox.checked = occurrence.irregularities && 
+                                                  occurrence.irregularities.includes(checkbox.value);
                             });
                             
                             // Preencher descrição
@@ -2211,17 +2234,17 @@
             // Função para excluir ocorrência
             async function deleteOccurrence(occurrenceId) {
                 try {
+                    // Enviar e-mail do professor atual para verificação
+                    const formData = new FormData();
+                    formData.append('action', 'deleteOccurrence');
+                    formData.append('id', occurrenceId);
+                    formData.append('professorEmail', currentProfessorEmail);
+                    formData.append('spreadsheetId', SPREADSHEET_ID);
+                    formData.append('sheetName', SHEET_NAME);
+
                     const response = await safeFetch(SCRIPT_BASE_URL, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            action: 'deleteOccurrence',
-                            id: occurrenceId,
-                            spreadsheetId: SPREADSHEET_ID,
-                            sheetName: SHEET_NAME
-                        })
+                        body: formData
                     });
                     
                     if (response && response.status === "success") {
@@ -2235,7 +2258,7 @@
                         throw new Error(response?.message || "Erro ao excluir ocorrência");
                     }
                 } catch (error) {
-                    showNotification('error', 'Erro ao excluir ocorrência');
+                    showNotification('error', 'Erro ao excluir ocorrência: ' + error.message);
                 }
             }
 
