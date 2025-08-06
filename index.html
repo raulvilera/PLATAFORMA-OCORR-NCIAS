@@ -732,7 +732,6 @@
             text-shadow: 0 3px 6px rgba(0,0,0,0.3);
         }
         
-        /* Novo card de alunos por turma */
         .class-students-card {
             background: linear-gradient(135deg, #3498db 0%, #1a73e8 100%);
             color: white;
@@ -778,7 +777,6 @@
             text-shadow: 0 3px 6px rgba(0,0,0,0.3);
         }
         
-        /* Estilos para a tabela de registros */
         .registros-table {
             width: 100%;
             border-collapse: collapse;
@@ -897,13 +895,74 @@
             font-style: italic;
         }
         
-        /* NOVO: Botões de ação acima da tabela */
         .form-actions {
             display: flex;
             justify-content: flex-end;
             gap: 18px;
             margin: 25px 0;
             flex-wrap: wrap;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.4s ease;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .notification.error {
+            background: var(--error-color);
+            color: white;
+        }
+        
+        .notification .icon {
+            font-size: 1.5rem;
+        }
+        
+        .notification .content {
+            flex-grow: 1;
+        }
+        
+        .notification .close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
         }
         
         @media (max-width: 992px) {
@@ -964,7 +1023,6 @@
                 gap: 5px;
             }
             
-            /* Ajuste para mobile dos botões de ação */
             .form-actions {
                 flex-direction: column;
                 gap: 10px;
@@ -991,14 +1049,6 @@
         <main>
             <div class="dashboard">
                 <div>
-                    <div class="alert alert-success" id="successAlert">
-                        <i class="fas fa-check-circle"></i> 
-                        <div>
-                            <strong>Ocorrência registrada com sucesso!</strong>
-                            <p>Os dados foram enviados para a planilha de ocorrências.</p>
-                        </div>
-                    </div>
-                    
                     <div class="integration-status">
                         <i class="fas fa-plug"></i>
                         <div>
@@ -1188,7 +1238,6 @@
                                     <textarea id="description" placeholder="Descreva detalhadamente a ocorrência..."></textarea>
                                 </div>
                                 
-                                <!-- Botões reorganizados: Cadastrar, Limpar, Exportar -->
                                 <div class="form-actions">
                                     <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
                                         <i class="fas fa-paper-plane"></i> CADASTRAR
@@ -1201,7 +1250,6 @@
                                     </button>
                                 </div>
                                 
-                                <!-- Tabela de registros abaixo dos botões -->
                                 <div class="form-group">
                                     <label>Registros de Ocorrências</label>
                                     <div class="table-container" style="overflow-x: auto;">
@@ -1320,6 +1368,12 @@
         </main>
     </div>
     
+    <div id="notification" class="notification">
+        <i class="fas icon"></i>
+        <div class="content"></div>
+        <button class="close"><i class="fas fa-times"></i></button>
+    </div>
+    
     <footer>
         <div class="footer-links">
             <a href="#"><i class="fas fa-envelope"></i> Contato</a>
@@ -1422,7 +1476,6 @@
             const form = document.getElementById('occurrenceForm');
             const clearBtn = document.getElementById('clearBtn');
             const submitBtn = document.getElementById('submitBtn');
-            const successAlert = document.getElementById('successAlert');
             const studentSelect = document.getElementById('student');
             const classSelect = document.getElementById('studentClass');
             const professorSelect = document.getElementById('professor');
@@ -1441,6 +1494,10 @@
             const classStudentsCard = document.getElementById('classStudentsCard');
             const classStudentsCount = document.getElementById('classStudentsCount');
             const selectedClassPeriod = document.getElementById('selectedClassPeriod');
+            const notification = document.getElementById('notification');
+            const notificationIcon = notification.querySelector('.icon');
+            const notificationContent = notification.querySelector('.content');
+            const notificationClose = notification.querySelector('.close');
 
             // Configurações da planilha
             const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
@@ -1471,6 +1528,29 @@
             // Contar turmas disponíveis
             const turmasCount = document.querySelectorAll('#studentClass option').length - 1;
             document.getElementById('totalClasses').textContent = turmasCount;
+
+            // Função para mostrar notificações
+            function showNotification(type, message) {
+                notification.classList.remove('success', 'error');
+                notification.classList.add(type);
+                notificationContent.textContent = message;
+                
+                if (type === 'success') {
+                    notificationIcon.className = 'fas fa-check-circle icon';
+                } else {
+                    notificationIcon.className = 'fas fa-exclamation-circle icon';
+                }
+                
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 5000);
+            }
+            
+            notificationClose.addEventListener('click', () => {
+                notification.classList.remove('show');
+            });
 
             // Função para criar gráficos de rosca
             function createDonutChart(canvas, value, maxValue = 10) {
@@ -1595,11 +1675,13 @@
                         } else {
                             const errorMsg = data?.message || 'Resposta inesperada do servidor';
                             studentSelect.innerHTML = `<option value="">Erro: ${errorMsg}</option>`;
+                            showNotification('error', 'Erro ao carregar alunos');
                         }
                     })
                     .catch(error => {
                         console.error('Erro ao carregar alunos:', error);
                         studentSelect.innerHTML = `<option value="">Erro: ${error.message || 'Falha ao carregar alunos'}</option>`;
+                        showNotification('error', 'Erro ao carregar alunos');
                     });
             });
 
@@ -1625,11 +1707,13 @@
                             } else {
                                 studentOccurrencesCount.textContent = "0";
                                 console.error('Erro ao buscar estatísticas:', data?.message);
+                                showNotification('error', 'Erro ao carregar estatísticas');
                             }
                         })
                         .catch(error => {
                             studentOccurrencesCount.textContent = "0";
                             console.error('Erro ao buscar estatísticas:', error);
+                            showNotification('error', 'Erro ao carregar estatísticas');
                         });
                 } else {
                     studentOccurrencesCard.style.display = 'none';
@@ -1658,7 +1742,6 @@
                 professorSelect.selectedIndex = 0;
                 studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
                 studentSelect.disabled = true;
-                successAlert.style.display = 'none';
                 studentOccurrencesCard.style.display = 'none';
                 classStudentsCard.style.display = 'none';
                 classSelect.selectedIndex = 0;
@@ -1831,9 +1914,6 @@
             form.addEventListener('submit', async function(e) {
                 e.preventDefault();
 
-                // Esconder alertas
-                successAlert.style.display = 'none';
-
                 // Remover classes de erro existentes
                 document.querySelectorAll('.input-error').forEach(el => {
                     el.classList.remove('input-error');
@@ -1902,8 +1982,7 @@
                     const response = await sendFormData(formData);
 
                     // Mostrar mensagem de sucesso
-                    successAlert.style.display = 'flex';
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    showNotification('success', 'Ocorrência registrada com sucesso!');
 
                     // Resetar formulário após sucesso
                     form.reset();
@@ -1925,7 +2004,7 @@
                     loadRegistrosTable();
                 } catch (error) {
                     console.error('Erro ao enviar ocorrência:', error);
-                    alert(`Ocorreu um erro ao enviar a ocorrência: ${error.message}`);
+                    showNotification('error', 'Erro ao registrar ocorrência');
                 } finally {
                     // Restaurar botão de envio
                     submitBtn.innerHTML = originalBtnText;
@@ -2055,11 +2134,11 @@
                         // Exportar para arquivo Excel
                         XLSX.writeFile(workbook, 'ocorrencias_escolares.xlsx');
                     } else {
-                        alert('Erro ao exportar dados: ' + (data?.message || 'Dados não encontrados'));
+                        showNotification('error', 'Erro ao exportar dados');
                     }
                 } catch (error) {
                     console.error('Erro ao exportar dados:', error);
-                    alert('Erro ao exportar dados: ' + error.message);
+                    showNotification('error', 'Erro ao exportar dados');
                 }
             });
             
@@ -2071,7 +2150,7 @@
                 
                 if (editBtn) {
                     const occurrenceId = editBtn.getAttribute('data-id');
-                    alert('Edição de ocorrência: ' + occurrenceId + '\nEsta funcionalidade será implementada na próxima versão.');
+                    showNotification('error', 'Edição ainda não implementada');
                 }
                 
                 if (deleteBtn) {
@@ -2098,7 +2177,7 @@
                     });
                     
                     if (response && response.status === "success") {
-                        alert('Ocorrência excluída com sucesso!');
+                        showNotification('success', 'Ocorrência excluída com sucesso!');
                         // Recarregar tabela
                         loadRegistrosTable();
                         // Atualizar estatísticas
@@ -2108,7 +2187,7 @@
                         throw new Error(response?.message || "Erro ao excluir ocorrência");
                     }
                 } catch (error) {
-                    alert('Erro ao excluir ocorrência: ' + error.message);
+                    showNotification('error', 'Erro ao excluir ocorrência');
                 }
             }
 
