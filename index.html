@@ -1766,39 +1766,37 @@
                 });
             });
 
-            // Função para enviar dados com retentativas e tratamento de CORS
-            async function sendFormData(formData, retries = 3) {
-                for (let attempt = 1; attempt <= retries; attempt++) {
-                    try {
-                        // Enviar como parâmetros de URL para evitar problemas CORS
-                        const params = new URLSearchParams();
-                        for (const key in formData) {
-                            params.append(key, formData[key]);
-                        }
+            // Função para enviar dados com tratamento de CORS
+            async function sendFormData(formData) {
+                try {
+                    // Enviar dados para o Google Sheets via POST
+                    const response = await fetch(SCRIPT_BASE_URL, {
+                        method: 'POST',
+                        mode: 'cors',
+                        cache: 'no-cache',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        redirect: 'follow',
+                        body: JSON.stringify(formData)
+                    });
 
-                        const url = `${SCRIPT_BASE_URL}?${params.toString()}`;
-                        const response = await safeFetch(url, {
-                            method: 'GET' // Usar GET para evitar problemas CORS com POST
-                        });
-
-                        if (response && response.status === "success") {
-                            return response;
-                        } else {
-                            throw new Error(response?.message || "Erro desconhecido ao enviar ocorrência");
-                        }
-                    } catch (error) {
-                        console.error(`Tentativa ${attempt} falhou:`, error);
-                        if (attempt < retries) {
-                            // Esperar antes de tentar novamente (exponencial backoff)
-                            await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
-                        } else {
-                            throw error;
-                        }
+                    // Verificar se a resposta é JSON
+                    const contentType = response.headers.get('content-type');
+                    if (contentType && contentType.includes('application/json')) {
+                        return await response.json();
+                    } else {
+                        // Se não for JSON, tentar ler como texto
+                        const text = await response.text();
+                        throw new Error(text || 'Resposta inválida do servidor');
                     }
+                } catch (error) {
+                    console.error('Erro ao enviar ocorrência:', error);
+                    throw error;
                 }
             }
 
-            // Função para carregar registros na tabela
+            // Carregar registros na tabela
             async function loadRegistrosTable() {
                 registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Carregando registros...</td></tr>';
                 
@@ -1940,34 +1938,39 @@
                         formData.id = currentEditId;
                     }
 
-                    // Enviar dados para o Google Sheets (com retentativas)
+                    // Enviar dados para o Google Sheets
                     const response = await sendFormData(formData);
 
-                    // Mostrar mensagem de sucesso
-                    showNotification('success', currentEditId ? 'Ocorrência atualizada com sucesso!' : 'Ocorrência registrada com sucesso!');
+                    // Verificar a resposta
+                    if (response.status === "success") {
+                        // Mostrar mensagem de sucesso
+                        showNotification('success', currentEditId ? 'Ocorrência atualizada com sucesso!' : 'Ocorrência registrada com sucesso!');
 
-                    // Resetar formulário após sucesso
-                    form.reset();
-                    document.getElementById('occurrenceDate').value = formattedDate;
-                    studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-                    studentSelect.disabled = true;
-                    classSelect.selectedIndex = 0;
-                    studentOccurrencesCard.style.display = 'none';
-                    classStudentsCard.style.display = 'none';
-                    currentEditId = null;
-                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> CADASTRAR';
+                        // Resetar formulário após sucesso
+                        form.reset();
+                        document.getElementById('occurrenceDate').value = formattedDate;
+                        studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                        studentSelect.disabled = true;
+                        classSelect.selectedIndex = 0;
+                        studentOccurrencesCard.style.display = 'none';
+                        classStudentsCard.style.display = 'none';
+                        currentEditId = null;
+                        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> CADASTRAR';
 
-                    // Atualizar estatísticas gerais
-                    if (!currentEditId) {
-                        const currentTotal = parseInt(totalOccurrencesEl.textContent);
-                        totalOccurrencesEl.textContent = currentTotal + 1;
+                        // Atualizar estatísticas gerais
+                        if (!currentEditId) {
+                            const currentTotal = parseInt(totalOccurrencesEl.textContent);
+                            totalOccurrencesEl.textContent = currentTotal + 1;
+                        }
+                        
+                        // Recarregar estatísticas de alunos por período
+                        loadStudentPeriodStats();
+                        
+                        // Recarregar tabela de registros
+                        loadRegistrosTable();
+                    } else {
+                        throw new Error(response.message || "Erro ao registrar ocorrência");
                     }
-                    
-                    // Recarregar estatísticas de alunos por período
-                    loadStudentPeriodStats();
-                    
-                    // Recarregar tabela de registros
-                    loadRegistrosTable();
                 } catch (error) {
                     console.error('Erro ao enviar ocorrência:', error);
                     showNotification('error', 'Erro ao registrar ocorrência: ' + error.message);
