@@ -1130,7 +1130,7 @@
                                                     <option value="2ª SERIE H NOITE">2ª SERIE H NOITE</option>
                                                     <option value="3ª SERIE A MANHA">3ª SERIE A MANHA</option>
                                                     <option value="3ª SERIE B MANHA">3ª SERIE B MANHA</option>
-                                                    <option value="3ª SERIE C MANHA">3ª SERie C MANHA</option>
+                                                    <option value="3ª SERIE C MANHA">3ª SERIE C MANHA</option>
                                                     <option value="3ª SERIE D NOITE">3ª SERIE D NOITE</option>
                                                     <option value="3ª SERIE E NOITE">3ª SERIE E NOITE</option>
                                                     <option value="3ª SERIE F NOITE">3ª SERIE F NOITE</option>
@@ -1480,6 +1480,7 @@
             const classSelect = document.getElementById('studentClass');
             const professorSelect = document.getElementById('professor');
             const totalOccurrencesEl = document.getElementById('totalOccurrences');
+            const totalStudentsEl = document.getElementById('totalStudents');
             const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
@@ -1507,7 +1508,6 @@
             const charts = {};
             let studentsPeriodChart = null;
             let currentEditId = null; // Para controlar a edição
-            let currentProfessorEmail = null; // Para verificar autoria
 
             // Preencher dropdown de professores
             const teacherNames = Object.keys(teacherEmails);
@@ -1591,7 +1591,7 @@
                 chartValue.textContent = value;
             }
 
-            // Função para fazer requisições seguras com tratamento de CORS
+            // Função para fazer requisições seguras
             async function safeFetch(url, options = {}) {
                 try {
                     const controller = new AbortController();
@@ -1766,37 +1766,39 @@
                 });
             });
 
-            // Função para enviar dados com tratamento de CORS
-            async function sendFormData(formData) {
-                try {
-                    // Enviar dados para o Google Sheets via POST
-                    const response = await fetch(SCRIPT_BASE_URL, {
-                        method: 'POST',
-                        mode: 'cors',
-                        cache: 'no-cache',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        redirect: 'follow',
-                        body: JSON.stringify(formData)
-                    });
+            // Função para enviar dados com retentativas
+            async function sendFormData(formData, retries = 3) {
+                for (let attempt = 1; attempt <= retries; attempt++) {
+                    try {
+                        const response = await safeFetch(SCRIPT_BASE_URL, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                action: 'addOccurrence',
+                                ...formData
+                            })
+                        });
 
-                    // Verificar se a resposta é JSON
-                    const contentType = response.headers.get('content-type');
-                    if (contentType && contentType.includes('application/json')) {
-                        return await response.json();
-                    } else {
-                        // Se não for JSON, tentar ler como texto
-                        const text = await response.text();
-                        throw new Error(text || 'Resposta inválida do servidor');
+                        if (response && response.status === "success") {
+                            return response;
+                        } else {
+                            throw new Error(response?.message || "Erro desconhecido ao enviar ocorrência");
+                        }
+                    } catch (error) {
+                        console.error(`Tentativa ${attempt} falhou:`, error);
+                        if (attempt < retries) {
+                            // Esperar antes de tentar novamente (exponencial backoff)
+                            await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+                        } else {
+                            throw error;
+                        }
                     }
-                } catch (error) {
-                    console.error('Erro ao enviar ocorrência:', error);
-                    throw error;
                 }
             }
 
-            // Carregar registros na tabela
+            // Função para carregar registros na tabela
             async function loadRegistrosTable() {
                 registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Carregando registros...</td></tr>';
                 
@@ -1820,9 +1822,6 @@
                             const dateObj = new Date(occurrence.date);
                             const formattedDate = dateObj.toLocaleDateString('pt-BR');
                             
-                            // Verificar se o professor atual é o autor da ocorrência
-                            const isOwner = currentProfessorEmail === occurrence.professorEmail;
-                            
                             row.innerHTML = `
                                 <td>${formattedDate}</td>
                                 <td>${occurrence.professor}</td>
@@ -1831,22 +1830,73 @@
                                 <td>${occurrence.irregularities || '-'}</td>
                                 <td>${occurrence.description || '-'}</td>
                                 <td class="actions-cell">
-                                    ${isOwner ? 
-                                        `<button class="btn-action btn-edit" data-id="${occurrence.id}">
-                                            <i class="fas fa-edit"></i> Editar
-                                        </button>
-                                        <button class="btn-action btn-delete" data-id="${occurrence.id}">
-                                            <i class="fas fa-trash"></i> Excluir
-                                        </button>` : 
-                                        '<span>Apenas o professor responsável</span>'}
+                                    <button class="btn-action btn-edit" data-id="${occurrence.id}">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </button>
+                                    <button class="btn-action btn-delete" data-id="${occurrence.id}">
+                                        <i class="fas fa-trash"></i> Excluir
+                                    </button>
                                 </td>
                             `;
                             
                             registrosTableBody.appendChild(row);
+                            
+                            // Adicionar evento de duplo clique para expandir
+                            row.addEventListener('dblclick', async () => {
+                                // Se já estiver expandido, recolher
+                                if (row.nextElementSibling && row.nextElementSibling.classList.contains('history-row')) {
+                                    row.nextElementSibling.remove();
+                                    return;
+                                }
+                                
+                                // Buscar histórico do aluno
+                                const historyRow = document.createElement('tr');
+                                historyRow.className = 'history-row';
+                                historyRow.innerHTML = `<td colspan="7">Carregando histórico...</td>`;
+                                row.parentNode.insertBefore(historyRow, row.nextSibling);
+                                
+                                try {
+                                    const historyUrl = `${SCRIPT_BASE_URL}?action=getStudentHistory&student=${encodeURIComponent(occurrence.student)}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                                    const historyData = await safeFetch(historyUrl);
+                                    
+                                    if (historyData && historyData.status === "success" && Array.isArray(historyData.history)) {
+                                        let historyHTML = `<td colspan="7">
+                                            <table class="history-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Data</th>
+                                                        <th>Professor</th>
+                                                        <th>Turma</th>
+                                                        <th>Irregularidades</th>
+                                                        <th>Descrição</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>`;
+                                        
+                                        historyData.history.forEach(entry => {
+                                            const entryDate = new Date(entry.date).toLocaleDateString('pt-BR');
+                                            historyHTML += `
+                                                <tr>
+                                                    <td>${entryDate}</td>
+                                                    <td>${entry.professor}</td>
+                                                    <td>${entry.class}</td>
+                                                    <td>${entry.irregularities || '-'}</td>
+                                                    <td>${entry.description || '-'}</td>
+                                                </tr>
+                                            `;
+                                        });
+                                        
+                                        historyHTML += `</tbody></table></td>`;
+                                        historyRow.innerHTML = historyHTML;
+                                    } else {
+                                        historyRow.innerHTML = `<td colspan="7">Nenhum histórico encontrado.</td>`;
+                                    }
+                                } catch (error) {
+                                    console.error('Erro ao carregar histórico:', error);
+                                    historyRow.innerHTML = `<td colspan="7">Erro ao carregar histórico.</td>`;
+                                }
+                            });
                         });
-                        
-                        // Atualizar contador de ocorrências
-                        totalOccurrencesEl.textContent = data.occurrences.length;
                     } else {
                         registrosTableBody.innerHTML = '<tr><td colspan="7" class="no-records">Nenhum registro encontrado</td></tr>';
                     }
@@ -1855,13 +1905,6 @@
                     registrosTableBody.innerHTML = '<tr><td colspan="7" class="no-records">Erro ao carregar registros</td></tr>';
                 }
             }
-
-            // Armazenar e-mail do professor selecionado
-            professorSelect.addEventListener('change', function() {
-                const selectedProfessor = this.value;
-                currentProfessorEmail = teacherEmails[selectedProfessor];
-                loadRegistrosTable(); // Recarregar a tabela para atualizar permissões
-            });
 
             // Enviar formulário
             form.addEventListener('submit', async function(e) {
@@ -1922,60 +1965,45 @@
                     // Preparar dados para envio
                     const formData = {
                         professor: professor,
-                        professorEmail: teacherEmails[professor], // Adicionar e-mail do professor
                         date: occurrenceDate,
                         student: student,
                         class: classInfo,
                         irregularities: irregularities.join(', '),
                         description: description,
                         spreadsheetId: SPREADSHEET_ID,
-                        sheetName: SHEET_NAME,
-                        action: currentEditId ? 'updateOccurrence' : 'addOccurrence'
+                        sheetName: SHEET_NAME
                     };
 
-                    // Se estiver editando, adicionar o ID da ocorrência
-                    if (currentEditId) {
-                        formData.id = currentEditId;
-                    }
-
-                    // Enviar dados para o Google Sheets
+                    // Enviar dados para o Google Sheets (com retentativas)
                     const response = await sendFormData(formData);
 
-                    // Verificar a resposta
-                    if (response.status === "success") {
-                        // Mostrar mensagem de sucesso
-                        showNotification('success', currentEditId ? 'Ocorrência atualizada com sucesso!' : 'Ocorrência registrada com sucesso!');
+                    // Mostrar mensagem de sucesso
+                    showNotification('success', 'Ocorrência registrada com sucesso!');
 
-                        // Resetar formulário após sucesso
-                        form.reset();
-                        document.getElementById('occurrenceDate').value = formattedDate;
-                        studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-                        studentSelect.disabled = true;
-                        classSelect.selectedIndex = 0;
-                        studentOccurrencesCard.style.display = 'none';
-                        classStudentsCard.style.display = 'none';
-                        currentEditId = null;
-                        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> CADASTRAR';
+                    // Resetar formulário após sucesso
+                    form.reset();
+                    document.getElementById('occurrenceDate').value = formattedDate;
+                    studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                    studentSelect.disabled = true;
+                    classSelect.selectedIndex = 0;
+                    studentOccurrencesCard.style.display = 'none';
+                    classStudentsCard.style.display = 'none';
 
-                        // Atualizar estatísticas gerais
-                        if (!currentEditId) {
-                            const currentTotal = parseInt(totalOccurrencesEl.textContent);
-                            totalOccurrencesEl.textContent = currentTotal + 1;
-                        }
-                        
-                        // Recarregar estatísticas de alunos por período
-                        loadStudentPeriodStats();
-                        
-                        // Recarregar tabela de registros
-                        loadRegistrosTable();
-                    } else {
-                        throw new Error(response.message || "Erro ao registrar ocorrência");
-                    }
+                    // Atualizar estatísticas gerais
+                    const currentTotal = parseInt(totalOccurrencesEl.textContent);
+                    totalOccurrencesEl.textContent = currentTotal + 1;
+                    
+                    // Recarregar estatísticas de alunos por período
+                    loadStudentPeriodStats();
+                    
+                    // Recarregar tabela de registros
+                    loadRegistrosTable();
                 } catch (error) {
                     console.error('Erro ao enviar ocorrência:', error);
-                    showNotification('error', 'Erro ao registrar ocorrência: ' + error.message);
+                    showNotification('error', 'Erro ao registrar ocorrência');
                 } finally {
                     // Restaurar botão de envio
+                    submitBtn.innerHTML = originalBtnText;
                     submitBtn.disabled = false;
                 }
             });
@@ -2048,7 +2076,7 @@
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success") {
-                        document.getElementById('totalStudents').textContent = data.totalStudents;
+                        totalStudentsEl.textContent = data.totalStudents;
                         morningCountEl.textContent = data.morningCount;
                         afternoonCountEl.textContent = data.afternoonCount;
                         nightCountEl.textContent = data.nightCount;
@@ -2067,7 +2095,7 @@
                         afternoonCount: 380,
                         nightCount: 220
                     };
-                    document.getElementById('totalStudents').textContent = demoData.totalStudents;
+                    totalStudentsEl.textContent = demoData.totalStudents;
                     morningCountEl.textContent = demoData.morningCount;
                     afternoonCountEl.textContent = demoData.afternoonCount;
                     nightCountEl.textContent = demoData.nightCount;
@@ -2138,12 +2166,6 @@
                     if (response && response.status === "success" && response.occurrence) {
                         const occurrence = response.occurrence;
                         
-                        // Verificar se o professor atual é o autor
-                        if (currentProfessorEmail !== occurrence.professorEmail) {
-                            showNotification('error', 'Você não tem permissão para editar esta ocorrência');
-                            return;
-                        }
-                        
                         // Preencher formulário com os dados da ocorrência
                         professorSelect.value = occurrence.professor;
                         document.getElementById('occurrenceDate').value = occurrence.date;
@@ -2162,8 +2184,7 @@
                             
                             // Preencher irregularidades
                             document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                                checkbox.checked = occurrence.irregularities && 
-                                                  occurrence.irregularities.includes(checkbox.value);
+                                checkbox.checked = occurrence.irregularities.includes(checkbox.value);
                             });
                             
                             // Preencher descrição
@@ -2190,16 +2211,18 @@
             // Função para excluir ocorrência
             async function deleteOccurrence(occurrenceId) {
                 try {
-                    // Enviar e-mail do professor atual para verificação
-                    const formData = {
-                        action: 'deleteOccurrence',
-                        id: occurrenceId,
-                        professorEmail: currentProfessorEmail,
-                        spreadsheetId: SPREADSHEET_ID,
-                        sheetName: SHEET_NAME
-                    };
-
-                    const response = await sendFormData(formData);
+                    const response = await safeFetch(SCRIPT_BASE_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            action: 'deleteOccurrence',
+                            id: occurrenceId,
+                            spreadsheetId: SPREADSHEET_ID,
+                            sheetName: SHEET_NAME
+                        })
+                    });
                     
                     if (response && response.status === "success") {
                         showNotification('success', 'Ocorrência excluída com sucesso!');
@@ -2212,7 +2235,7 @@
                         throw new Error(response?.message || "Erro ao excluir ocorrência");
                     }
                 } catch (error) {
-                    showNotification('error', 'Erro ao excluir ocorrência: ' + error.message);
+                    showNotification('error', 'Erro ao excluir ocorrência');
                 }
             }
 
