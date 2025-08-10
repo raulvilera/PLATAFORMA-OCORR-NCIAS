@@ -1593,42 +1593,52 @@
             }
 
             // Função para fazer requisições seguras
-            async function safeFetch(url, options = {}) {
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
-                    
-                    const fetchOptions = {
-                        ...options,
-                        signal: controller.signal,
-                        mode: 'cors',
-                        redirect: 'follow'
-                    };
+async function safeFetch(url, options = {}) {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    const response = await fetch(url, { ...options, signal: controller.signal, mode: 'cors' });
+    clearTimeout(timeoutId);
 
-                    const response = await fetch(url, fetchOptions);
-                    clearTimeout(timeoutId);
+    const text = await response.text();
+    try {
+      return JSON.parse(text);
+    } catch (e) {
+      console.error('Resposta não JSON recebida:', text);
+      return { status: "error", message: "Resposta não JSON do servidor", raw: text, statusCode: response.status };
+    }
+  } catch (error) {
+    console.error("Erro na requisição:", error);
+    return { status: "error", message: error.message || "Erro na conexão com o servidor" };
+  }
+}
+           async function cadastrarOcorrencia(ocorrencia) {
+  const url = SCRIPT_BASE_URL;
+  const data = await safeFetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ action: "addOccurrence", ...ocorrencia })
+  });
 
-                    // Verificar status da resposta
-                    if (!response.ok) {
-                        throw new Error(`Erro ${response.status}: ${response.statusText}`);
-                    }
+  if (data.status === "success") {
+    alert("Ocorrência registrada com sucesso!");
+  } else {
+    alert(`Erro ao registrar ocorrência: ${data.message}`);
+  }
+}
 
-                    // Verificar se a resposta é JSON válido
-                    const contentType = response.headers.get('content-type');
-                    if (!contentType || !contentType.includes('application/json')) {
-                        const text = await response.text();
-                        throw new Error(`Resposta inválida: ${text.substring(0, 100)}`);
-                    }
-
-                    return await response.json();
-                } catch (error) {
-                    console.error('Erro na requisição:', error);
-                    return {
-                        status: "error",
-                        message: error.message || "Erro na conexão com o servidor"
-                    };
-                }
-            }
+// Exemplo de uso
+document.getElementById("btnCadastrar").addEventListener("click", () => {
+  const ocorrencia = {
+    professor: document.getElementById("professor").value,
+    date: document.getElementById("data").value,
+    student: document.getElementById("aluno").value,
+    class: document.getElementById("turma").value,
+    irregularities: document.getElementById("irregularidades").value,
+    description: document.getElementById("descricao").value
+  };
+  cadastrarOcorrencia(ocorrencia);
+}
 
             // Carregar alunos quando uma turma for selecionada
             classSelect.addEventListener('change', function() {
