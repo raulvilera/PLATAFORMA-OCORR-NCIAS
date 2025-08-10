@@ -1697,7 +1697,7 @@
                     studentOccurrencesCount.textContent = "Carregando...";
                     
                     // Buscar estatísticas do aluno
-                    const url = `${SCRIPT_BASE_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}&spreadsheetId=${SPREADSHEET_ID}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbxyWIDFihgt11D0PGWpiKnrRCJv9dAtOOcgBd9V4yFz_-MlkM_kBJNQHO9aFEYOoM8l/exec"L}?action=getStudentStats&student=${encodeURIComponent(this.value)}&spreadsheetId=${SPREADSHEET_ID}`;
                     
                     safeFetch(url)
                         .then(data => {
@@ -1772,7 +1772,7 @@
             async function sendFormData(formData, retries = 3) {
                 for (let attempt = 1; attempt <= retries; attempt++) {
                     try {
-                        const response = await safeFetch(SCRIPT_BASE_URL, {
+                        const response = await safeFetch("https://script.google.com/macros/s/AKfycbxyWIDFihgt11D0PGWpiKnrRCJv9dAtOOcgBd9V4yFz_-MlkM_kBJNQHO9aFEYOoM8l/exec", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -1805,7 +1805,7 @@
                 registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Carregando registros...</td></tr>';
                 
                 try {
-                    const url = `${SCRIPT_BASE_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbxyWIDFihgt11D0PGWpiKnrRCJv9dAtOOcgBd9V4yFz_-MlkM_kBJNQHO9aFEYOoM8l/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
