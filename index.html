@@ -1696,7 +1696,7 @@
                     studentOccurrencesCount.textContent = "Carregando...";
                     
                     // Buscar estatísticas do aluno
-                    const url = `${SCRIPT_BASE_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}&spreadsheetId=${SPREADSHEET_ID}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbzXLz90pueTq93UL1d10Mi6rXTS45fDHMrmcWEZvJwrJ4zzHSnsjM32NzM03oiEdMIr/exec"}?action=getStudentStats&student=${encodeURIComponent(this.value)}&spreadsheetId=${SPREADSHEET_ID}`;
                     
                     safeFetch(url)
                         .then(data => {
@@ -2089,7 +2089,7 @@
             // Carregar estatísticas de alunos por período
             async function loadStudentPeriodStats() {
                 try {
-                    const url = `${SCRIPT_BASE_URL}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=${STUDENT_SHEET_NAME}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbzXLz90pueTq93UL1d10Mi6rXTS45fDHMrmcWEZvJwrJ4zzHSnsjM32NzM03oiEdMIr/exec"}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=${STUDENT_SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success") {
@@ -2123,7 +2123,7 @@
             // Função para exportar dados para Excel
             exportBtn.addEventListener('click', async function() {
                 try {
-                    const url = `${SCRIPT_BASE_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbzXLz90pueTq93UL1d10Mi6rXTS45fDHMrmcWEZvJwrJ4zzHSnsjM32NzM03oiEdMIr/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
