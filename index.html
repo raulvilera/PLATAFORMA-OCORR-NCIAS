@@ -2113,7 +2113,7 @@
             // Função para exportar dados para Excel
             exportBtn.addEventListener('click', async function() {
                 try {
-                    const url = `${SCRIPT_BASE_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbxyWIDFihgt11D0PGWpiKnrRCJv9dAtOOcgBd9V4yFz_-MlkM_kBJNQHO9aFEYOoM8l/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
@@ -2218,7 +2218,7 @@
             // Função para excluir ocorrência
             async function deleteOccurrence(occurrenceId) {
                 try {
-                    const response = await safeFetch(SCRIPT_BASE_URL, {
+                    const response = await safeFetch("https://script.google.com/macros/s/AKfycbxyWIDFihgt11D0PGWpiKnrRCJv9dAtOOcgBd9V4yFz_-MlkM_kBJNQHO9aFEYOoM8l/exec", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
