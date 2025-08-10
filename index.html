@@ -1770,7 +1770,7 @@
             async function sendFormData(formData, retries = 3) {
                 for (let attempt = 1; attempt <= retries; attempt++) {
                     try {
-                        const response = await safeFetch(SCRIPT_BASE_URL, {
+                        const response = await safeFetch("https://script.google.com/macros/s/AKfycbxyWIDFihgt11D0PGWpiKnrRCJv9dAtOOcgBd9V4yFz_-MlkM_kBJNQHO9aFEYOoM8l/exec"L, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -1803,7 +1803,7 @@
                 registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Carregando registros...</td></tr>';
                 
                 try {
-                    const url = `${SCRIPT_BASE_URL}?action=getOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbxyWIDFihgt11D0PGWpiKnrRCJv9dAtOOcgBd9V4yFz_-MlkM_kBJNQHO9aFEYOoM8l/exec"}?action=getOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
@@ -2072,7 +2072,7 @@
             // Carregar estatísticas de alunos por período
             async function loadStudentPeriodStats() {
                 try {
-                    const url = `${SCRIPT_BASE_URL}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=BANCODEDADOSGERAL`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbxyWIDFihgt11D0PGWpiKnrRCJv9dAtOOcgBd9V4yFz_-MlkM_kBJNQHO9aFEYOoM8l/exec"}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=BANCODEDADOSGERAL`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success") {
@@ -2106,7 +2106,7 @@
             // Função para exportar dados para Excel
             exportBtn.addEventListener('click', async function() {
                 try {
-                    const url = `${SCRIPT_BASE_URL}?action=getOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbxyWIDFihgt11D0PGWpiKnrRCJv9dAtOOcgBd9V4yFz_-MlkM_kBJNQHO9aFEYOoM8l/exec"}?action=getOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
@@ -2160,7 +2160,7 @@
             // Função para editar ocorrência
             async function editOccurrence(occurrenceId) {
                 try {
-                    const url = `${SCRIPT_BASE_URL}?action=getOccurrenceById&id=${occurrenceId}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbxyWIDFihgt11D0PGWpiKnrRCJv9dAtOOcgBd9V4yFz_-MlkM_kBJNQHO9aFEYOoM8l/exec"}?action=getOccurrenceById&id=${occurrenceId}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const response = await safeFetch(url);
                     
                     if (response && response.status === "success" && response.occurrence) {
@@ -2211,7 +2211,7 @@
             // Função para excluir ocorrência
             async function deleteOccurrence(occurrenceId) {
                 try {
-                    const response = await safeFetch(SCRIPT_BASE_URL, {
+                    const response = await safeFetch("https://script.google.com/macros/s/AKfycbxyWIDFihgt11D0PGWpiKnrRCJv9dAtOOcgBd9V4yFz_-MlkM_kBJNQHO9aFEYOoM8l/exec", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
