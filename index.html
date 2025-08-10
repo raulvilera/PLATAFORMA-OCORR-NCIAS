@@ -1650,7 +1650,7 @@
                 }
 
                 // Buscar alunos reais da planilha
-                const url = `${SCRIPT_BASE_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
+                const url = `${"https://script.google.com/macros/s/AKfycby-9tulW5lpIvWq3jVORnYWIrH16fTzmlxEuRRmL8OkikJdTzV8o5EqHDHfA_yEWwvb/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
                 
                 safeFetch(url)
                     .then(data => {
