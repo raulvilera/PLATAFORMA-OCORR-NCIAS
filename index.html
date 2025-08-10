@@ -1480,7 +1480,6 @@
             const classSelect = document.getElementById('studentClass');
             const professorSelect = document.getElementById('professor');
             const totalOccurrencesEl = document.getElementById('totalOccurrences');
-            const totalStudentsEl = document.getElementById('totalStudents');
             const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
             const studentOccurrencesName = document.getElementById('studentOccurrencesName');
             const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
@@ -1772,21 +1771,34 @@
             async function sendFormData(formData, retries = 3) {
                 for (let attempt = 1; attempt <= retries; attempt++) {
                     try {
-                        const response = await safeFetch("https://script.google.com/macros/s/AKfycbwr2-R9puLSqIOlwx1BHMxIul9iM1bbHdYNxBsgjSksFgOPf09oXzIU64u2ppaxwUnx/exec", {
+                        // Mostrar status de tentativa
+                        if (attempt > 1) {
+                            showNotification('info', `Tentativa ${attempt} de ${retries}...`);
+                        }
+
+                        const response = await fetch(SCRIPT_BASE_URL, {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify({
                                 action: 'addOccurrence',
+                                spreadsheetId: SPREADSHEET_ID,
+                                sheetName: SHEET_NAME,
                                 ...formData
                             })
                         });
 
-                        if (response && response.status === "success") {
-                            return response;
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+
+                        const data = await response.json();
+                        
+                        if (data && data.status === "success") {
+                            return data;
                         } else {
-                            throw new Error(response?.message || "Erro desconhecido ao enviar ocorrência");
+                            throw new Error(data?.message || "Erro desconhecido ao enviar ocorrência");
                         }
                     } catch (error) {
                         console.error(`Tentativa ${attempt} falhou:`, error);
@@ -1858,7 +1870,7 @@
                                 row.parentNode.insertBefore(historyRow, row.nextSibling);
                                 
                                 try {
-                                    const historyUrl = `${"https://script.google.com/macros/s/AKfycbwr2-R9puLSqIOlwx1BHMxIul9iM1bbHdYNxBsgjSksFgOPf09oXzIU64u2ppaxwUnx/exec"}?action=getStudentHistory&student=${encodeURIComponent(occurrence.student)}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                                    const historyUrl = `${SCRIPT_BASE_URL}?action=getStudentHistory&student=${encodeURIComponent(occurrence.student)}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                                     const historyData = await safeFetch(historyUrl);
                                     
                                     if (historyData && historyData.status === "success" && Array.isArray(historyData.history)) {
@@ -1971,9 +1983,7 @@
                         student: student,
                         class: classInfo,
                         irregularities: irregularities.join(', '),
-                        description: description,
-                        spreadsheetId: SPREADSHEET_ID,
-                        sheetName: SHEET_NAME
+                        description: description
                     };
 
                     // Enviar dados para o Google Sheets (com retentativas)
@@ -2007,7 +2017,7 @@
                     loadRegistrosTable();
                 } catch (error) {
                     console.error('Erro ao enviar ocorrência:', error);
-                    showNotification('error', 'Erro ao registrar ocorrência');
+                    showNotification('error', `Erro ao registrar ocorrência: ${error.message || 'Erro desconhecido'}`);
                 } finally {
                     // Restaurar botão de envio
                     submitBtn.innerHTML = originalBtnText;
@@ -2079,11 +2089,11 @@
             // Carregar estatísticas de alunos por período
             async function loadStudentPeriodStats() {
                 try {
-                    const url = `${"https://script.google.com/macros/s/AKfycbwr2-R9puLSqIOlwx1BHMxIul9iM1bbHdYNxBsgjSksFgOPf09oXzIU64u2ppaxwUnx/exec"}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=${STUDENT_SHEET_NAME}`;
+                    const url = `${SCRIPT_BASE_URL}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=${STUDENT_SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success") {
-                        totalStudentsEl.textContent = data.totalStudents;
+                        document.getElementById('totalStudents').textContent = data.totalStudents;
                         morningCountEl.textContent = data.morningCount;
                         afternoonCountEl.textContent = data.afternoonCount;
                         nightCountEl.textContent = data.nightCount;
@@ -2102,7 +2112,7 @@
                         afternoonCount: 380,
                         nightCount: 220
                     };
-                    totalStudentsEl.textContent = demoData.totalStudents;
+                    document.getElementById('totalStudents').textContent = demoData.totalStudents;
                     morningCountEl.textContent = demoData.morningCount;
                     afternoonCountEl.textContent = demoData.afternoonCount;
                     nightCountEl.textContent = demoData.nightCount;
@@ -2113,7 +2123,7 @@
             // Função para exportar dados para Excel
             exportBtn.addEventListener('click', async function() {
                 try {
-                    const url = `${"https://script.google.com/macros/s/AKfycbwr2-R9puLSqIOlwx1BHMxIul9iM1bbHdYNxBsgjSksFgOPf09oXzIU64u2ppaxwUnx/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${SCRIPT_BASE_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
@@ -2167,7 +2177,7 @@
             // Função para editar ocorrência
             async function editOccurrence(occurrenceId) {
                 try {
-                    const url = `${"https://script.google.com/macros/s/AKfycbwr2-R9puLSqIOlwx1BHMxIul9iM1bbHdYNxBsgjSksFgOPf09oXzIU64u2ppaxwUnx/exec"}?action=getOccurrenceById&id=${occurrenceId}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${SCRIPT_BASE_URL}?action=getOccurrenceById&id=${occurrenceId}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const response = await safeFetch(url);
                     
                     if (response && response.status === "success" && response.occurrence) {
@@ -2218,7 +2228,7 @@
             // Função para excluir ocorrência
             async function deleteOccurrence(occurrenceId) {
                 try {
-                    const response = await safeFetch(SCRIPT_BASE_URL, {
+                    const response = await fetch(SCRIPT_BASE_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -2231,7 +2241,13 @@
                         })
                     });
                     
-                    if (response && response.status === "success") {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data && data.status === "success") {
                         showNotification('success', 'Ocorrência excluída com sucesso!');
                         // Recarregar tabela
                         loadRegistrosTable();
@@ -2239,10 +2255,11 @@
                         const currentTotal = parseInt(totalOccurrencesEl.textContent);
                         totalOccurrencesEl.textContent = currentTotal - 1;
                     } else {
-                        throw new Error(response?.message || "Erro ao excluir ocorrência");
+                        throw new Error(data?.message || "Erro ao excluir ocorrência");
                     }
                 } catch (error) {
-                    showNotification('error', 'Erro ao excluir ocorrência');
+                    console.error('Erro ao excluir ocorrência:', error);
+                    showNotification('error', `Erro ao excluir ocorrência: ${error.message || 'Erro desconhecido'}`);
                 }
             }
 
