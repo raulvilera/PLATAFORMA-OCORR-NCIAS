@@ -949,6 +949,11 @@
             color: white;
         }
         
+        .notification.info {
+            background: var(--morning-color);
+            color: white;
+        }
+        
         .notification .icon {
             font-size: 1.5rem;
         }
@@ -1532,14 +1537,16 @@
 
             // Função para mostrar notificações
             function showNotification(type, message) {
-                notification.classList.remove('success', 'error');
+                notification.classList.remove('success', 'error', 'info');
                 notification.classList.add(type);
                 notificationContent.textContent = message;
                 
                 if (type === 'success') {
                     notificationIcon.className = 'fas fa-check-circle icon';
-                } else {
+                } else if (type === 'error') {
                     notificationIcon.className = 'fas fa-exclamation-circle icon';
+                } else {
+                    notificationIcon.className = 'fas fa-info-circle icon';
                 }
                 
                 notification.classList.add('show');
