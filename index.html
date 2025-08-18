@@ -1656,7 +1656,7 @@
                 }
 
                 // Buscar alunos reais da planilha
-                const url = `${"https://script.google.com/macros/s/AKfycbzaLiW4Dtz4fehE6oTQa5vtJUNBWZwBo2JkLMlE1Ue4ExrzMGp8y_HvXDvz6MCB8dXb/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
+                const url = `${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
                 
                 safeFetch(url)
                     .then(data => {
@@ -1702,7 +1702,7 @@
                     studentOccurrencesCount.textContent = "Carregando...";
                     
                     // Buscar estatísticas do aluno
-                    const url = `${"https://script.google.com/macros/s/AKfycbzaLiW4Dtz4fehE6oTQa5vtJUNBWZwBo2JkLMlE1Ue4ExrzMGp8y_HvXDvz6MCB8dXb/exec"}?action=getStudentStats&student=${encodeURIComponent(this.value)}&spreadsheetId=${SPREADSHEET_ID}`;
+                    const url = `${SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}&spreadsheetId=${SPREADSHEET_ID}`;
                     
                     safeFetch(url)
                         .then(data => {
@@ -1823,7 +1823,7 @@
                 registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Carregando registros...</td></tr>';
                 
                 try {
-                    const url = `${"https://script.google.com/macros/s/AKfycbzaLiW4Dtz4fehE6oTQa5vtJUNBWZwBo2JkLMlE1Ue4ExrzMGp8y_HvXDvz6MCB8dXb/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${SCRIPT_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
@@ -1834,21 +1834,35 @@
                             return;
                         }
                         
+                        // Ordenar por data (mais recente primeiro)
+                        data.occurrences.sort((a, b) => {
+                            const dateA = new Date(a.Data || a.date || a['Data de Registro']);
+                            const dateB = new Date(b.Data || b.date || b['Data de Registro']);
+                            return dateB - dateA;
+                        });
+                        
                         data.occurrences.forEach(occurrence => {
                             const row = document.createElement('tr');
                             row.setAttribute('data-id', occurrence.id);
                             
-                            // Formatar data
-                            const dateObj = new Date(occurrence.date);
+                            // Formatar data (compatibilidade com diferentes formatos de cabeçalho)
+                            const dateObj = new Date(occurrence.Data || occurrence.date || occurrence['Data de Registro']);
                             const formattedDate = dateObj.toLocaleDateString('pt-BR');
+                            
+                            // Obter valores com compatibilidade para diferentes formatos de cabeçalho
+                            const professor = occurrence.Professor || occurrence.professor;
+                            const turma = occurrence.Turma || occurrence.class;
+                            const aluno = occurrence.Aluno || occurrence.student;
+                            const irregularidades = occurrence.Irregularidades || occurrence.irregularities;
+                            const descricao = occurrence.Descrição || occurrence.description;
                             
                             row.innerHTML = `
                                 <td>${formattedDate}</td>
-                                <td>${occurrence.professor}</td>
-                                <td>${occurrence.class}</td>
-                                <td>${occurrence.student}</td>
-                                <td>${occurrence.irregularities || '-'}</td>
-                                <td>${occurrence.description || '-'}</td>
+                                <td>${professor || '-'}</td>
+                                <td>${turma || '-'}</td>
+                                <td>${aluno || '-'}</td>
+                                <td>${irregularidades || '-'}</td>
+                                <td>${descricao || '-'}</td>
                                 <td class="actions-cell">
                                     <button class="btn-action btn-edit" data-id="${occurrence.id}">
                                         <i class="fas fa-edit"></i> Editar
@@ -1876,7 +1890,7 @@
                                 row.parentNode.insertBefore(historyRow, row.nextSibling);
                                 
                                 try {
-                                    const historyUrl = `${SCRIPT_URL}?action=getStudentHistory&student=${encodeURIComponent(occurrence.student)}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                                    const historyUrl = `${SCRIPT_URL}?action=getStudentHistory&student=${encodeURIComponent(aluno)}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                                     const historyData = await safeFetch(historyUrl);
                                     
                                     if (historyData && historyData.status === "success" && Array.isArray(historyData.history)) {
@@ -1893,15 +1907,27 @@
                                                 </thead>
                                                 <tbody>`;
                                         
+                                        // Ordenar histórico por data (mais recente primeiro)
+                                        historyData.history.sort((a, b) => {
+                                            const dateA = new Date(a.Data || a.date || a['Data de Registro']);
+                                            const dateB = new Date(b.Data || b.date || b['Data de Registro']);
+                                            return dateB - dateA;
+                                        });
+                                        
                                         historyData.history.forEach(entry => {
-                                            const entryDate = new Date(entry.date).toLocaleDateString('pt-BR');
+                                            const entryDate = new Date(entry.Data || entry.date || entry['Data de Registro']).toLocaleDateString('pt-BR');
+                                            const entryProfessor = entry.Professor || entry.professor;
+                                            const entryTurma = entry.Turma || entry.class;
+                                            const entryIrregularidades = entry.Irregularidades || entry.irregularities;
+                                            const entryDescricao = entry.Descrição || entry.description;
+                                            
                                             historyHTML += `
                                                 <tr>
                                                     <td>${entryDate}</td>
-                                                    <td>${entry.professor}</td>
-                                                    <td>${entry.class}</td>
-                                                    <td>${entry.irregularities || '-'}</td>
-                                                    <td>${entry.description || '-'}</td>
+                                                    <td>${entryProfessor || '-'}</td>
+                                                    <td>${entryTurma || '-'}</td>
+                                                    <td>${entryIrregularidades || '-'}</td>
+                                                    <td>${entryDescricao || '-'}</td>
                                                 </tr>
                                             `;
                                         });
@@ -2095,7 +2121,7 @@
             // Carregar estatísticas de alunos por período
             async function loadStudentPeriodStats() {
                 try {
-                    const url = `${"https://script.google.com/macros/s/AKfycbzaLiW4Dtz4fehE6oTQa5vtJUNBWZwBo2JkLMlE1Ue4ExrzMGp8y_HvXDvz6MCB8dXb/exec"}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=${STUDENT_SHEET_NAME}`;
+                    const url = `${SCRIPT_URL}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=${STUDENT_SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success") {
@@ -2129,19 +2155,19 @@
             // Função para exportar dados para Excel
             exportBtn.addEventListener('click', async function() {
                 try {
-                    const url = `${"https://script.google.com/macros/s/AKfycbzaLiW4Dtz4fehE6oTQa5vtJUNBWZwBo2JkLMlE1Ue4ExrzMGp8y_HvXDvz6MCB8dXb/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${SCRIPT_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
                         // Preparar dados para exportação
                         const exportData = data.occurrences.map(occurrence => {
                             return {
-                                'Data': new Date(occurrence.date).toLocaleDateString('pt-BR'),
-                                'Professor': occurrence.professor,
-                                'Turma': occurrence.class,
-                                'Aluno': occurrence.student,
-                                'Irregularidades': occurrence.irregularities || '',
-                                'Descrição': occurrence.description || ''
+                                'Data': new Date(occurrence.Data || occurrence.date || occurrence['Data de Registro']).toLocaleDateString('pt-BR'),
+                                'Professor': occurrence.Professor || occurrence.professor,
+                                'Turma': occurrence.Turma || occurrence.class,
+                                'Aluno': occurrence.Aluno || occurrence.student,
+                                'Irregularidades': occurrence.Irregularidades || occurrence.irregularities,
+                                'Descrição': occurrence.Descrição || occurrence.description
                             };
                         });
                         
@@ -2183,16 +2209,16 @@
             // Função para editar ocorrência
             async function editOccurrence(occurrenceId) {
                 try {
-                    const url = `${"https://script.google.com/macros/s/AKfycbzaLiW4Dtz4fehE6oTQa5vtJUNBWZwBo2JkLMlE1Ue4ExrzMGp8y_HvXDvz6MCB8dXb/exec"}?action=getOccurrenceById&id=${occurrenceId}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${SCRIPT_URL}?action=getOccurrenceById&id=${occurrenceId}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const response = await safeFetch(url);
                     
                     if (response && response.status === "success" && response.occurrence) {
                         const occurrence = response.occurrence;
                         
-                        // Preencher formulário com os dados da ocorrência
-                        professorSelect.value = occurrence.professor;
-                        document.getElementById('occurrenceDate').value = occurrence.date;
-                        classSelect.value = occurrence.class;
+                        // Preencher formulário com os dados da ocorrência (compatibilidade com diferentes formatos de cabeçalho)
+                        professorSelect.value = occurrence.Professor || occurrence.professor;
+                        document.getElementById('occurrenceDate').value = occurrence.Data || occurrence.date;
+                        classSelect.value = occurrence.Turma || occurrence.class;
                         
                         // Disparar evento para carregar alunos
                         const event = new Event('change');
@@ -2200,18 +2226,21 @@
                         
                         // Aguardar um pouco para o carregamento dos alunos
                         setTimeout(() => {
-                            studentSelect.value = occurrence.student;
+                            studentSelect.value = occurrence.Aluno || occurrence.student;
                             
                             // Disparar evento para carregar estatísticas do aluno
                             studentSelect.dispatchEvent(new Event('change'));
                             
-                            // Preencher irregularidades
-                            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                                checkbox.checked = occurrence.irregularities.includes(checkbox.value);
-                            });
+                            // Preencher irregularidades (compatibilidade com diferentes formatos)
+                            const irregularities = occurrence.Irregularidades || occurrence.irregularities;
+                            if (irregularities) {
+                                document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                                    checkbox.checked = irregularities.includes(checkbox.value);
+                                });
+                            }
                             
-                            // Preencher descrição
-                            document.getElementById('description').value = occurrence.description || '';
+                            // Preencher descrição (compatibilidade com diferentes formatos)
+                            document.getElementById('description').value = occurrence.Descrição || occurrence.description || '';
                             
                             // Alterar botão para "Atualizar"
                             submitBtn.innerHTML = '<i class="fas fa-sync-alt"></i> ATUALIZAR';
