@@ -1507,7 +1507,7 @@
             const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
             const SHEET_NAME = "OCORRENCIASDOSPROFESSORES";
             const STUDENT_SHEET_NAME = "BANCODEDADOSGERAL";
-            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzaLiW4Dtz4fehE6oTQa5vtJUNBWZwBo2JkLMlE1Ue4ExrzMGp8y_HvXDvz6MCB8dXb/exec";
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxH-rkOkzsUOTORvh3A9ZHZpTzkqvxp_MyAaqMvM13d6rolira7cdR29rdq0u4fNZou/exec";
 
             // Armazenar gráficos
             const charts = {};
@@ -1656,7 +1656,7 @@
                 }
 
                 // Buscar alunos reais da planilha
-                const url = `${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
+                const url = `${"https://script.google.com/macros/s/AKfycbxH-rkOkzsUOTORvh3A9ZHZpTzkqvxp_MyAaqMvM13d6rolira7cdR29rdq0u4fNZou/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
                 
                 safeFetch(url)
                     .then(data => {
@@ -1702,7 +1702,7 @@
                     studentOccurrencesCount.textContent = "Carregando...";
                     
                     // Buscar estatísticas do aluno
-                    const url = `${SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}&spreadsheetId=${SPREADSHEET_ID}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbxH-rkOkzsUOTORvh3A9ZHZpTzkqvxp_MyAaqMvM13d6rolira7cdR29rdq0u4fNZou/exec"}?action=getStudentStats&student=${encodeURIComponent(this.value)}&spreadsheetId=${SPREADSHEET_ID}`;
                     
                     safeFetch(url)
                         .then(data => {
@@ -1823,7 +1823,7 @@
                 registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Carregando registros...</td></tr>';
                 
                 try {
-                    const url = `${SCRIPT_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbxH-rkOkzsUOTORvh3A9ZHZpTzkqvxp_MyAaqMvM13d6rolira7cdR29rdq0u4fNZou/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
@@ -1890,7 +1890,7 @@
                                 row.parentNode.insertBefore(historyRow, row.nextSibling);
                                 
                                 try {
-                                    const historyUrl = `${SCRIPT_URL}?action=getStudentHistory&student=${encodeURIComponent(aluno)}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                                    const historyUrl = `${"https://script.google.com/macros/s/AKfycbxH-rkOkzsUOTORvh3A9ZHZpTzkqvxp_MyAaqMvM13d6rolira7cdR29rdq0u4fNZou/exec"}?action=getStudentHistory&student=${encodeURIComponent(aluno)}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                                     const historyData = await safeFetch(historyUrl);
                                     
                                     if (historyData && historyData.status === "success" && Array.isArray(historyData.history)) {
@@ -2121,7 +2121,7 @@
             // Carregar estatísticas de alunos por período
             async function loadStudentPeriodStats() {
                 try {
-                    const url = `${SCRIPT_URL}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=${STUDENT_SHEET_NAME}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbxH-rkOkzsUOTORvh3A9ZHZpTzkqvxp_MyAaqMvM13d6rolira7cdR29rdq0u4fNZou/exec"}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=${STUDENT_SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success") {
@@ -2155,7 +2155,7 @@
             // Função para exportar dados para Excel
             exportBtn.addEventListener('click', async function() {
                 try {
-                    const url = `${SCRIPT_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbxH-rkOkzsUOTORvh3A9ZHZpTzkqvxp_MyAaqMvM13d6rolira7cdR29rdq0u4fNZou/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
@@ -2209,7 +2209,7 @@
             // Função para editar ocorrência
             async function editOccurrence(occurrenceId) {
                 try {
-                    const url = `${SCRIPT_URL}?action=getOccurrenceById&id=${occurrenceId}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbxH-rkOkzsUOTORvh3A9ZHZpTzkqvxp_MyAaqMvM13d6rolira7cdR29rdq0u4fNZou/exec"}?action=getOccurrenceById&id=${occurrenceId}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const response = await safeFetch(url);
                     
                     if (response && response.status === "success" && response.occurrence) {
@@ -2263,7 +2263,7 @@
             // Função para excluir ocorrência
             async function deleteOccurrence(occurrenceId) {
                 try {
-                    const response = await fetch(SCRIPT_URL, {
+                    const response = await fetch("https://script.google.com/macros/s/AKfycbxH-rkOkzsUOTORvh3A9ZHZpTzkqvxp_MyAaqMvM13d6rolira7cdR29rdq0u4fNZou/exec", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
