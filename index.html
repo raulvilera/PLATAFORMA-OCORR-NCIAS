@@ -1832,112 +1832,106 @@
                 }
             }
 
-            // Enviar formulário
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
+// Enviar formulário
+form.addEventListener('submit', async function(e) {
+    e.preventDefault();
 
-                // Remover classes de erro existentes
-                document.querySelectorAll('.input-error').forEach(el => {
-                    el.classList.remove('input-error');
-                });
+    // Remover classes de erro existentes
+    document.querySelectorAll('.input-error').forEach(el => {
+        el.classList.remove('input-error');
+    });
 
-                // Coletar dados do formulário
-                const professor = professorSelect.value;
-                const occurrenceDate = document.getElementById('occurrenceDate').value;
-                const student = studentSelect.value;
-                const classInfo = classSelect.value;
-                const description = document.getElementById('description').value;
+    // Coletar dados do formulário (apenas os campos solicitados)
+    const professor = professorSelect.value;
+    const occurrenceDate = document.getElementById('occurrenceDate').value;
+    const student = studentSelect.value;
+    const classInfo = classSelect.value;
+    const description = document.getElementById('description').value;
 
-                // Verificar irregularidades selecionadas
-                const irregularities = [];
-                document.querySelectorAll('input[type="checkbox"]:checked').forEach(cb => {
-                    irregularities.push(cb.value);
-                });
+    // Validação
+    let isValid = true;
+    if (!professor) {
+        document.getElementById('professor').classList.add('input-error');
+        isValid = false;
+    }
+    if (!occurrenceDate) {
+        document.getElementById('occurrenceDate').classList.add('input-error');
+        isValid = false;
+    }
+    if (!classInfo) {
+        document.getElementById('studentClass').classList.add('input-error');
+        isValid = false;
+    }
+    if (!student) {
+        document.getElementById('student').classList.add('input-error');
+        isValid = false;
+    }
 
-                // Validação
-                let isValid = true;
-                if (!professor) {
-                    document.getElementById('professor').classList.add('input-error');
-                    isValid = false;
-                }
-                if (!occurrenceDate) {
-                    document.getElementById('occurrenceDate').classList.add('input-error');
-                    isValid = false;
-                }
-                if (!classInfo) {
-                    document.getElementById('studentClass').classList.add('input-error');
-                    isValid = false;
-                }
-                if (!student) {
-                    document.getElementById('student').classList.add('input-error');
-                    isValid = false;
-                }
+    if (!isValid) {
+        // Rolar para o primeiro erro
+        const firstError = document.querySelector('.input-error');
+        if (firstError) {
+            firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+    }
 
-                if (!isValid) {
-                    // Rolar para o primeiro erro
-                    const firstError = document.querySelector('.input-error');
-                    if (firstError) {
-                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
-                    return;
-                }
+    // Mostrar loading
+    const originalBtnText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<span class="loading"></span> Cadastrando...';
+    submitBtn.disabled = true;
 
-                // Mostrar loading
-                const originalBtnText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<span class="loading"></span> Cadastrando...';
-                submitBtn.disabled = true;
+    try {
+        // Preparar dados para envio (apenas os campos solicitados)
+        const formData = {
+            professor: professor,
+            date: occurrenceDate,
+            student: student,
+            class: classInfo,
+            description: description
+            // Nota: removemos as irregularidades pois não foi solicitado
+        };
 
-                try {
-                    // Preparar dados para envio
-                    const formData = {
-                        professor: professor,
-                        date: occurrenceDate,
-                        student: student,
-                        class: classInfo,
-                        irregularities: irregularities.join(', '),
-                        description: description
-                    };
+        // Enviar dados para o Google Sheets (com retentativas)
+        const response = await sendFormData(formData);
 
-                    // Enviar dados para o Google Sheets (com retentativas)
-                    const response = await sendFormData(formData);
+        // Mostrar mensagem de sucesso com detalhes
+        let successMessage = 'Ocorrência registrada com sucesso!';
+        if (response.details) {
+            successMessage += `\nPlanilha: Linha ${response.details.occurrenceRow}`;
+            successMessage += `\nLog: ID ${response.details.logRow}`;
+        }
+        showNotification('success', successMessage);
 
-                    // Mostrar mensagem de sucesso com detalhes
-                    let successMessage = 'Ocorrência registrada com sucesso!';
-                    if (response.details) {
-                        successMessage += `\nPlanilha: Linha ${response.details.occurrenceRow}`;
-                        successMessage += `\nLog: ID ${response.details.logRow}`;
-                    }
-                    showNotification('success', successMessage);
+        // Resetar formulário após sucesso
+        form.reset();
+        const today = new Date();
+        const formattedDate = today.toISOString().split('T')[0];
+        document.getElementById('occurrenceDate').value = formattedDate;
+        studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+        studentSelect.disabled = true;
+        classSelect.selectedIndex = 0;
+        studentOccurrencesCard.style.display = 'none';
+        classStudentsCard.style.display = 'none';
 
-                    // Resetar formulário após sucesso
-                    form.reset();
-                    const today = new Date();
-                    const formattedDate = today.toISOString().split('T')[0];
-                    document.getElementById('occurrenceDate').value = formattedDate;
-                    studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-                    studentSelect.disabled = true;
-                    classSelect.selectedIndex = 0;
-                    studentOccurrencesCard.style.display = 'none';
-                    classStudentsCard.style.display = 'none';
-
-                    // Atualizar estatísticas gerais
-                    const currentTotal = parseInt(totalOccurrencesEl.textContent);
-                    totalOccurrencesEl.textContent = currentTotal + 1;
-                    
-                    // Recarregar estatísticas de alunos por período
-                    loadStudentPeriodStats();
-                    
-                    // Recarregar tabela de registros
-                    loadRegistrosTable();
-                } catch (error) {
-                    console.error('Erro ao enviar ocorrência:', error);
-                    showNotification('error', `Erro ao registrar ocorrência: ${error.message || 'Erro desconhecido'}`);
-                } finally {
-                    // Restaurar botão de envio
-                    submitBtn.innerHTML = originalBtnText;
-                    submitBtn.disabled = false;
-                }
-            });
+        // Atualizar estatísticas gerais
+        const currentTotal = parseInt(totalOccurrencesEl.textContent);
+        totalOccurrencesEl.textContent = currentTotal + 1;
+        
+        // Recarregar estatísticas de alunos por período
+        loadStudentPeriodStats();
+        
+        // Recarregar tabela de registros
+        loadRegistrosTable();
+    } catch (error) {
+        console.error('Erro ao enviar ocorrência:', error);
+        showNotification('error', `Erro ao registrar ocorrência: ${error.message || 'Erro desconhecido'}`);
+    } finally {
+        // Restaurar botão de envio
+        submitBtn.innerHTML = originalBtnText;
+        submitBtn.disabled = false;
+    }
+});
 
             // Atualizar gráfico de distribuição por período
             function updateStudentsPeriodChart(data) {
