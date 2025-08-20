@@ -1403,7 +1403,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 🔧 Configurações da planilha / webapp
     const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx1xpoGYc_RWxfKqGpLq6_LG07C2IjUrzEYlTBkt9G-lOjnruufnhKnK_CQBQubSfZL/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJ3fuV2HZO7-ppubpmYsIgTS6r6GyVnV9H4Uo87pCXafzX_ngzYNLmxbXnRHdX947E/exec";
 
     // 🔧 Elementos DOM
     const form = document.getElementById('occurrenceForm');
@@ -1478,7 +1478,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const turma = this.value;
         if (!turma) return;
 
-        const url = `${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(turma)}&spreadsheetId=${SPREADSHEET_ID}`;
+        const url = `${"https://script.google.com/macros/s/AKfycbyJ3fuV2HZO7-ppubpmYsIgTS6r6GyVnV9H4Uo87pCXafzX_ngzYNLmxbXnRHdX947E/exec"}?action=getStudents&class=${encodeURIComponent(turma)}&spreadsheetId=${SPREADSHEET_ID}`;
         const data = await safeFetch(url);
 
         if (data.status === "success") {
@@ -1513,7 +1513,7 @@ document.addEventListener('DOMContentLoaded', function() {
             description: document.getElementById('description').value
         };
 
-        const data = await safeFetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+        const data = await safeFetch("https://script.google.com/macros/s/AKfycbyJ3fuV2HZO7-ppubpmYsIgTS6r6GyVnV9H4Uo87pCXafzX_ngzYNLmxbXnRHdX947E/exec", { method: "POST", body: JSON.stringify(payload) });
 
         if (data.status === "success") {
             showNotification("success", data.message);
@@ -1558,7 +1558,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 🔧 Editar ocorrência
     window.editOccurrence = async function(id) {
-        const url = `${SCRIPT_URL}?action=getOccurrenceById&id=${id}&spreadsheetId=${SPREADSHEET_ID}`;
+        const url = `${"https://script.google.com/macros/s/AKfycbyJ3fuV2HZO7-ppubpmYsIgTS6r6GyVnV9H4Uo87pCXafzX_ngzYNLmxbXnRHdX947E/exec"}?action=getOccurrenceById&id=${id}&spreadsheetId=${SPREADSHEET_ID}`;
         const data = await safeFetch(url);
         if (data.status === "success") {
             const o = data.occurrence;
