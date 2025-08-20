@@ -1423,7 +1423,7 @@
             const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
             const SHEET_NAME = "OCORRENCIASDOSPROFESSORES";
             const STUDENT_SHEET_NAME = "BANCODEDADOSGERAL";
-            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxH-rkOkzsUOTORvh3A9ZHZpTzkqvxp_MyAaqMvM13d6rolira7cdR29rdq0u4fNZou/exec";
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxiUt6BQeNFSzV5_WLAM5mf0gxs4Uj1Hay9nXKBI97cV9S3pXaeJoshAmnJVK0izVnp/exec";
 
             // Armazenar gráficos
             const charts = {};
@@ -1561,7 +1561,7 @@
                         redirect: 'follow'
                     };
 
-                    const response = await fetch(url, fetchOptions);
+                    const response = await fetch("https://script.google.com/macros/s/AKfycbxiUt6BQeNFSzV5_WLAM5mf0gxs4Uj1Hay9nXKBI97cV9S3pXaeJoshAmnJVK0izVnp/exec", fetchOptions);
                     clearTimeout(timeoutId);
 
                     // Verificar status da resposta
@@ -1605,7 +1605,7 @@
                 }
 
                 // Buscar alunos reais da planilha
-                const url = `${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
+                const url = `${"https://script.google.com/macros/s/AKfycbxiUt6BQeNFSzV5_WLAM5mf0gxs4Uj1Hay9nXKBI97cV9S3pXaeJoshAmnJVK0izVnp/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
                 
                 safeFetch(url)
                     .then(data => {
@@ -1651,7 +1651,7 @@
                     studentOccurrencesCount.textContent = "Carregando...";
                     
                     // Buscar estatísticas do aluno
-                    const url = `${SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}&spreadsheetId=${SPREADSHEET_ID}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbxiUt6BQeNFSzV5_WLAM5mf0gxs4Uj1Hay9nXKBI97cV9S3pXaeJoshAmnJVK0izVnp/exec"}?action=getStudentStats&student=${encodeURIComponent(this.value)}&spreadsheetId=${SPREADSHEET_ID}`;
                     
                     safeFetch(url)
                         .then(data => {
@@ -1730,7 +1730,7 @@
                             showNotification('info', `Tentativa ${attempt} de ${retries}...`);
                         }
 
-                        const response = await fetch(SCRIPT_URL, {
+                        const response = await fetch("https://script.google.com/macros/s/AKfycbxiUt6BQeNFSzV5_WLAM5mf0gxs4Uj1Hay9nXKBI97cV9S3pXaeJoshAmnJVK0izVnp/exec", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -1771,7 +1771,7 @@
                 registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Carregando registros...</td></tr>';
                 
                 try {
-                    const url = `${SCRIPT_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbxiUt6BQeNFSzV5_WLAM5mf0gxs4Uj1Hay9nXKBI97cV9S3pXaeJoshAmnJVK0izVnp/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
@@ -2003,7 +2003,7 @@
             // Carregar estatísticas de alunos por período
             async function loadStudentPeriodStats() {
                 try {
-                    const url = `${SCRIPT_URL}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=${STUDENT_SHEET_NAME}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbxiUt6BQeNFSzV5_WLAM5mf0gxs4Uj1Hay9nXKBI97cV9S3pXaeJoshAmnJVK0izVnp/exec"}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=${STUDENT_SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success") {
@@ -2037,7 +2037,7 @@
             // Função para exportar dados para Excel
             exportBtn.addEventListener('click', async function() {
                 try {
-                    const url = `${SCRIPT_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbxiUt6BQeNFSzV5_WLAM5mf0gxs4Uj1Hay9nXKBI97cV9S3pXaeJoshAmnJVK0izVnp/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
@@ -2091,7 +2091,7 @@
             // Função para editar ocorrência
             async function editOccurrence(occurrenceId) {
                 try {
-                    const url = `${SCRIPT_URL}?action=getOccurrenceById&id=${occurrenceId}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbxiUt6BQeNFSzV5_WLAM5mf0gxs4Uj1Hay9nXKBI97cV9S3pXaeJoshAmnJVK0izVnp/exec"}?action=getOccurrenceById&id=${occurrenceId}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
                     const response = await safeFetch(url);
                     
                     if (response && response.status === "success" && response.occurrence) {
@@ -2145,7 +2145,7 @@
             // Função para excluir ocorrência
             async function deleteOccurrence(occurrenceId) {
                 try {
-                    const response = await fetch(SCRIPT_URL, {
+                    const response = await fetch("https://script.google.com/macros/s/AKfycbxiUt6BQeNFSzV5_WLAM5mf0gxs4Uj1Hay9nXKBI97cV9S3pXaeJoshAmnJVK0izVnp/exec", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
