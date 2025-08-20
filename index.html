@@ -1480,7 +1480,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 🔧 Configurações da planilha / webapp
     const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyJ3fuV2HZO7-ppubpmYsIgTS6r6GyVnV9H4Uo87pCXafzX_ngzYNLmxbXnRHdX947E/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzjnChH1MPYAxTHSj_W4U_kJUebUU0lSM3-8WLdkWt-j8PLEOn_uNltYshJxXHW269m/exec";
 
     // 🔧 Elementos DOM
     const form = document.getElementById('occurrenceForm');
@@ -1543,7 +1543,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 🔧 Fetch seguro
     async function safeFetch(url, options = {}) {
         try {
-            const response = await fetch("https://script.google.com/macros/s/AKfycbyJ3fuV2HZO7-ppubpmYsIgTS6r6GyVnV9H4Uo87pCXafzX_ngzYNLmxbXnRHdX947E/exec", { ...options, headers: { "Content-Type": "application/json" } });
+            const response = await fetch("https://script.google.com/macros/s/AKfycbzjnChH1MPYAxTHSj_W4U_kJUebUU0lSM3-8WLdkWt-j8PLEOn_uNltYshJxXHW269m/exec", { ...options, headers: { "Content-Type": "application/json" } });
             return await response.json();
         } catch (err) {
             return { status: "error", message: err.message };
@@ -1555,7 +1555,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const turma = this.value;
         if (!turma) return;
 
-        const url = `${"https://script.google.com/macros/s/AKfycbyJ3fuV2HZO7-ppubpmYsIgTS6r6GyVnV9H4Uo87pCXafzX_ngzYNLmxbXnRHdX947E/exec"}?action=getStudents&class=${encodeURIComponent(turma)}&spreadsheetId=${SPREADSHEET_ID}`;
+        const url = `${"https://script.google.com/macros/s/AKfycbzjnChH1MPYAxTHSj_W4U_kJUebUU0lSM3-8WLdkWt-j8PLEOn_uNltYshJxXHW269m/exec"}?action=getStudents&class=${encodeURIComponent(turma)}&spreadsheetId=${SPREADSHEET_ID}`;
         const data = await safeFetch(url);
 
         if (data.status === "success") {
@@ -1590,7 +1590,7 @@ document.addEventListener('DOMContentLoaded', function() {
             description: document.getElementById('description').value
         };
 
-        const data = await safeFetch("https://script.google.com/macros/s/AKfycbyJ3fuV2HZO7-ppubpmYsIgTS6r6GyVnV9H4Uo87pCXafzX_ngzYNLmxbXnRHdX947E/exec", { method: "POST", body: JSON.stringify(payload) });
+        const data = await safeFetch("https://script.google.com/macros/s/AKfycbzjnChH1MPYAxTHSj_W4U_kJUebUU0lSM3-8WLdkWt-j8PLEOn_uNltYshJxXHW269m/exec", { method: "POST", body: JSON.stringify(payload) });
 
         if (data.status === "success") {
             showNotification("success", data.message);
@@ -1607,7 +1607,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 🔧 Carregar tabela de registros
     async function loadRegistrosTable() {
         registrosTableBody.innerHTML = '<tr><td colspan="7">Carregando...</td></tr>';
-        const url = `${"https://script.google.com/macros/s/AKfycbyJ3fuV2HZO7-ppubpmYsIgTS6r6GyVnV9H4Uo87pCXafzX_ngzYNLmxbXnRHdX947E/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}`;
+        const url = `${"https://script.google.com/macros/s/AKfycbzjnChH1MPYAxTHSj_W4U_kJUebUU0lSM3-8WLdkWt-j8PLEOn_uNltYshJxXHW269m/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}`;
         const data = await safeFetch(url);
 
         if (data.status === "success") {
@@ -1635,7 +1635,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 🔧 Editar ocorrência
     window.editOccurrence = async function(id) {
-        const url = `${"https://script.google.com/macros/s/AKfycbyJ3fuV2HZO7-ppubpmYsIgTS6r6GyVnV9H4Uo87pCXafzX_ngzYNLmxbXnRHdX947E/exec"}?action=getOccurrenceById&id=${id}&spreadsheetId=${SPREADSHEET_ID}`;
+        const url = `${"https://script.google.com/macros/s/AKfycbzjnChH1MPYAxTHSj_W4U_kJUebUU0lSM3-8WLdkWt-j8PLEOn_uNltYshJxXHW269m/exec"}?action=getOccurrenceById&id=${id}&spreadsheetId=${SPREADSHEET_ID}`;
         const data = await safeFetch(url);
         if (data.status === "success") {
             const o = data.occurrence;
@@ -1655,7 +1655,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.deleteOccurrence = async function(id) {
         if (!confirm("Deseja excluir?")) return;
         const payload = { action: "deleteOccurrence", spreadsheetId: SPREADSHEET_ID, id };
-        const data = await safeFetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
+        const data = await safeFetch("https://script.google.com/macros/s/AKfycbzjnChH1MPYAxTHSj_W4U_kJUebUU0lSM3-8WLdkWt-j8PLEOn_uNltYshJxXHW269m/exec", { method: "POST", body: JSON.stringify(payload) });
         if (data.status === "success") {
             showNotification("success", data.message);
             loadRegistrosTable();
