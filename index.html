@@ -1518,7 +1518,7 @@
 
             // 🔧 Configurações globais
             const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
-            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby6qAjPqHvsIQtgubGANZoFOAvfeUJEGvJGNPKk_ROBjGfMYd8-2ydtOFhJktUMfK_z/exec";
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxeTH7PAJQXATqBrwfKEfrrDRG-6iPXFAu2kGwgaLhZSGGfpyJyfr6yQlK_riahflP8/exec";
 
             // 🔧 Elementos DOM
             const form = document.getElementById('occurrenceForm');
@@ -1609,7 +1609,7 @@
                 const turma = this.value;
                 if (!turma) return;
 
-                const url = `${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(turma)}&spreadsheetId=${SPREADSHEET_ID}`;
+                const url = `${"https://script.google.com/macros/s/AKfycbxeTH7PAJQXATqBrwfKEfrrDRG-6iPXFAu2kGwgaLhZSGGfpyJyfr6yQlK_riahflP8/exec"}?action=getStudents&class=${encodeURIComponent(turma)}&spreadsheetId=${SPREADSHEET_ID}`;
                 const data = await safeFetch(url);
 
                 if (data.status === "success") {
@@ -1658,7 +1658,7 @@
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<span class="loading"></span> PROCESSANDO...';
 
-                const data = await safeFetch(SCRIPT_URL, { 
+                const data = await safeFetch("https://script.google.com/macros/s/AKfycbxeTH7PAJQXATqBrwfKEfrrDRG-6iPXFAu2kGwgaLhZSGGfpyJyfr6yQlK_riahflP8/exec", { 
                     method: "POST", 
                     body: JSON.stringify(payload) 
                 });
@@ -1682,7 +1682,7 @@
             async function loadRegistrosTable() {
                 registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">Carregando registros...</td></tr>';
                 
-                const url = `${SCRIPT_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}`;
+                const url = `${"https://script.google.com/macros/s/AKfycbxeTH7PAJQXATqBrwfKEfrrDRG-6iPXFAu2kGwgaLhZSGGfpyJyfr6yQlK_riahflP8/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}`;
                 const data = await safeFetch(url);
 
                 if (data.status === "success") {
@@ -1719,7 +1719,7 @@
 
             // 🔧 Editar ocorrência
             window.editOccurrence = async function(id) {
-                const url = `${SCRIPT_URL}?action=getOccurrenceById&id=${id}&spreadsheetId=${SPREADSHEET_ID}`;
+                const url = `${"https://script.google.com/macros/s/AKfycbxeTH7PAJQXATqBrwfKEfrrDRG-6iPXFAu2kGwgaLhZSGGfpyJyfr6yQlK_riahflP8/exec"}?action=getOccurrenceById&id=${id}&spreadsheetId=${SPREADSHEET_ID}`;
                 const data = await safeFetch(url);
                 
                 if (data.status === "success") {
@@ -1773,7 +1773,7 @@
                     id 
                 };
                 
-                const data = await safeFetch(SCRIPT_URL, { 
+                const data = await safeFetch("https://script.google.com/macros/s/AKfycbxeTH7PAJQXATqBrwfKEfrrDRG-6iPXFAu2kGwgaLhZSGGfpyJyfr6yQlK_riahflP8/exec", { 
                     method: "POST", 
                     body: JSON.stringify(payload) 
                 });
@@ -1790,7 +1790,7 @@
             // 🔧 Atualizar gráficos
             async function updateCharts() {
                 // Atualizar gráfico de distribuição por período
-                const periodStatsUrl = `${SCRIPT_URL}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}`;
+                const periodStatsUrl = `${"https://script.google.com/macros/s/AKfycbxeTH7PAJQXATqBrwfKEfrrDRG-6iPXFAu2kGwgaLhZSGGfpyJyfr6yQlK_riahflP8/exec"}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}`;
                 const periodData = await safeFetch(periodStatsUrl);
 
                 if (periodData.status === "success" && periodData.stats) {
@@ -1836,7 +1836,7 @@
                 }
                 
                 // Atualizar contagem total de ocorrências
-                const allOccurrencesUrl = `${SCRIPT_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}`;
+                const allOccurrencesUrl = `${"https://script.google.com/macros/s/AKfycbxeTH7PAJQXATqBrwfKEfrrDRG-6iPXFAu2kGwgaLhZSGGfpyJyfr6yQlK_riahflP8/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}`;
                 const occurrencesData = await safeFetch(allOccurrencesUrl);
                 
                 if (occurrencesData.status === "success" && occurrencesData.occurrences) {
@@ -1856,7 +1856,7 @@
 
             // 🔧 Exportar dados
             document.getElementById('exportBtn').addEventListener('click', async function() {
-                const url = `${SCRIPT_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}`;
+                const url = `${"https://script.google.com/macros/s/AKfycbxeTH7PAJQXATqBrwfKEfrrDRG-6iPXFAu2kGwgaLhZSGGfpyJyfr6yQlK_riahflP8/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}`;
                 const data = await safeFetch(url);
                 
                 if (data.status === "success" && data.occurrences) {
