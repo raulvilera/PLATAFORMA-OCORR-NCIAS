@@ -1478,7 +1478,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 "WILSON RODRIGUES MOTA": "wmota@prof.educacao.sp.gov.br"
             };
 
-      // 🔧 Configurações da planilha / webapp
+      // 🔧 Configurações globais
     const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw9hZqxn9uSud_alX4cbEc4waB8BhtW3SQfGT16-jIazpRzacJuL6XsozIlg71N_Xnv/exec";
 
@@ -1494,6 +1494,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const notificationIcon = notification.querySelector('.icon');
     const notificationContent = notification.querySelector('.content');
     const notificationClose = notification.querySelector('.close');
+
+    // Gráficos
+    const studentStatsCanvas = document.getElementById('studentStatsChart');
+    const periodStatsCanvas = document.getElementById('periodStatsChart');
 
     let currentEditId = null;
 
@@ -1547,7 +1551,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const turma = this.value;
         if (!turma) return;
 
-        const url = `${"https://script.google.com/macros/s/AKfycbw9hZqxn9uSud_alX4cbEc4waB8BhtW3SQfGT16-jIazpRzacJuL6XsozIlg71N_Xnv/exec"}?action=getStudents&class=${encodeURIComponent(turma)}&spreadsheetId=${SPREADSHEET_ID}`;
+        const url = `${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(turma)}&spreadsheetId=${SPREADSHEET_ID}`;
         const data = await safeFetch(url);
 
         if (data.status === "success") {
@@ -1582,11 +1586,13 @@ document.addEventListener('DOMContentLoaded', function() {
             description: document.getElementById('description').value
         };
 
-        const data = await safeFetch("https://script.google.com/macros/s/AKfycbw9hZqxn9uSud_alX4cbEc4waB8BhtW3SQfGT16-jIazpRzacJuL6XsozIlg71N_Xnv/exec", { method: "POST", body: JSON.stringify(payload) });
+        const data = await safeFetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
 
         if (data.status === "success") {
             showNotification("success", data.message);
             loadRegistrosTable();
+            loadStudentStats();
+            loadPeriodStats();
             form.reset();
             document.getElementById('occurrenceDate').value = formattedDate;
             currentEditId = null;
@@ -1599,7 +1605,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 🔧 Carregar tabela de registros
     async function loadRegistrosTable() {
         registrosTableBody.innerHTML = '<tr><td colspan="7">Carregando...</td></tr>';
-        const url = `${"https://script.google.com/macros/s/AKfycbw9hZqxn9uSud_alX4cbEc4waB8BhtW3SQfGT16-jIazpRzacJuL6XsozIlg71N_Xnv/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}`;
+        const url = `${SCRIPT_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}`;
         const data = await safeFetch(url);
 
         if (data.status === "success") {
@@ -1627,7 +1633,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 🔧 Editar ocorrência
     window.editOccurrence = async function(id) {
-        const url = `${"https://script.google.com/macros/s/AKfycbw9hZqxn9uSud_alX4cbEc4waB8BhtW3SQfGT16-jIazpRzacJuL6XsozIlg71N_Xnv/exec"}?action=getOccurrenceById&id=${id}&spreadsheetId=${SPREADSHEET_ID}`;
+        const url = `${SCRIPT_URL}?action=getOccurrenceById&id=${id}&spreadsheetId=${SPREADSHEET_ID}`;
         const data = await safeFetch(url);
         if (data.status === "success") {
             const o = data.occurrence;
@@ -1647,18 +1653,67 @@ document.addEventListener('DOMContentLoaded', function() {
     window.deleteOccurrence = async function(id) {
         if (!confirm("Deseja excluir?")) return;
         const payload = { action: "deleteOccurrence", spreadsheetId: SPREADSHEET_ID, id };
-        const data = await safeFetch("https://script.google.com/macros/s/AKfycbw9hZqxn9uSud_alX4cbEc4waB8BhtW3SQfGT16-jIazpRzacJuL6XsozIlg71N_Xnv/exec", { method: "POST", body: JSON.stringify(payload) });
+        const data = await safeFetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
         if (data.status === "success") {
             showNotification("success", data.message);
             loadRegistrosTable();
+            loadStudentStats();
+            loadPeriodStats();
         } else {
             showNotification("error", data.message);
         }
     };
 
+    // 🔧 Carregar estatísticas por aluno
+    async function loadStudentStats() {
+        if (!studentStatsCanvas) return;
+        const url = `${SCRIPT_URL}?action=getStudentStats&spreadsheetId=${SPREADSHEET_ID}`;
+        const data = await safeFetch(url);
+
+        if (data.status === "success") {
+            const ctx = studentStatsCanvas.getContext("2d");
+            new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: data.stats.map(s => s.student),
+                    datasets: [{
+                        label: "Ocorrências por aluno",
+                        data: data.stats.map(s => s.count)
+                    }]
+                }
+            });
+        }
+    }
+
+    // 🔧 Carregar estatísticas por período
+    async function loadPeriodStats() {
+        if (!periodStatsCanvas) return;
+        const url = `${SCRIPT_URL}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}`;
+        const data = await safeFetch(url);
+
+        if (data.status === "success") {
+            const ctx = periodStatsCanvas.getContext("2d");
+            new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: data.stats.map(s => s.period),
+                    datasets: [{
+                        label: "Ocorrências por período",
+                        data: data.stats.map(s => s.count),
+                        fill: false,
+                        borderColor: "blue"
+                    }]
+                }
+            });
+        }
+    }
+
     // Inicial
     loadRegistrosTable();
+    loadStudentStats();
+    loadPeriodStats();
 });
 </script>
+
 </body>
 </html>
