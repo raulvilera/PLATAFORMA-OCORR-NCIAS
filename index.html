@@ -956,6 +956,10 @@
         
         .notification .icon {
             font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 24px;
         }
         
         .notification .content {
@@ -968,6 +972,36 @@
             color: white;
             cursor: pointer;
             font-size: 1.2rem;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-text {
+            font-size: 18px;
+            color: #333;
+            font-weight: 500;
         }
         
         @media (max-width: 992px) {
@@ -1036,6 +1070,11 @@
     </style>
 </head>
 <body>
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Carregando dados...</div>
+    </div>
+    
     <header>
         <div class="header-content">
             <div class="logo">
@@ -1131,7 +1170,7 @@
                                                     <option value="2ª SERIE D MANHA">2ª SERIE D MANHA</option>
                                                     <option value="2ª SERIE E MANHA">2ª SERIE E MANHA</option>
                                                     <option value="2ª SERIE F NOITE">2ª SERIE F NOITE</option>
-                                                    <option value="2ª SERIE G NOITE">2ª SERIE G NOITE</option>
+                                                    <option value="2ª SERIE G NOITE">2ª SERie G NOITE</option>
                                                     <option value="2ª SERIE H NOITE">2ª SERIE H NOITE</option>
                                                     <option value="3ª SERIE A MANHA">3ª SERIE A MANHA</option>
                                                     <option value="3ª SERIE B MANHA">3ª SERIE B MANHA</option>
@@ -1208,7 +1247,7 @@
                                                 <canvas class="donut-chart" width="50" height="50" data-irregularity="Uso indevido do celular durante a aula"></canvas>
                                                 <span class="chart-value">0</span>
                                             </div>
-                                            <input type="checkbox" id="irregularity6" name="irregularity" value="Use indevido do celular durante a aula">
+                                            <input type="checkbox" id="irregularity6" name="irregularity" value="Uso indevido do celular durante a aula">
                                             <label for="irregularity6">Uso indevido do celular</label>
                                         </div>
                                         <div class="checkbox-item">
@@ -1360,11 +1399,11 @@
                             <br>
                             <p><strong>Funcionalidades:</strong></p>
                             <ul style="padding-left: 20px; margin-top: 10px;">
-                                <li>Seleção de turma com carregamento automático dos alunos</li>
+                                <li>Seleção de turma avec carregamento automático dos alunos</li>
                                 <li>Registro detalhado de ocorrências</li>
                                 <li>Integração em tempo real com planilha Google</li>
                                 <li>Estatísticas atualizadas</li>
-                                <li>Interface amigável и responsiva</li>
+                                <li>Interface amigável e responsiva</li>
                             </ul>
                         </div>
                     </div>
@@ -1391,10 +1430,9 @@
         </div>
     </footer>
     
- <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // 🔧 Emails de professores
-    // Dados completos dos professores
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // 🔧 Emails de professores
             const teacherEmails = {
                 "ALEX LUTH PEREIRA MARANHAO": "luth@prof.educacao.sp.gov.br",
                 "ALEXSANDRA PAULA VARELLA DE SOUZA": "avarella@prof.educacao.sp.gov.br",
@@ -1445,7 +1483,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 "LUANA DE FREITAS SILVA": "luanafreitas@prof.educacao.sp.gov.br",
                 "LUCIANA NOVAIS CORREIA SANTOS": "novaiscorreia@prof.educacao.sp.gov.br",
                 "LUCIANO MOREIRA DE AZEVEDO": "lucianomoreira@prof.educacao.sp.gov.br",
-                "MARCIEL DA SILVA": "marcielsilva@prof.educacao.sp.gov.br",
+                "MARCIEL DA SILRA": "marcielsilva@prof.educacao.sp.gov.br",
                 "MARIA HELENA CUNHA MORO": "marcunha@prof.educacao.sp.gov.br",
                 "MARIA QUITÉRIA FERREIRA DOS SANTOS": "quiteriasantos@prof.educacao.sp.gov.br",
                 "MARINA DA CONCEICAO FRANCISCO SILVA": "marinafrancisco@prof.educacao.sp.gov.br",
@@ -1478,242 +1516,381 @@ document.addEventListener('DOMContentLoaded', function() {
                 "WILSON RODRIGUES MOTA": "wmota@prof.educacao.sp.gov.br"
             };
 
-      // 🔧 Configurações globais
-    const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby6qAjPqHvsIQtgubGANZoFOAvfeUJEGvJGNPKk_ROBjGfMYd8-2ydtOFhJktUMfK_z/exec";
+            // 🔧 Configurações globais
+            const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby6qAjPqHvsIQtgubGANZoFOAvfeUJEGvJGNPKk_ROBjGfMYd8-2ydtOFhJktUMfK_z/exec";
 
-    // 🔧 Elementos DOM
-    const form = document.getElementById('occurrenceForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const studentSelect = document.getElementById('student');
-    const classSelect = document.getElementById('studentClass');
-    const professorSelect = document.getElementById('professor');
-    const classStudentsCount = document.getElementById('classStudentsCount');
-    const registrosTableBody = document.getElementById('registrosTableBody');
-    const notification = document.getElementById('notification');
-    const notificationIcon = notification.querySelector('.icon');
-    const notificationContent = notification.querySelector('.content');
-    const notificationClose = notification.querySelector('.close');
+            // 🔧 Elementos DOM
+            const form = document.getElementById('occurrenceForm');
+            const submitBtn = document.getElementById('submitBtn');
+            const studentSelect = document.getElementById('student');
+            const classSelect = document.getElementById('studentClass');
+            const professorSelect = document.getElementById('professor');
+            const classStudentsCount = document.getElementById('classStudentsCount');
+            const registrosTableBody = document.getElementById('registrosTableBody');
+            const notification = document.getElementById('notification');
+            const notificationIcon = notification.querySelector('.icon');
+            const notificationContent = notification.querySelector('.content');
+            const notificationClose = notification.querySelector('.close');
+            const loadingOverlay = document.getElementById('loadingOverlay');
 
-    // Gráficos
-    const studentStatsCanvas = document.getElementById('studentStatsChart');
-    const periodStatsCanvas = document.getElementById('periodStatsChart');
+            // Gráficos
+            const studentsPeriodChart = document.getElementById('studentsPeriodChart');
+            let studentsPeriodChartInstance = null;
 
-    let currentEditId = null;
+            let currentEditId = null;
 
-    // 🔧 Preencher dropdown de professores
-    Object.keys(teacherEmails).forEach(teacherName => {
-        const option = document.createElement('option');
-        option.value = teacherName;
-        option.textContent = teacherName;
-        professorSelect.appendChild(option);
-    });
-    document.getElementById('totalTeachers').textContent = Object.keys(teacherEmails).length;
-
-    // 🔧 Data atual
-    const today = new Date();
-    const formattedDate = today.toISOString().split('T')[0];
-    document.getElementById('occurrenceDate').value = formattedDate;
-
-    // 🔧 Contagem de turmas
-    const turmasCount = document.querySelectorAll('#studentClass option').length - 1;
-    document.getElementById('totalClasses').textContent = turmasCount;
-
-    // 🔧 Notificações
-    function showNotification(type, message) {
-        notification.classList.remove('success', 'error', 'info');
-        notification.classList.add(type);
-        notificationContent.textContent = message;
-        notificationIcon.className =
-            type === 'success' ? 'fas fa-check-circle icon' :
-            type === 'error' ? 'fas fa-exclamation-circle icon' :
-            'fas fa-info-circle icon';
-        notification.classList.add('show');
-        setTimeout(() => notification.classList.remove('show'), 5000);
-    }
-    notificationClose.addEventListener('click', () => notification.classList.remove('show'));
-
-    // 🔧 Fetch seguro
-    async function safeFetch(url, options = {}) {
-        try {
-            const response = await fetch(url, {
-                ...options,
-                headers: { "Content-Type": "application/json" }
+            // 🔧 Preencher dropdown de professores
+            Object.keys(teacherEmails).forEach(teacherName => {
+                const option = document.createElement('option');
+                option.value = teacherName;
+                option.textContent = teacherName;
+                professorSelect.appendChild(option);
             });
-            return await response.json();
-        } catch (err) {
-            return { status: "error", message: err.message };
-        }
-    }
+            document.getElementById('totalTeachers').textContent = Object.keys(teacherEmails).length;
 
-    // 🔧 Carregar alunos por turma
-    classSelect.addEventListener('change', async function() {
-        const turma = this.value;
-        if (!turma) return;
-
-        const url = `${"https://script.google.com/macros/s/AKfycby6qAjPqHvsIQtgubGANZoFOAvfeUJEGvJGNPKk_ROBjGfMYd8-2ydtOFhJktUMfK_z/exec"}?action=getStudents&class=${encodeURIComponent(turma)}&spreadsheetId=${SPREADSHEET_ID}`;
-        const data = await safeFetch(url);
-
-        if (data.status === "success") {
-            studentSelect.innerHTML = '<option value="">Selecione o aluno</option>';
-            data.students.forEach(s => {
-                const op = document.createElement('option');
-                op.value = s;
-                op.textContent = s;
-                studentSelect.appendChild(op);
-            });
-            studentSelect.disabled = false;
-            classStudentsCount.textContent = data.students.length;
-        } else {
-            showNotification("error", data.message);
-        }
-    });
-
-    // 🔧 Enviar formulário
-    form.addEventListener('submit', async function(e) {
-        e.preventDefault();
-
-        const irregularities = [...document.querySelectorAll('input[type="checkbox"]:checked')].map(cb => cb.value);
-        const payload = {
-            action: currentEditId ? "updateOccurrence" : "addOccurrence",
-            spreadsheetId: SPREADSHEET_ID,
-            id: currentEditId,
-            date: document.getElementById('occurrenceDate').value,
-            professor: professorSelect.value,
-            class: classSelect.value,
-            student: studentSelect.value,
-            irregularities: irregularities.join(", "),
-            description: document.getElementById('description').value
-        };
-
-        const data = await safeFetch("https://script.google.com/macros/s/AKfycby6qAjPqHvsIQtgubGANZoFOAvfeUJEGvJGNPKk_ROBjGfMYd8-2ydtOFhJktUMfK_z/exec", { method: "POST", body: JSON.stringify(payload) });
-
-        if (data.status === "success") {
-            showNotification("success", data.message);
-            loadRegistrosTable();
-            loadStudentStats();
-            loadPeriodStats();
-            form.reset();
+            // 🔧 Data atual
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
             document.getElementById('occurrenceDate').value = formattedDate;
-            currentEditId = null;
-            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> CADASTRAR';
-        } else {
-            showNotification("error", data.message);
-        }
-    });
 
-    // 🔧 Carregar tabela de registros
-    async function loadRegistrosTable() {
-        registrosTableBody.innerHTML = '<tr><td colspan="7">Carregando...</td></tr>';
-        const url = `${"https://script.google.com/macros/s/AKfycby6qAjPqHvsIQtgubGANZoFOAvfeUJEGvJGNPKk_ROBjGfMYd8-2ydtOFhJktUMfK_z/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}`;
-        const data = await safeFetch(url);
+            // 🔧 Contagem de turmas
+            const turmasCount = document.querySelectorAll('#studentClass option').length - 1;
+            document.getElementById('totalClasses').textContent = turmasCount;
 
-        if (data.status === "success") {
-            registrosTableBody.innerHTML = "";
-            data.occurrences.forEach(o => {
-                const row = document.createElement("tr");
-                row.innerHTML = `
-                    <td>${o.date}</td>
-                    <td>${o.professor}</td>
-                    <td>${o.class}</td>
-                    <td>${o.student}</td>
-                    <td>${o.irregularities}</td>
-                    <td>${o.description}</td>
-                    <td>
-                        <button onclick="editOccurrence('${o.id}')">Editar</button>
-                        <button onclick="deleteOccurrence('${o.id}')">Excluir</button>
-                    </td>
-                `;
-                registrosTableBody.appendChild(row);
-            });
-        } else {
-            registrosTableBody.innerHTML = `<tr><td colspan="7">${data.message}</td></tr>`;
-        }
-    }
+            // 🔧 Notificações
+            function showNotification(type, message) {
+                notification.classList.remove('success', 'error', 'info');
+                notification.classList.add(type);
+                notificationContent.textContent = message;
+                notificationIcon.className =
+                    type === 'success' ? 'fas fa-check-circle icon' :
+                    type === 'error' ? 'fas fa-exclamation-circle icon' :
+                    'fas fa-info-circle icon';
+                notification.classList.add('show');
+                setTimeout(() => notification.classList.remove('show'), 5000);
+            }
+            notificationClose.addEventListener('click', () => notification.classList.remove('show'));
 
-    // 🔧 Editar ocorrência
-    window.editOccurrence = async function(id) {
-        const url = `${"https://script.google.com/macros/s/AKfycby6qAjPqHvsIQtgubGANZoFOAvfeUJEGvJGNPKk_ROBjGfMYd8-2ydtOFhJktUMfK_z/exec"}?action=getOccurrenceById&id=${id}&spreadsheetId=${SPREADSHEET_ID}`;
-        const data = await safeFetch(url);
-        if (data.status === "success") {
-            const o = data.occurrence;
-            professorSelect.value = o.professor;
-            document.getElementById('occurrenceDate').value = o.date;
-            classSelect.value = o.class;
-            studentSelect.value = o.student;
-            document.getElementById('description').value = o.description;
-            currentEditId = o.id;
-            submitBtn.innerHTML = '<i class="fas fa-sync-alt"></i> ATUALIZAR';
-        } else {
-            showNotification("error", data.message);
-        }
-    };
+            // 🔧 Mostrar/ocultar loading
+            function showLoading(show) {
+                loadingOverlay.style.display = show ? 'flex' : 'none';
+            }
 
-    // 🔧 Excluir ocorrência
-    window.deleteOccurrence = async function(id) {
-        if (!confirm("Deseja excluir?")) return;
-        const payload = { action: "deleteOccurrence", spreadsheetId: SPREADSHEET_ID, id };
-        const data = await safeFetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) });
-        if (data.status === "success") {
-            showNotification("success", data.message);
-            loadRegistrosTable();
-            loadStudentStats();
-            loadPeriodStats();
-        } else {
-            showNotification("error", data.message);
-        }
-    };
+            // 🔧 Fetch seguro com tratamento de erros
+            async function safeFetch(url, options = {}) {
+                try {
+                    showLoading(true);
+                    const response = await fetch(url, {
+                        ...options,
+                        headers: {
+                            "Content-Type": "application/json",
+                            ...options.headers
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`Erro HTTP: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    showLoading(false);
+                    return data;
+                } catch (err) {
+                    console.error("Erro na requisição:", err);
+                    showLoading(false);
+                    showNotification("error", "Falha na conexão. Verifique sua internet e tente novamente.");
+                    return { status: "error", message: err.message };
+                }
+            }
 
-    // 🔧 Carregar estatísticas por aluno
-    async function loadStudentStats() {
-        if (!studentStatsCanvas) return;
-        const url = `${"https://script.google.com/macros/s/AKfycby6qAjPqHvsIQtgubGANZoFOAvfeUJEGvJGNPKk_ROBjGfMYd8-2ydtOFhJktUMfK_z/exec"}?action=getStudentStats&spreadsheetId=${SPREADSHEET_ID}`;
-        const data = await safeFetch(url);
+            // 🔧 Carregar alunos por turma
+            classSelect.addEventListener('change', async function() {
+                const turma = this.value;
+                if (!turma) return;
 
-        if (data.status === "success") {
-            const ctx = studentStatsCanvas.getContext("2d");
-            new Chart(ctx, {
-                type: "bar",
-                data: {
-                    labels: data.stats.map(s => s.student),
-                    datasets: [{
-                        label: "Ocorrências por aluno",
-                        data: data.stats.map(s => s.count)
-                    }]
+                const url = `${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(turma)}&spreadsheetId=${SPREADSHEET_ID}`;
+                const data = await safeFetch(url);
+
+                if (data.status === "success") {
+                    studentSelect.innerHTML = '<option value="">Selecione o aluno</option>';
+                    data.students.forEach(s => {
+                        const op = document.createElement('option');
+                        op.value = s;
+                        op.textContent = s;
+                        studentSelect.appendChild(op);
+                    });
+                    studentSelect.disabled = false;
+                    
+                    // Atualizar estatísticas da turma selecionada
+                    document.getElementById('classStudentsCount').textContent = data.students.length;
+                    document.getElementById('classStudentsCard').style.display = 'block';
+                    
+                    // Detectar período da turma
+                    let periodo = "Não identificado";
+                    if (turma.includes("MANHA")) periodo = "Manhã";
+                    else if (turma.includes("TARDE")) periodo = "Tarde";
+                    else if (turma.includes("NOITE")) periodo = "Noite";
+                    
+                    document.getElementById('selectedClassPeriod').textContent = periodo;
+                } else {
+                    showNotification("error", data.message || "Erro ao carregar alunos");
                 }
             });
-        }
-    }
 
-    // 🔧 Carregar estatísticas por período
-    async function loadPeriodStats() {
-        if (!periodStatsCanvas) return;
-        const url = `${SCRIPT_URL}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}`;
-        const data = await safeFetch(url);
+            // 🔧 Enviar formulário
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
 
-        if (data.status === "success") {
-            const ctx = periodStatsCanvas.getContext("2d");
-            new Chart(ctx, {
-                type: "line",
-                data: {
-                    labels: data.stats.map(s => s.period),
-                    datasets: [{
-                        label: "Ocorrências por período",
-                        data: data.stats.map(s => s.count),
-                        fill: false,
-                        borderColor: "blue"
-                    }]
+                const irregularities = [...document.querySelectorAll('input[type="checkbox"]:checked')].map(cb => cb.value);
+                const payload = {
+                    action: currentEditId ? "updateOccurrence" : "addOccurrence",
+                    spreadsheetId: SPREADSHEET_ID,
+                    id: currentEditId,
+                    date: document.getElementById('occurrenceDate').value,
+                    professor: professorSelect.value,
+                    class: classSelect.value,
+                    student: studentSelect.value,
+                    irregularities: irregularities.join(", "),
+                    description: document.getElementById('description').value
+                };
+
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="loading"></span> PROCESSANDO...';
+
+                const data = await safeFetch(SCRIPT_URL, { 
+                    method: "POST", 
+                    body: JSON.stringify(payload) 
+                });
+
+                if (data.status === "success") {
+                    showNotification("success", data.message);
+                    loadRegistrosTable();
+                    updateCharts();
+                    form.reset();
+                    document.getElementById('occurrenceDate').value = formattedDate;
+                    currentEditId = null;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> CADASTRAR';
+                } else {
+                    showNotification("error", data.message || "Erro ao salvar ocorrência");
+                }
+                
+                submitBtn.disabled = false;
+            });
+
+            // 🔧 Carregar tabela de registros
+            async function loadRegistrosTable() {
+                registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">Carregando registros...</td></tr>';
+                
+                const url = `${SCRIPT_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}`;
+                const data = await safeFetch(url);
+
+                if (data.status === "success") {
+                    registrosTableBody.innerHTML = "";
+                    
+                    if (data.occurrences && data.occurrences.length > 0) {
+                        data.occurrences.forEach(o => {
+                            const row = document.createElement("tr");
+                            row.innerHTML = `
+                                <td>${o.date || ''}</td>
+                                <td>${o.professor || ''}</td>
+                                <td>${o.class || ''}</td>
+                                <td>${o.student || ''}</td>
+                                <td>${o.irregularities || ''}</td>
+                                <td>${o.description || ''}</td>
+                                <td class="actions-cell">
+                                    <button class="btn-action btn-edit" onclick="editOccurrence('${o.id}')">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </button>
+                                    <button class="btn-action btn-delete" onclick="deleteOccurrence('${o.id}')">
+                                        <i class="fas fa-trash"></i> Excluir
+                                    </button>
+                                </td>
+                            `;
+                            registrosTableBody.appendChild(row);
+                        });
+                    } else {
+                        registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 20px;">Nenhum registro encontrado</td></tr>';
+                    }
+                } else {
+                    registrosTableBody.innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 20px;">${data.message || 'Erro ao carregar registros'}</td></tr>`;
+                }
+            }
+
+            // 🔧 Editar ocorrência
+            window.editOccurrence = async function(id) {
+                const url = `${SCRIPT_URL}?action=getOccurrenceById&id=${id}&spreadsheetId=${SPREADSHEET_ID}`;
+                const data = await safeFetch(url);
+                
+                if (data.status === "success") {
+                    const o = data.occurrence;
+                    professorSelect.value = o.professor || '';
+                    document.getElementById('occurrenceDate').value = o.date || '';
+                    classSelect.value = o.class || '';
+                    
+                    // Carregar alunos da turma selecionada
+                    if (o.class) {
+                        const loadStudentsUrl = `${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(o.class)}&spreadsheetId=${SPREADSHEET_ID}`;
+                        const studentsData = await safeFetch(loadStudentsUrl);
+                        
+                        if (studentsData.status === "success") {
+                            studentSelect.innerHTML = '<option value="">Selecione o aluno</option>';
+                            studentsData.students.forEach(s => {
+                                const op = document.createElement('option');
+                                op.value = s;
+                                op.textContent = s;
+                                studentSelect.appendChild(op);
+                            });
+                            studentSelect.disabled = false;
+                            studentSelect.value = o.student || '';
+                        }
+                    }
+                    
+                    document.getElementById('description').value = o.description || '';
+                    
+                    // Marcar irregularidades
+                    document.querySelectorAll('input[name="irregularity"]').forEach(cb => {
+                        cb.checked = o.irregularities && o.irregularities.includes(cb.value);
+                    });
+                    
+                    currentEditId = o.id;
+                    submitBtn.innerHTML = '<i class="fas fa-sync-alt"></i> ATUALIZAR';
+                    
+                    // Scroll para o formulário
+                    form.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    showNotification("error", data.message || "Erro ao carregar ocorrência");
+                }
+            };
+
+            // 🔧 Excluir ocorrência
+            window.deleteOccurrence = async function(id) {
+                if (!confirm("Tem certeza que deseja excluir esta ocorrência?")) return;
+                
+                const payload = { 
+                    action: "deleteOccurrence", 
+                    spreadsheetId: SPREADSHEET_ID, 
+                    id 
+                };
+                
+                const data = await safeFetch(SCRIPT_URL, { 
+                    method: "POST", 
+                    body: JSON.stringify(payload) 
+                });
+                
+                if (data.status === "success") {
+                    showNotification("success", data.message);
+                    loadRegistrosTable();
+                    updateCharts();
+                } else {
+                    showNotification("error", data.message || "Erro ao excluir ocorrência");
+                }
+            };
+
+            // 🔧 Atualizar gráficos
+            async function updateCharts() {
+                // Atualizar gráfico de distribuição por período
+                const periodStatsUrl = `${SCRIPT_URL}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}`;
+                const periodData = await safeFetch(periodStatsUrl);
+
+                if (periodData.status === "success" && periodData.stats) {
+                    // Destruir instância anterior do gráfico se existir
+                    if (studentsPeriodChartInstance) {
+                        studentsPeriodChartInstance.destroy();
+                    }
+                    
+                    const ctx = studentsPeriodChart.getContext("2d");
+                    studentsPeriodChartInstance = new Chart(ctx, {
+                        type: "bar",
+                        data: {
+                            labels: periodData.stats.map(s => s.period),
+                            datasets: [{
+                                label: "Ocorrências por período",
+                                data: periodData.stats.map(s => s.count),
+                                backgroundColor: [
+                                    'rgba(52, 152, 219, 0.7)',
+                                    'rgba(243, 156, 18, 0.7)',
+                                    'rgba(155, 89, 182, 0.7)'
+                                ],
+                                borderColor: [
+                                    'rgb(52, 152, 219)',
+                                    'rgb(243, 156, 18)',
+                                    'rgb(155, 89, 182)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        precision: 0
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                
+                // Atualizar contagem total de ocorrências
+                const allOccurrencesUrl = `${SCRIPT_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}`;
+                const occurrencesData = await safeFetch(allOccurrencesUrl);
+                
+                if (occurrencesData.status === "success" && occurrencesData.occurrences) {
+                    document.getElementById('totalOccurrences').textContent = occurrencesData.occurrences.length;
+                }
+            }
+
+            // 🔧 Limpar formulário
+            document.getElementById('clearBtn').addEventListener('click', function() {
+                form.reset();
+                document.getElementById('occurrenceDate').value = formattedDate;
+                studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                studentSelect.disabled = true;
+                currentEditId = null;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> CADASTRAR';
+            });
+
+            // 🔧 Exportar dados
+            document.getElementById('exportBtn').addEventListener('click', async function() {
+                const url = `${SCRIPT_URL}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}`;
+                const data = await safeFetch(url);
+                
+                if (data.status === "success" && data.occurrences) {
+                    try {
+                        // Preparar dados para exportação
+                        const worksheet = XLSX.utils.json_to_sheet(data.occurrences);
+                        const workbook = XLSX.utils.book_new();
+                        XLSX.utils.book_append_sheet(workbook, worksheet, "Ocorrências");
+                        
+                        // Gerar arquivo e fazer download
+                        XLSX.writeFile(workbook, "ocorrencias_escolares.xlsx");
+                        showNotification("success", "Dados exportados com sucesso!");
+                    } catch (error) {
+                        console.error("Erro ao exportar:", error);
+                        showNotification("error", "Erro ao exportar dados");
+                    }
+                } else {
+                    showNotification("error", "Nenhum dado disponível para exportação");
                 }
             });
-        }
-    }
 
-    // Inicial
-    loadRegistrosTable();
-    loadStudentStats();
-    loadPeriodStats();
-});
-</script>
+            // Inicializar a aplicação
+            async function initializeApp() {
+                showLoading(true);
+                await Promise.all([
+                    loadRegistrosTable(),
+                    updateCharts()
+                ]);
+                showLoading(false);
+            }
 
+            // Iniciar a aplicação
+            initializeApp();
+        });
+    </script>
 </body>
 </html>
