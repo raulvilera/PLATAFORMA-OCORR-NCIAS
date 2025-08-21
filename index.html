@@ -1478,9 +1478,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 "WILSON RODRIGUES MOTA": "wmota@prof.educacao.sp.gov.br"
             };
 
-     // 🔧 Configurações da planilha / webapp
+      // 🔧 Configurações da planilha / webapp
     const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
-    const SCRIPT_URL = ""https://script.google.com/macros/s/AKfycbwEVXpCWxkqWMrujPaWGZbTuVoJEk1XQjL_N75x5pY7DdGbPrBpek1YFLiCbmOmw2kr/exec"";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw9hZqxn9uSud_alX4cbEc4waB8BhtW3SQfGT16-jIazpRzacJuL6XsozIlg71N_Xnv/exec";
 
     // 🔧 Elementos DOM
     const form = document.getElementById('occurrenceForm');
@@ -1529,8 +1529,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     notificationClose.addEventListener('click', () => notification.classList.remove('show'));
 
-    // 🔧 Fetch seguro (corrigido para usar o URL passado)
-    async function safeFetch("https://script.google.com/macros/s/AKfycbwEVXpCWxkqWMrujPaWGZbTuVoJEk1XQjL_N75x5pY7DdGbPrBpek1YFLiCbmOmw2kr/exec", options = {}) {
+    // 🔧 Fetch seguro
+    async function safeFetch(url, options = {}) {
         try {
             const response = await fetch(url, {
                 ...options,
@@ -1547,7 +1547,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const turma = this.value;
         if (!turma) return;
 
-        const url = `${"https://script.google.com/macros/s/AKfycbwEVXpCWxkqWMrujPaWGZbTuVoJEk1XQjL_N75x5pY7DdGbPrBpek1YFLiCbmOmw2kr/exec"}?action=getStudents&class=${encodeURIComponent(turma)}&spreadsheetId=${SPREADSHEET_ID}`;
+        const url = `${"https://script.google.com/macros/s/AKfycbw9hZqxn9uSud_alX4cbEc4waB8BhtW3SQfGT16-jIazpRzacJuL6XsozIlg71N_Xnv/exec"}?action=getStudents&class=${encodeURIComponent(turma)}&spreadsheetId=${SPREADSHEET_ID}`;
         const data = await safeFetch(url);
 
         if (data.status === "success") {
@@ -1582,7 +1582,7 @@ document.addEventListener('DOMContentLoaded', function() {
             description: document.getElementById('description').value
         };
 
-        const data = await safeFetch("https://script.google.com/macros/s/AKfycbwEVXpCWxkqWMrujPaWGZbTuVoJEk1XQjL_N75x5pY7DdGbPrBpek1YFLiCbmOmw2kr/exec", { method: "POST", body: JSON.stringify(payload) });
+        const data = await safeFetch("https://script.google.com/macros/s/AKfycbw9hZqxn9uSud_alX4cbEc4waB8BhtW3SQfGT16-jIazpRzacJuL6XsozIlg71N_Xnv/exec", { method: "POST", body: JSON.stringify(payload) });
 
         if (data.status === "success") {
             showNotification("success", data.message);
@@ -1599,7 +1599,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // 🔧 Carregar tabela de registros
     async function loadRegistrosTable() {
         registrosTableBody.innerHTML = '<tr><td colspan="7">Carregando...</td></tr>';
-        const url = `${"https://script.google.com/macros/s/AKfycbwEVXpCWxkqWMrujPaWGZbTuVoJEk1XQjL_N75x5pY7DdGbPrBpek1YFLiCbmOmw2kr/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}`;
+        const url = `${"https://script.google.com/macros/s/AKfycbw9hZqxn9uSud_alX4cbEc4waB8BhtW3SQfGT16-jIazpRzacJuL6XsozIlg71N_Xnv/exec"}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}`;
         const data = await safeFetch(url);
 
         if (data.status === "success") {
@@ -1627,7 +1627,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 🔧 Editar ocorrência
     window.editOccurrence = async function(id) {
-        const url = `${"https://script.google.com/macros/s/AKfycbwEVXpCWxkqWMrujPaWGZbTuVoJEk1XQjL_N75x5pY7DdGbPrBpek1YFLiCbmOmw2kr/exec"}?action=getOccurrenceById&id=${id}&spreadsheetId=${SPREADSHEET_ID}`;
+        const url = `${"https://script.google.com/macros/s/AKfycbw9hZqxn9uSud_alX4cbEc4waB8BhtW3SQfGT16-jIazpRzacJuL6XsozIlg71N_Xnv/exec"}?action=getOccurrenceById&id=${id}&spreadsheetId=${SPREADSHEET_ID}`;
         const data = await safeFetch(url);
         if (data.status === "success") {
             const o = data.occurrence;
@@ -1647,7 +1647,7 @@ document.addEventListener('DOMContentLoaded', function() {
     window.deleteOccurrence = async function(id) {
         if (!confirm("Deseja excluir?")) return;
         const payload = { action: "deleteOccurrence", spreadsheetId: SPREADSHEET_ID, id };
-        const data = await safeFetch("https://script.google.com/macros/s/AKfycbwEVXpCWxkqWMrujPaWGZbTuVoJEk1XQjL_N75x5pY7DdGbPrBpek1YFLiCbmOmw2kr/exec", { method: "POST", body: JSON.stringify(payload) });
+        const data = await safeFetch("https://script.google.com/macros/s/AKfycbw9hZqxn9uSud_alX4cbEc4waB8BhtW3SQfGT16-jIazpRzacJuL6XsozIlg71N_Xnv/exec", { method: "POST", body: JSON.stringify(payload) });
         if (data.status === "success") {
             showNotification("success", data.message);
             loadRegistrosTable();
