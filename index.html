@@ -1739,45 +1739,97 @@
                 // Atualizar o número de ocorrências
                 const chartValue = canvas.parentElement.querySelector('.chart-value');
                 chartValue.textContent = value;
-            }
+            }// Substitua a função safeFetch por esta versão melhorada:
+async function safeFetch(url, options = {}) {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    
+    // Adicionar timestamp para evitar cache
+    const finalUrl = url.includes('?') ? `${url}&t=${Date.now()}` : `${url}?t=${Date.now()}`;
+    
+    const fetchOptions = {
+      ...options,
+      signal: controller.signal,
+      mode: 'no-cors', // Alterado para 'no-cors' para evitar problemas
+      redirect: 'follow'
+    };
 
-            // Função para fazer requisições seguras
-            async function safeFetch(url, options = {}) {
-                try {
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
-                    
-                    const fetchOptions = {
-                        ...options,
-                        signal: controller.signal,
-                        mode: 'cors',
-                        redirect: 'follow'
-                    };
+    const response = await fetch(finalUrl, fetchOptions);
+    clearTimeout(timeoutId);
 
-                    const response = await fetch(url, fetchOptions);
-                    clearTimeout(timeoutId);
+    // Tentar analisar a resposta como texto primeiro
+    const responseText = await response.text();
+    
+    let data;
+    try {
+      data = JSON.parse(responseText);
+    } catch (e) {
+      // Se não for JSON válido, criar uma resposta de erro
+      return {
+        status: "error",
+        message: "Resposta inválida do servidor: " + responseText.substring(0, 100)
+      };
+    }
+    
+    return data;
+  } catch (error) {
+    console.error('Erro na requisição:', error);
+    return {
+      status: "error",
+      message: error.message || "Erro na conexão com o servidor"
+    };
+  }
+}
 
-                    // Verificar status da resposta
-                    if (!response.ok) {
-                        throw new Error(`Erro ${response.status}: ${response.statusText}`);
-                    }
+// Atualize a função sendFormData:
+async function sendFormData(formData, retries = 3) {
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      if (attempt > 1) {
+        showNotification('info', `Tentativa ${attempt} de ${retries}...`);
+      }
 
-                    // Verificar se a resposta é JSON válido
-                    const contentType = response.headers.get('content-type');
-                    if (!contentType || !contentType.includes('application/json')) {
-                        const text = await response.text();
-                        throw new Error(`Resposta inválida: ${text.substring(0, 100)}`);
-                    }
+      // Usar FormData em vez de JSON para melhor compatibilidade
+      const payload = new FormData();
+      payload.append('action', 'addOccurrence');
+      payload.append('spreadsheetId', SPREADSHEET_ID);
+      payload.append('sheetName', SHEET_NAME);
+      
+      // Adicionar todos os campos do formulário
+      Object.keys(formData).forEach(key => {
+        payload.append(key, formData[key]);
+      });
 
-                    return await response.json();
-                } catch (error) {
-                    console.error('Erro na requisição:', error);
-                    return {
-                        status: "error",
-                        message: error.message || "Erro na conexão com o servidor"
-                    };
-                }
-            }
+      const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        body: payload
+      });
+
+      const responseText = await response.text();
+      let data;
+      
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        throw new Error(`Resposta inválida: ${responseText.substring(0, 100)}`);
+      }
+      
+      if (data && data.status === "success") {
+        return data;
+      } else {
+        throw new Error(data?.message || "Erro desconhecido ao enviar ocorrência");
+      }
+    } catch (error) {
+      console.error(`Tentativa ${attempt} falhou:`, error);
+      if (attempt < retries) {
+        await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+      } else {
+        throw error;
+      }
+    }
+  }
+}
 
             // Carregar alunos quando uma turma for selecionada
             classSelect.addEventListener('change', function() {
