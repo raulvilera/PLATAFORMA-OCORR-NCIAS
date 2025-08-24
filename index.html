@@ -1652,7 +1652,7 @@
                 // Buscar alunos reais da planilha
                 const url = `${'https://script.google.com/macros/s/AKfycbyvRcEwxneDPGdgn1Rq5PvjIi6fh1M3NiVbquOfjofCqIN8UT43HEaFE17sjzXxrFIO/exec'}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
                 
-                safeFetch('https://script.google.com/macros/s/AKfycbyvRcEwxneDPGdgn1Rq5PvjIi6fh1M3NiVbquOfjofCqIN8UT43HEaFE17sjzXxrFIO/exec')
+                safeFetch(url)
                     .then(data => {
                         if (data && data.status === "success" && Array.isArray(data.students)) {
                             studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
@@ -1873,7 +1873,7 @@
             async function loadStudentPeriodStats() {
                 try {
                     const url = `${'https://script.google.com/macros/s/AKfycbyvRcEwxneDPGdgn1Rq5PvjIi6fh1M3NiVbquOfjofCqIN8UT43HEaFE17sjzXxrFIO/exec'}?action=getStudentPeriodStats&spreadsheetId=${SPREADSHEET_ID}`;
-                    const data = await safeFetch('https://script.google.com/macros/s/AKfycbyvRcEwxneDPGdgn1Rq5PvjIi6fh1M3NiVbquOfjofCqIN8UT43HEaFE17sjzXxrFIO/exec');
+                    const data = await safeFetch(url);
 
                     if (data && data.status === "success") {
                         document.getElementById('morningStudents').textContent = data.morningCount;
@@ -2012,7 +2012,7 @@
                     // Buscar dados da ocorrência para preencher o formulário
                     try {
                         const url = `${'https://script.google.com/macros/s/AKfycbyvRcEwxneDPGdgn1Rq5PvjIi6fh1M3NiVbquOfjofCqIN8UT43HEaFE17sjzXxrFIO/exec'}?action=getOccurrenceById&id=${encodeURIComponent(id)}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
-                        const data = await safeFetch('https://script.google.com/macros/s/AKfycbyvRcEwxneDPGdgn1Rq5PvjIi6fh1M3NiVbquOfjofCqIN8UT43HEaFE17sjzXxrFIO/exec');
+                        const data = await safeFetch(url);
                         if (data && data.status === "success" && data.occurrence) {
                             const occ = data.occurrence;
                             professorSelect.value = occ.professor;
@@ -2075,7 +2075,7 @@
             exportExcelBtn.addEventListener('click', async function() {
                 try {
                     const url = `${'https://script.google.com/macros/s/AKfycbyvRcEwxneDPGdgn1Rq5PvjIi6fh1M3NiVbquOfjofCqIN8UT43HEaFE17sjzXxrFIO/exec'}?action=getAllOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
-                    const data = await safeFetch('https://script.google.com/macros/s/AKfycbyvRcEwxneDPGdgn1Rq5PvjIi6fh1M3NiVbquOfjofCqIN8UT43HEaFE17sjzXxrFIO/exec'l);
+                    const data = await safeFetch(url);
 
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
                         if (data.occurrences.length === 0) {
