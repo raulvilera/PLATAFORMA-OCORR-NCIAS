@@ -1594,7 +1594,7 @@ document.addEventListener("DOMContentLoaded", function() {
         studentOccurrencesName.textContent = this.value;
         studentOccurrencesCount.textContent = "Carregando...";
 
-        const url = `${"https://script.google.com/macros/s/AKfycbyvRcEwxneDPGdgn1Rq5PvjIi6fh1M3NiVbquOfjofCqIN8UT43HEaFE17sjzXxrFIO/exec"}?action=getStudentStats&student=${encodeURIComponent(this.value)}&spreadsheetId=${SPREADSHEET_ID}`;
+        const url = `${'https://script.google.com/macros/s/AKfycbyvRcEwxneDPGdgn1Rq5PvjIi6fh1M3NiVbquOfjofCqIN8UT43HEaFE17sjzXxrFIO/exec'}?action=getStudentStats&student=${encodeURIComponent(this.value)}&spreadsheetId=${SPREADSHEET_ID}`;
         safeFetch(url).then(data => {
             if (data.status === "success") {
                 studentOccurrencesCount.textContent = data.totalOccurrences;
@@ -1616,7 +1616,7 @@ document.addEventListener("DOMContentLoaded", function() {
         formData.append("spreadsheetId", SPREADSHEET_ID);
         formData.append("sheetName", SHEET_NAME);
 
-        const res = await safeFetch(SCRIPT_URL, { method: "POST", body: formData });
+        const res = await safeFetch('https://script.google.com/macros/s/AKfycbyvRcEwxneDPGdgn1Rq5PvjIi6fh1M3NiVbquOfjofCqIN8UT43HEaFE17sjzXxrFIO/exec', { method: "POST", body: formData });
         if (res.status === "success") {
             showNotification("success", currentEditId ? "Ocorrência atualizada!" : "Ocorrência adicionada!");
             form.reset();
