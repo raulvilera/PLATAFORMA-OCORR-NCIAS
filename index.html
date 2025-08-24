@@ -1,3 +1,8 @@
+
+FRONTEND 
+
+
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1107,7 +1112,6 @@
                                                     <option value="8° ANO B TARDE">8° ANO B TARDE</option>
                                                     <option value="8° ANO C TARDE">8° ANO C TARDE</option>
                                                     <option value="8° ANO D TARDE">8° ANO D TARDE</option>
-                                                    <option value="8° ANO E TARDE">8° ANO E TARDE</option>
                                                     <option value="9° ANO A TARDE">9° ANO A TARDE</option>
                                                     <option value="9° ANO B TARDE">9° ANO B TARDE</option>
                                                     <option value="9° ANO C TARDE">9° ANO C TARDE</option>
@@ -1503,8 +1507,7 @@
             const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
             const SHEET_NAME = "OCORRENCIASDOSPROFESSORES";
             const STUDENT_SHEET_NAME = "BANCODEDADOSGERAL";
-            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwqvF-CEHnyAHl7LTQoqbbkcblR3VnnPbddzL1wl5EPYTLwPPtehffVLi35AR1KQzx_/exec"
-;
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzqwP0fD9ARuTj7Ns31DNRRrUpkT4YIta6OFKth_mzreTVlfvEBVXA1VqvDflC3q__3/exec";
 
             // Armazenar gráficos
             const charts = {};
@@ -1651,7 +1654,7 @@
                 }
 
                 // Buscar alunos reais da planilha
-                const url = `${"https://script.google.com/macros/s/AKfycbwqvF-CEHnyAHl7LTQoqbbkcblR3VnnPbddzL1wl5EPYTLwPPtehffVLi35AR1KQzx_/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
+                const url = `${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
                 
                 safeFetch(url)
                     .then(data => {
