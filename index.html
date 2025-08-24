@@ -1380,13 +1380,17 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    // Configurações da API
+    // =========================
+    // CONFIGURAÇÕES GERAIS
+    // =========================
     const SPREADSHEET_ID = "1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio";
     const SHEET_NAME = "OCORRENCIASDOSPROFESSORES";
     const STUDENT_SHEET_NAME = "BANCODEDADOSGERAL";
     const API_BASE_URL = "https://script.google.com/macros/s/AKfycbwAhOjBs8zb4kGy0F23vhRA7iVJoqQvsWKK7yoa2PXtwAoGV3u1AVSIVYpmsttDSmTX/exec";
 
-    // Elementos do DOM
+    // =========================
+    // ELEMENTOS DO DOM
+    // =========================
     const form = document.getElementById("occurrenceForm");
     const professorSelect = document.getElementById("professor");
     const classSelect = document.getElementById("studentClass");
@@ -1410,9 +1414,11 @@ document.addEventListener("DOMContentLoaded", function() {
     let currentEditId = null;
     let charts = {};
 
-    // Lista de professores com emails
+    // =========================
+    // LISTA DE PROFESSORES (COM EMAILS)
+    // =========================
     const teacherEmails = {
-         "ALEX LUTH PEREIRA MARANHAO": "luth@prof.educacao.sp.gov.br",
+                        "ALEX LUTH PEREIRA MARANHAO": "luth@prof.educacao.sp.gov.br",
                 "ALEXSANDRA PAULA VARELLA DE SOUZA": "avarella@prof.educacao.sp.gov.br",
                 "ALISON VASCONCELOS BESERRA": "alisonv@prof.educacao.sp.gov.br",
                 "AMAURI TEODORO DE OLIVEIRA": "amaurit@prof.educacao.sp.gov.br",
@@ -1495,8 +1501,9 @@ document.addEventListener("DOMContentLoaded", function() {
             };
 
 
-
-    // Preenchimento da lista de professores
+    // =========================
+    // INICIALIZAÇÃO
+    // =========================
     Object.keys(teacherEmails).forEach(professor => {
         const option = document.createElement("option");
         option.value = professor;
@@ -1505,15 +1512,15 @@ document.addEventListener("DOMContentLoaded", function() {
     });
     document.getElementById("totalTeachers").textContent = Object.keys(teacherEmails).length;
 
-    // Data de hoje
     const today = new Date();
     document.getElementById("occurrenceDate").value = today.toISOString().split("T")[0];
 
-    // Total turmas
     const turmasCount = document.querySelectorAll("#studentClass option").length - 1;
     document.getElementById("totalClasses").textContent = turmasCount;
 
-    // Sistema de notificações
+    // =========================
+    // SISTEMA DE NOTIFICAÇÕES
+    // =========================
     function showNotification(type, message) {
         notification.classList.remove("success", "error", "info");
         notification.classList.add(type);
@@ -1525,74 +1532,50 @@ document.addEventListener("DOMContentLoaded", function() {
         notification.classList.add("show");
         setTimeout(() => notification.classList.remove("show"), 5000);
     }
-    
     if (notificationClose) {
         notificationClose.addEventListener("click", () => notification.classList.remove("show"));
     }
 
-    // Criação de gráficos donut
-    function createDonutChart(canvas, value, maxValue = 10) {
-        const ctx = canvas.getContext("2d");
-        const chartKey = canvas.getAttribute("data-irregularity");
-        if (charts[chartKey]) charts[chartKey].destroy();
-
-        charts[chartKey] = new Chart(ctx, {
-            type: "doughnut",
-            data: { 
-                datasets: [{ 
-                    data: [value, maxValue - value], 
-                    backgroundColor: ["#3498db", "#e0e0e0"], 
-                    borderWidth: 0 
-                }] 
-            },
-            options: { 
-                cutout: "70%", 
-                plugins: { 
-                    legend: { display: false }, 
-                    tooltip: { enabled: false } 
-                } 
-            }
-        });
-
-        canvas.parentElement.querySelector(".chart-value").textContent = value;
-    }
-
-    // Função para requisições seguras
+    // =========================
+    // FUNÇÕES DE SUPORTE
+    // =========================
     async function safeFetch(url, options = {}) {
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 30000);
             const response = await fetch(url, { ...options, signal: controller.signal });
             clearTimeout(timeoutId);
-            
-            if (!response.ok) {
-                throw new Error(`Erro HTTP ${response.status}: ${response.statusText}`);
-            }
-            
+            if (!response.ok) throw new Error(`Erro HTTP ${response.status}: ${response.statusText}`);
             const text = await response.text();
-            try { 
-                return JSON.parse(text); 
-            } catch { 
-                throw new Error("Resposta inválida do servidor: " + text); 
-            }
+            try { return JSON.parse(text); } 
+            catch { throw new Error("Resposta inválida: " + text); }
         } catch (error) {
             console.error("Erro na requisição:", error);
-            return { 
-                status: "error", 
-                message: error.name === 'AbortError' ? 'Timeout na requisição' : error.message 
-            };
+            return { status: "error", message: error.name === 'AbortError' ? 'Timeout' : error.message };
         }
     }
 
-    // Event listener para seleção da turma
+    function createDonutChart(canvas, value, maxValue = 10) {
+        const ctx = canvas.getContext("2d");
+        const chartKey = canvas.getAttribute("data-irregularity");
+        if (charts[chartKey]) charts[chartKey].destroy();
+        charts[chartKey] = new Chart(ctx, {
+            type: "doughnut",
+            data: { datasets: [{ data: [value, maxValue - value], backgroundColor: ["#3498db", "#e0e0e0"], borderWidth: 0 }] },
+            options: { cutout: "70%", plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+        });
+        canvas.parentElement.querySelector(".chart-value").textContent = value;
+    }
+
+    // =========================
+    // EVENTOS DE INTERFACE
+    // =========================
+
+    // Seleção da turma
     classSelect.addEventListener("change", async function() {
         const selectedClass = this.value;
-        
-        // Reset do select de alunos
         studentSelect.innerHTML = '<option value="">Carregando...</option>';
         studentSelect.disabled = true;
-        
-        // Esconder cards de estatísticas
         classStudentsCard.style.display = "none";
         studentOccurrencesCard.style.display = "none";
 
@@ -1601,328 +1584,151 @@ document.addEventListener("DOMContentLoaded", function() {
             return;
         }
 
-        try {
-            const url = `${"https://script.google.com/macros/s/AKfycbwAhOjBs8zb4kGy0F23vhRA7iVJoqQvsWKK7yoa2PXtwAoGV3u1AVSIVYpmsttDSmTX/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
-            const data = await safeFetch(url);
-            
-            if (data.status === "success" && data.students && Array.isArray(data.students)) {
-                studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
-                
-                // Ordenar alunos alfabeticamente
-                const sortedStudents = data.students.sort((a, b) => a.localeCompare(b));
-                
-                sortedStudents.forEach(student => {
-                    const option = document.createElement("option");
-                    option.value = student;
-                    option.textContent = student;
-                    studentSelect.appendChild(option);
-                });
-                
-                studentSelect.disabled = false;
-                
-                // Atualizar card de estatísticas da turma
-                classStudentsCount.textContent = data.students.length;
-                classStudentsCard.style.display = "block";
-                
-                showNotification("success", `${data.students.length} alunos carregados para a turma ${selectedClass}`);
-            } else {
-                studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
-                showNotification("error", data.message || "Erro ao carregar lista de alunos");
-            }
-        } catch (error) {
-            console.error("Erro ao carregar alunos:", error);
+        const url = `${API_BASE_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}&spreadsheetId=${SPREADSHEET_ID}`;
+        const data = await safeFetch(url);
+        if (data.status === "success" && Array.isArray(data.students)) {
+            studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
+            data.students.sort((a, b) => a.localeCompare(b)).forEach(student => {
+                const option = document.createElement("option");
+                option.value = student;
+                option.textContent = student;
+                studentSelect.appendChild(option);
+            });
+            studentSelect.disabled = false;
+            classStudentsCount.textContent = data.students.length;
+            classStudentsCard.style.display = "block";
+            showNotification("success", `${data.students.length} alunos carregados para a turma ${selectedClass}`);
+        } else {
             studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
-            showNotification("error", "Erro de conexão ao carregar alunos");
+            showNotification("error", data.message || "Erro ao carregar alunos");
         }
     });
 
-    // Event listener para seleção do aluno
+    // Seleção do aluno
     studentSelect.addEventListener("change", async function() {
         const selectedStudent = this.value;
-        
         if (!selectedStudent) {
             studentOccurrencesCard.style.display = "none";
             return;
         }
-
-        // Mostrar card e definir nome do aluno
         studentOccurrencesCard.style.display = "block";
         studentOccurrencesName.textContent = selectedStudent;
         studentOccurrencesCount.textContent = "Carregando...";
 
-        try {
-            const url = `${"https://script.google.com/macros/s/AKfycbwAhOjBs8zb4kGy0F23vhRA7iVJoqQvsWKK7yoa2PXtwAoGV3u1AVSIVYpmsttDSmTX/exec"}?action=getStudentStats&student=${encodeURIComponent(selectedStudent)}&spreadsheetId=${SPREADSHEET_ID}`;
-            const data = await safeFetch(url);
-            
-            if (data.status === "success") {
-                studentOccurrencesCount.textContent = data.totalOccurrences || 0;
-            } else {
-                studentOccurrencesCount.textContent = "0";
-                console.warn("Erro ao carregar estatísticas do aluno:", data.message);
-            }
-        } catch (error) {
-            console.error("Erro ao carregar estatísticas do aluno:", error);
-            studentOccurrencesCount.textContent = "0";
-        }
+        const url = `${API_BASE_URL}?action=getStudentStats&student=${encodeURIComponent(selectedStudent)}&spreadsheetId=${SPREADSHEET_ID}`;
+        const data = await safeFetch(url);
+        studentOccurrencesCount.textContent = (data.status === "success" ? data.totalOccurrences : 0) || 0;
     });
 
-    // Event listener para envio do formulário
+    // Submissão do formulário
     form.addEventListener("submit", async function(event) {
         event.preventDefault();
-        
-        // Validação básica
         if (!professorSelect.value || !classSelect.value || !studentSelect.value) {
-            showNotification("error", "Por favor, preencha todos os campos obrigatórios");
+            showNotification("error", "Preencha todos os campos obrigatórios");
             return;
         }
-
-        // Desabilitar botão durante envio
         submitBtn.disabled = true;
         const originalText = submitBtn.innerHTML;
         submitBtn.innerHTML = '<div class="loading"></div> Enviando...';
 
         try {
             const formData = new FormData(form);
-            
-            // Coletar irregularidades selecionadas
-            const irregularities = Array.from(document.querySelectorAll("input[name=irregularity]:checked"))
-                .map(checkbox => checkbox.value)
-                .join(", ");
-            
+            const irregularities = Array.from(document.querySelectorAll("input[name=irregularity]:checked")).map(c => c.value).join(", ");
             formData.append("irregularities", irregularities);
             formData.append("action", currentEditId ? "updateOccurrence" : "addOccurrence");
             formData.append("spreadsheetId", SPREADSHEET_ID);
             formData.append("sheetName", SHEET_NAME);
-            
-            if (currentEditId) {
-                formData.append("id", currentEditId);
-            }
+            if (currentEditId) formData.append("id", currentEditId);
 
-            const response = await safeFetch("https://script.google.com/macros/s/AKfycbwAhOjBs8zb4kGy0F23vhRA7iVJoqQvsWKK7yoa2PXtwAoGV3u1AVSIVYpmsttDSmTX/exec", {
-                method: "POST",
-                body: formData
-            });
-            
+            const response = await safeFetch(API_BASE_URL, { method: "POST", body: formData });
             if (response.status === "success") {
-                showNotification("success", currentEditId ? "Ocorrência atualizada com sucesso!" : "Ocorrência cadastrada com sucesso!");
-                
-                // Reset do formulário
+                showNotification("success", currentEditId ? "Ocorrência atualizada!" : "Ocorrência cadastrada!");
                 form.reset();
                 currentEditId = null;
                 submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> CADASTRAR';
-                
-                // Recarregar data atual
                 document.getElementById("occurrenceDate").value = today.toISOString().split("T")[0];
-                
-                // Recarregar tabela de registros
                 await loadRegistrosTable();
-                
-                // Esconder cards de estatísticas
                 classStudentsCard.style.display = "none";
                 studentOccurrencesCard.style.display = "none";
-                
             } else {
                 showNotification("error", response.message || "Erro ao salvar ocorrência");
             }
         } catch (error) {
-            console.error("Erro ao enviar formulário:", error);
-            showNotification("error", "Erro de conexão ao salvar ocorrência");
+            console.error("Erro:", error);
+            showNotification("error", "Erro de conexão");
         } finally {
-            // Reabilitar botão
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalText;
         }
     });
 
-    // Função para carregar tabela de registros
+    // =========================
+    // FUNÇÃO CARREGAR REGISTROS
+    // =========================
     async function loadRegistrosTable() {
-        registrosTableBody.innerHTML = "<tr><td colspan='6' class='no-records'>Carregando registros...</td></tr>";
-        
-        try {
-            const url = `${"https://script.google.com/macros/s/AKfycbwAhOjBs8zb4kGy0F23vhRA7iVJoqQvsWKK7yoa2PXtwAoGV3u1AVSIVYpmsttDSmTX/exec"}?action=getOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
-            const response = await safeFetch(url);
-            
-            if (response.status === "success" && response.records && Array.isArray(response.records)) {
-                registrosTableBody.innerHTML = "";
-                
-                if (response.records.length === 0) {
-                    registrosTableBody.innerHTML = "<tr><td colspan='6' class='no-records'>Nenhum registro encontrado</td></tr>";
-                    return;
-                }
-                
-                response.records.forEach(record => {
-                    const row = document.createElement("tr");
-                    row.innerHTML = `
-                        <td>${record.date || 'N/A'}</td>
-                        <td>${record.student || 'N/A'}</td>
-                        <td>${record.class || 'N/A'}</td>
-                        <td>${record.irregularities || 'N/A'}</td>
-                        <td>${record.professor || 'N/A'}</td>
-                        <td class="actions-cell">
-                            <button class="btn-action btn-edit" data-id="${record.id || ''}" title="Editar">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn-action btn-delete" data-id="${record.id || ''}" title="Excluir">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    `;
-                    registrosTableBody.appendChild(row);
-                });
-                
-                // Atualizar estatísticas gerais
-                document.getElementById("totalOccurrences").textContent = response.records.length;
-                
-            } else {
-                registrosTableBody.innerHTML = "<tr><td colspan='6' class='no-records'>Erro ao carregar registros</td></tr>";
-                showNotification("error", response.message || "Erro ao carregar registros");
+        registrosTableBody.innerHTML = "<tr><td colspan='6'>Carregando...</td></tr>";
+        const url = `${API_BASE_URL}?action=getOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+        const response = await safeFetch(url);
+        if (response.status === "success" && Array.isArray(response.records)) {
+            registrosTableBody.innerHTML = "";
+            if (response.records.length === 0) {
+                registrosTableBody.innerHTML = "<tr><td colspan='6'>Nenhum registro encontrado</td></tr>";
+                return;
             }
-        } catch (error) {
-            console.error("Erro ao carregar registros:", error);
-            registrosTableBody.innerHTML = "<tr><td colspan='6' class='no-records'>Erro de conexão</td></tr>";
-            showNotification("error", "Erro de conexão ao carregar registros");
+            response.records.forEach(record => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${record.date || 'N/A'}</td>
+                    <td>${record.student || 'N/A'}</td>
+                    <td>${record.class || 'N/A'}</td>
+                    <td>${record.irregularities || 'N/A'}</td>
+                    <td>${record.professor || 'N/A'}</td>
+                    <td>
+                        <button class="btn-action btn-edit" data-id="${record.id || ''}" title="Editar"><i class="fas fa-edit"></i></button>
+                        <button class="btn-action btn-delete" data-id="${record.id || ''}" title="Excluir"><i class="fas fa-trash"></i></button>
+                    </td>`;
+                registrosTableBody.appendChild(row);
+            });
+            document.getElementById("totalOccurrences").textContent = response.records.length;
+        } else {
+            registrosTableBody.innerHTML = "<tr><td colspan='6'>Erro ao carregar registros</td></tr>";
         }
     }
 
-    // Event listener para ações da tabela (editar/excluir)
-    registrosTableBody.addEventListener("click", async function(event) {
-        const button = event.target.closest(".btn-edit, .btn-delete");
-        if (!button) return;
-        
-        const recordId = button.dataset.id;
-        if (!recordId) {
-            showNotification("error", "ID do registro não encontrado");
-            return;
-        }
-
-        if (button.classList.contains("btn-edit")) {
-            // Editar registro
-            try {
-                const url = `${"https://script.google.com/macros/s/AKfycbwAhOjBs8zb4kGy0F23vhRA7iVJoqQvsWKK7yoa2PXtwAoGV3u1AVSIVYpmsttDSmTX/exec"}?action=getOccurrenceById&id=${encodeURIComponent(recordId)}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
-                const response = await safeFetch(url);
-                
-                if (response.status === "success" && response.occurrence) {
-                    const occurrence = response.occurrence;
-                    
-                    // Preencher formulário com dados do registro
-                    professorSelect.value = occurrence.professor || "";
-                    document.getElementById("occurrenceDate").value = occurrence.date ? new Date(occurrence.date).toISOString().split("T")[0] : "";
-                    classSelect.value = occurrence.class || "";
-                    
-                    // Trigger change event para carregar alunos da turma
-                    if (occurrence.class) {
-                        classSelect.dispatchEvent(new Event('change'));
-                        
-                        // Aguardar carregamento dos alunos e selecionar o aluno
-                        setTimeout(() => {
-                            studentSelect.value = occurrence.student || "";
-                            if (occurrence.student) {
-                                studentSelect.dispatchEvent(new Event('change'));
-                            }
-                        }, 1000);
-                    }
-                    
-                    document.getElementById("description").value = occurrence.description || "";
-                    
-                    // Marcar irregularidades
-                    document.querySelectorAll("input[name=irregularity]").forEach(checkbox => {
-                        checkbox.checked = occurrence.irregularities && occurrence.irregularities.includes(checkbox.value);
-                    });
-                    
-                    // Configurar modo de edição
-                    currentEditId = recordId;
-                    submitBtn.innerHTML = '<i class="fas fa-save"></i> ATUALIZAR';
-                    
-                    // Scroll para o formulário
-                    form.scrollIntoView({ behavior: 'smooth' });
-                    
-                    showNotification("info", "Registro carregado para edição");
-                } else {
-                    showNotification("error", response.message || "Erro ao carregar registro para edição");
-                }
-            } catch (error) {
-                console.error("Erro ao carregar registro:", error);
-                showNotification("error", "Erro de conexão ao carregar registro");
-            }
-        }
-
-        if (button.classList.contains("btn-delete")) {
-            // Excluir registro
-            if (!confirm("Tem certeza que deseja excluir esta ocorrência? Esta ação não pode ser desfeita.")) {
-                return;
-            }
-            
-            try {
-                const url = `${"https://script.google.com/macros/s/AKfycbwAhOjBs8zb4kGy0F23vhRA7iVJoqQvsWKK7yoa2PXtwAoGV3u1AVSIVYpmsttDSmTX/exec"}?action=deleteOccurrence&id=${encodeURIComponent(recordId)}&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
-                const response = await safeFetch(url);
-                
-                if (response.status === "success") {
-                    showNotification("success", "Ocorrência excluída com sucesso!");
-                    await loadRegistrosTable();
-                } else {
-                    showNotification("error", response.message || "Erro ao excluir ocorrência");
-                }
-            } catch (error) {
-                console.error("Erro ao excluir registro:", error);
-                showNotification("error", "Erro de conexão ao excluir ocorrência");
-            }
-        }
-    });
-
-    // Event listener para exportar Excel
+    // =========================
+    // EXPORTAÇÃO EXCEL
+    // =========================
     exportExcelBtn.addEventListener("click", async function() {
-        try {
-            const url = `${"https://script.google.com/macros/s/AKfycbwAhOjBs8zb4kGy0F23vhRA7iVJoqQvsWKK7yoa2PXtwAoGV3u1AVSIVYpmsttDSmTX/exec"}?action=getOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
-            const response = await safeFetch(url);
-            
-            if (response.status === "success" && response.records && Array.isArray(response.records)) {
-                if (response.records.length === 0) {
-                    showNotification("info", "Não há registros para exportar");
-                    return;
-                }
-                
-                // Preparar dados para exportação
-                const exportData = response.records.map(record => ({
-                    'Data': record.date || '',
-                    'Aluno': record.student || '',
-                    'Turma': record.class || '',
-                    'Irregularidades': record.irregularities || '',
-                    'Professor': record.professor || '',
-                    'Descrição': record.description || ''
-                }));
-                
-                // Criar e baixar arquivo Excel
-                const worksheet = XLSX.utils.json_to_sheet(exportData);
-                const workbook = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(workbook, worksheet, "Ocorrências");
-                
-                const fileName = `ocorrencias_${new Date().toISOString().split('T')[0]}.xlsx`;
-                XLSX.writeFile(workbook, fileName);
-                
-                showNotification("success", "Arquivo Excel exportado com sucesso!");
-            } else {
-                showNotification("error", response.message || "Erro ao exportar dados");
-            }
-        } catch (error) {
-            console.error("Erro ao exportar Excel:", error);
-            showNotification("error", "Erro ao exportar arquivo Excel");
+        const url = `${API_BASE_URL}?action=getOccurrences&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+        const response = await safeFetch(url);
+        if (response.status === "success" && Array.isArray(response.records) && response.records.length > 0) {
+            const exportData = response.records.map(r => ({
+                "Data": r.date || "",
+                "Aluno": r.student || "",
+                "Turma": r.class || "",
+                "Irregularidades": r.irregularities || "",
+                "Professor": r.professor || "",
+                "Descrição": r.description || ""
+            }));
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Ocorrências");
+            const fileName = `ocorrencias_${new Date().toISOString().split("T")[0]}.xlsx`;
+            XLSX.writeFile(workbook, fileName);
+            showNotification("success", "Exportado com sucesso!");
+        } else {
+            showNotification("info", "Nenhum registro para exportar");
         }
     });
 
-    // Inicializar gráficos donut
-    document.querySelectorAll(".donut-chart").forEach(canvas => {
-        createDonutChart(canvas, 0);
-    });
-
-    // Carregar tabela de registros ao inicializar
+    // =========================
+    // ATUALIZAÇÕES AUTOMÁTICAS
+    // =========================
     loadRegistrosTable();
-    
-    // Atualizar estatísticas gerais periodicamente
     setInterval(async () => {
-        try {"
-            const url = `${"https://script.google.com/macros/s/AKfycbwAhOjBs8zb4kGy0F23vhRA7iVJoqQvsWKK7yoa2PXtwAoGV3u1AVSIVYpmsttDSmTX/exec"}?action=getGeneralStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
+        try {
+            const url = `${API_BASE_URL}?action=getGeneralStats&spreadsheetId=${SPREADSHEET_ID}&sheetName=${SHEET_NAME}`;
             const response = await safeFetch(url);
-            
             if (response.status === "success" && response.stats) {
                 document.getElementById("totalOccurrences").textContent = response.stats.totalOccurrences || 0;
                 document.getElementById("totalStudents").textContent = response.stats.totalStudents || 0;
@@ -1930,11 +1736,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 document.getElementById("afternoonOccurrences").textContent = response.stats.afternoonOccurrences || 0;
                 document.getElementById("nightOccurrences").textContent = response.stats.nightOccurrences || 0;
             }
-        } catch (error) {
-            console.warn("Erro ao atualizar estatísticas:", error);
+        } catch (e) {
+            console.warn("Erro ao atualizar estatísticas:", e);
         }
-    }, 30000); // Atualizar a cada 30 segundos
+    }, 30000);
 });
 </script>
+
 </body>
 </html>
