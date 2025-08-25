@@ -1,6 +1,2348 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+<head<!DOCTYPE html>
+<html lang="pt-BR">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Registro de Ocorrências Escolares - VERSÃO CORRIGIDA</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --primary-dark: #0d47a1;
+            --secondary-color: #f8f9fa;
+            --accent-color: #f1c40f;
+            --success-color: #2ecc71;
+            --error-color: #e74c3c;
+            --warning-color: #f39c12;
+            --info-color: #3498db;
+            --border-color: #dadce0;
+            --text-color: #202124;
+            --light-text: #5f6368;
+            --card-bg: #ffffff;
+            --header-bg: #ffffff;
+            --footer-bg: #ffffff;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+            --hover-bg: #f0f5ff;
+            --morning-color: #3498db;
+            --afternoon-color: #f39c12;
+            --night-color: #9b59b6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding-bottom: 60px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #2ecc71 0%, #3498db 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 0;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            width: 55px;
+            height: 55px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .logo h1 {
+            font-size: 1.6rem;
+            color: white;
+            font-weight: 700;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .logo p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 3px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        main {
+            padding: 30px 0;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, #2ecc71 0%, #3498db 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(to top, rgba(255,255,255,0.3), transparent);
+            z-index: 1;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .stat-item {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: var(--transition);
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin: 10px 0;
+        }
+        
+        .stat-label {
+            font-size: 0.95rem;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            margin-bottom: 25px;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(to top, rgba(255,255,255,0.8), transparent);
+            z-index: 1;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 20px 30px;
+            font-size: 1.35rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+        }
+        
+        .card-body {
+            padding: 30px;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .student-occurrences-card {
+            background: linear-gradient(135deg, #2ecc71 0%, #3498db 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            margin-top: 25px;
+            display: none;
+        }
+        
+        .student-occurrences-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(to top, rgba(255,255,255,0.3), transparent);
+            z-index: 1;
+        }
+        
+        .student-occurrences-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .student-occurrences-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .student-occurrences-count {
+            font-size: 3rem;
+            font-weight: 700;
+            margin: 10px 0;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+        
+        .student-occurrences-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 12px;
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 1.1rem;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .form-group:hover label {
+            color: var(--primary-color);
+            transform: translateX(5px);
+        }
+        
+        .required::after {
+            content: " *";
+            color: var(--error-color);
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5eb;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: var(--transition);
+            background-color: #f8fafc;
+        }
+        
+        input:hover, select:hover, textarea:hover {
+            border-color: var(--primary-color);
+            background-color: var(--hover-bg);
+            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.2);
+            background-color: white;
+            transform: translateY(-2px);
+        }
+        
+        .input-error {
+            border-color: var(--error-color) !important;
+            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2) !important;
+        }
+        
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        .checkbox-group {
+            margin-bottom: 20px;
+        }
+        
+        .checkbox-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 18px;
+        }
+        
+        .checkbox-item {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e1e5eb;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .checkbox-item:hover {
+            background: #e8f0fe;
+            border-color: var(--primary-color);
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .checkbox-item input {
+            width: auto;
+            margin-right: 12px;
+            transform: scale(1.2);
+            cursor: pointer;
+        }
+        
+        .checkbox-item:hover label {
+            color: var(--primary-dark);
+        }
+        
+        .chart-container {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            margin-right: 15px;
+            transition: var(--transition);
+        }
+        
+        .checkbox-item:hover .chart-container {
+            transform: scale(1.1);
+        }
+        
+        .chart-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--primary-dark);
+            transition: var(--transition);
+            z-index: 10;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 18px;
+            padding-top: 25px;
+            border-top: 1px solid var(--border-color);
+            margin-top: 25px;
+        }
+        
+        .btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #0d62d9 0%, #0a4ebf 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(26, 115, 232, 0.35);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e8eaed 100%);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #e8eaed 0%, #d7d9dd 100%);
+            transform: translateY(-3px);
+        }
+        
+        .btn-lg {
+            padding: 18px 35px;
+            font-size: 17px;
+        }
+        
+        .btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        footer {
+            background-color: var(--footer-bg);
+            border-top: 1px solid var(--border-color);
+            padding: 25px 0;
+            text-align: center;
+            color: var(--light-text);
+            font-size: 15px;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary-dark);
+            text-decoration: underline;
+            transform: translateY(-2px);
+        }
+        
+        .alert {
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            display: none;
+            font-size: 17px;
+            font-weight: 500;
+            align-items: center;
+            gap: 15px;
+            transition: var(--transition);
+        }
+        
+        .alert:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .alert-success {
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.15) 0%, rgba(39, 174, 96, 0.15) 100%);
+            border: 1px solid var(--success-color);
+            color: #27ae60;
+        }
+        
+        .alert-error {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.15) 0%, rgba(192, 57, 43, 0.15) 100%);
+            border: 1px solid var(--error-color);
+            color: #c0392b;
+        }
+        
+        .alert-info {
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.15) 0%, rgba(41, 128, 185, 0.15) 100%);
+            border: 1px solid var(--info-color);
+            color: #2980b9;
+        }
+        
+        .alert-warning {
+            background: linear-gradient(135deg, rgba(243, 156, 18, 0.15) 0%, rgba(230, 126, 34, 0.15) 100%);
+            border: 1px solid var(--warning-color);
+            color: #d68910;
+        }
+        
+        .student-select-container {
+            position: relative;
+        }
+        
+        .student-select-container::after {
+            content: "\f107";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--primary-color);
+            font-size: 20px;
+            transition: var(--transition);
+        }
+        
+        .student-select-container:hover::after {
+            color: var(--primary-dark);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 25px;
+        }
+        
+        .form-col {
+            flex: 1;
+        }
+        
+        .section-title {
+            font-size: 1.3rem;
+            color: var(--primary-color);
+            margin: 35px 0 20px;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e1e5eb;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: var(--transition);
+            cursor: pointer;
+        }
+        
+        .section-title:hover {
+            color: var(--primary-dark);
+            transform: translateX(5px);
+        }
+        
+        select option:nth-child(even) {
+            background-color: #f0f5ff;
+        }
+        
+        select option:nth-child(odd) {
+            background-color: white;
+        }
+        
+        select:focus option:checked {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            transition: var(--transition);
+        }
+        
+        .status-connected {
+            background-color: var(--success-color);
+            animation: pulse 2s infinite;
+        }
+        
+        .status-disconnected {
+            background-color: var(--error-color);
+        }
+        
+        .status-connecting {
+            background-color: var(--warning-color);
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .integration-status {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            transition: var(--transition);
+        }
+        
+        .integration-status:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .date-input-container {
+            position: relative;
+            transition: var(--transition);
+        }
+        
+        .date-input-container:hover {
+            transform: translateY(-2px);
+        }
+        
+        .date-input-container input[type="date"] {
+            padding-right: 40px;
+            cursor: pointer;
+        }
+        
+        .date-input-container::after {
+            content: "\f073";
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--primary-color);
+            font-size: 18px;
+            transition: var(--transition);
+        }
+        
+        .date-input-container:hover::after {
+            color: var(--primary-dark);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            cursor: pointer;
+        }
+        
+        select:hover {
+            background-color: #f0f5ff;
+        }
+        
+        .stats-chart-container {
+            height: 200px;
+            margin-top: 20px;
+            position: relative;
+        }
+        
+        .period-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.85);
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            padding-top: 10px;
+        }
+        
+        .period-item {
+            text-align: center;
+            flex: 1;
+            transition: var(--transition);
+        }
+        
+        .period-item:hover {
+            transform: scale(1.05);
+        }
+        
+        .period-value {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        
+        .period-manha { color: #f1c40f; }
+        .period-tarde { color: #e67e22; }
+        .period-noite { color: #9b59b6; }
+        
+        .class-total-card {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            margin-top: 25px;
+            display: none;
+        }
+        
+        .class-total-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(to top, rgba(255,255,255,0.3), transparent);
+            z-index: 1;
+        }
+        
+        .class-total-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .class-total-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .class-total-count {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+        
+        .class-students-card {
+            background: linear-gradient(135deg, #3498db 0%, #1a73e8 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            margin-top: 25px;
+            display: none;
+        }
+        
+        .class-students-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 20px;
+            background: linear-gradient(to top, rgba(255,255,255,0.3), transparent);
+            z-index: 1;
+        }
+        
+        .class-students-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .class-students-label {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        
+        .class-students-count {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 10px 0;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.3);
+        }
+        
+        .registros-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .registros-table th {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        .registros-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+        }
+        
+        .registros-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .registros-table tr:hover {
+            background-color: var(--hover-bg);
+        }
+        
+        .registros-table .actions-cell {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        .btn-action {
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+        }
+        
+        .btn-edit {
+            background-color: #f0f5ff;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+        
+        .btn-edit:hover {
+            background-color: #e0eaff;
+        }
+        
+        .btn-delete {
+            background-color: #fff0f0;
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+        
+        .btn-delete:hover {
+            background-color: #ffe0e0;
+        }
+        
+        .registros-table .history-row {
+            background-color: #f9f9f9;
+        }
+        
+        .registros-table .history-row td {
+            padding: 10px 15px;
+            font-size: 0.9rem;
+        }
+        
+        .registros-table .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: #f0f5ff;
+            border-radius: 8px;
+        }
+        
+        .registros-table .history-table th {
+            background-color: #d0e0ff;
+            color: var(--text-color);
+            padding: 10px;
+            font-size: 0.85rem;
+        }
+        
+        .registros-table .history-table td {
+            padding: 8px 10px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .registros-table .history-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .table-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 15px;
+            gap: 15px;
+        }
+        
+        .no-records {
+            text-align: center;
+            padding: 20px;
+            color: var(--light-text);
+            font-style: italic;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 18px;
+            margin: 25px 0;
+            flex-wrap: wrap;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.4s ease;
+            max-width: 400px;
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background: var(--success-color);
+            color: white;
+        }
+        
+        .notification.error {
+            background: var(--error-color);
+            color: white;
+        }
+        
+        .notification.info {
+            background: var(--info-color);
+            color: white;
+        }
+        
+        .notification.warning {
+            background: var(--warning-color);
+            color: white;
+        }
+        
+        .notification .icon {
+            font-size: 1.5rem;
+        }
+        
+        .notification .content {
+            flex-grow: 1;
+            font-size: 14px;
+        }
+        
+        .notification .close {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        .connection-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+        }
+        
+        .retry-button {
+            background: var(--warning-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+        
+        .retry-button:hover {
+            background: #e67e22;
+        }
+        
+        @media (max-width: 992px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+            
+            .actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .checkbox-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .chart-container {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .period-stats {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .registros-table {
+                font-size: 0.9rem;
+            }
+            
+            .registros-table th, 
+            .registros-table td {
+                padding: 10px;
+            }
+            
+            .registros-table .actions-cell {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>Registro de Ocorrências Escolares</h1>
+                    <p>Sistema integrado com Google Sheets - VERSÃO CORRIGIDA</p>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <main>
+            <div class="dashboard">
+                <div>
+                    <div class="integration-status" id="integrationStatus">
+                        <i class="fas fa-plug"></i>
+                        <div class="connection-status">
+                            <strong>Status de integração:</strong> 
+                            <span class="status-indicator status-connecting" id="statusIndicator"></span>
+                            <span id="statusText">Conectando...</span>
+                            <button class="retry-button" id="retryConnection" style="display: none;">
+                                <i class="fas fa-redo"></i> Tentar Novamente
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <i class="fas fa-clipboard-list"></i> Informações da Ocorrência
+                        </div>
+                        <div class="card-body">
+                            <form id="occurrenceForm">
+                                <div class="form-row">
+                                    <div class="form-col">
+                                        <div class="form-group">
+                                            <label for="professor" class="required">Nome do professor</label>
+                                            <div class="student-select-container">
+                                                <select id="professor" required>
+                                                    <option value="">Selecione seu nome</option>
+                                                    <option value="ALEX LUTH PEREIRA MARANHAO">ALEX LUTH PEREIRA MARANHAO</option>
+                                                    <option value="ALEXSANDRA PAULA VARELLA DE SOUZA">ALEXSANDRA PAULA VARELLA DE SOUZA</option>
+                                                    <option value="ALISON VASCONCELOS BESERRA">ALISON VASCONCELOS BESERRA</option>
+                                                    <option value="AMAURI TEODORO DE OLIVEIRA">AMAURI TEODORO DE OLIVEIRA</option>
+                                                    <option value="ANA PAULA DOS SANTOS">ANA PAULA DOS SANTOS</option>
+                                                    <option value="ANDREIA DOS SANTOS FREITAS">ANDREIA DOS SANTOS FREITAS</option>
+                                                    <option value="ANDREIA MADUREIRA REIS">ANDREIA MADUREIRA REIS</option>
+                                                    <option value="ANTONIO CARLOS DE OLIVEIRA">ANTONIO CARLOS DE OLIVEIRA</option>
+                                                    <option value="ANTONIO RAMOS DE ARAUJO">ANTONIO RAMOS DE ARAUJO</option>
+                                                    <option value="ANTONIO WILTON WANDERLEY CABRAL">ANTONIO WILTON WANDERLEY CABRAL</option>
+                                                    <option value="AUGUSTO LINO PESSOA NETO">AUGUSTO LINO PESSOA NETO</option>
+                                                    <option value="AUREA MARIA DE JESUS MARQUES">AUREA MARIA DE JESUS MARQUES</option>
+                                                    <option value="CAROLINA PERNOMIAN PARUSSOLO">CAROLINA PERNOMIAN PARUSSOLO</option>
+                                                    <option value="CASSIA OLIVEIRA ANTONIAZI">CASSIA OLIVEIRA ANTONIAZI</option>
+                                                    <option value="CLAUDINEIA DE AGUIAR LIMA">CLAUDINEIA DE AGUIAR LIMA</option>
+                                                    <option value="DANIEL DE FREITAS ALMEIDA">DANIEL DE FREITAS ALMEIDA</option>
+                                                    <option value="DANIEL LOPES BARBOSA">DANIEL LOPES BARBOSA</option>
+                                                    <option value="DANIELA FERREIRA LIMA">DANIELA FERREIRA LIMA</option>
+                                                    <option value="DANIELLE LUCIA BATISTA DE ALMEIDA">DANIELLE LUCIA BATISTA DE ALMEIDA</option>
+                                                    <option value="EDIANE VIEIRA DA SILVA">EDIANE VIEIRA DA SILVA</option>
+                                                    <option value="EDILEUSA NUNES PEREIRA">EDILEUSA NUNES PEREIRA</option>
+                                                    <option value="EDUARDO HENRIQUE DA FONSECA">EDUARDO HENRIQUE DA FONSECA</option>
+                                                    <option value="ELIANE SANTOS SILVA">ELIANE SANTOS SILVA</option>
+                                                    <option value="ELIAS MONTEIRO DA SILVA">ELIAS MONTEIRO DA SILVA</option>
+                                                    <option value="ELISABETE APARECIDA PIRES">ELISABETE APARECIDA PIRES</option>
+                                                    <option value="ELZA DE FARIA PEREIRA">ELZA DE FARIA PEREIRA</option>
+                                                    <option value="EMERSON GABLER DE ALMEIDA">EMERSON GABLER DE ALMEIDA</option>
+                                                    <option value="EUZELI ARAUJO DE OLIVEIRA">EUZELI ARAUJO DE OLIVEIRA</option>
+                                                    <option value="FABIANO AUGUSTO PIEDADE">FABIANO AUGUSTO PIEDADE</option>
+                                                    <option value="FABIO CAMILO">FABIO CAMILO</option>
+                                                    <option value="FERNANDO JOSE DA SILVA FILHO">FERNANDO JOSE DA SILVA FILHO</option>
+                                                    <option value="FLAVIA CRISTINA APARECIDA BICHLER">FLAVIA CRISTINA APARECIDA BICHLER</option>
+                                                    <option value="FLAVIO CARDOSO FLEURY">FLAVIO CARDOSO FLEURY</option>
+                                                    <option value="FRANCISCA EDIVANIA DE MORAIS COSTA">FRANCISCA EDIVANIA DE MORAIS COSTA</option>
+                                                    <option value="GABRIELA SERIGHELLI DE MELO">GABRIELA SERIGHELLI DE MELO</option>
+                                                    <option value="GELSON DE ALMEIDA BATISTA">GELSON DE ALMEIDA BATISTA</option>
+                                                    <option value="GENILTON DE OLIVEIRA SILVA">GENILTON DE OLIVEIRA SILVA</option>
+                                                    <option value="GIANI CRISTINA DO PRADO">GIANI CRISTINA DO PRADO</option>
+                                                    <option value="INGRYD CAROLINA SUGUIMOTO VIEIRA">INGRYD CAROLINA SUGUIMOTO VIEIRA</option>
+                                                    <option value="IVANILDES DOS SANTOS OSHIKAWA">IVANILDES DOS SANTOS OSHIKAWA</option>
+                                                    <option value="JANINA DOS PASSOS BRAGA DE ALMEIDA">JANINA DOS PASSOS BRAGA DE ALMEIDA</option>
+                                                    <option value="JOSE APARECIDO DA SILVA">JOSE APARECIDO DA SILVA</option>
+                                                    <option value="JUAREZ GOMES DE MAGALHAES FILHO">JUAREZ GOMES DE MAGALHAES FILHO</option>
+                                                    <option value="JUREMA SOLEDADE FURINI SANTOS">JUREMA SOLEDADE FURINI SANTOS</option>
+                                                    <option value="KATIUSCIA ALVES BOMFIM">KATIUSCIA ALVES BOMFIM</option>
+                                                    <option value="LUANA CAROLINE ALVES LIMA">LUANA CAROLINE ALVES LIMA</option>
+                                                    <option value="LUANA DE FREITAS SILVA">LUANA DE FREITAS SILVA</option>
+                                                    <option value="LUCIANA NOVAIS CORREIA SANTOS">LUCIANA NOVAIS CORREIA SANTOS</option>
+                                                    <option value="LUCIANO MOREIRA DE AZEVEDO">LUCIANO MOREIRA DE AZEVEDO</option>
+                                                    <option value="MARCIEL DA SILVA">MARCIEL DA SILVA</option>
+                                                    <option value="MARIA HELENA CUNHA MORO">MARIA HELENA CUNHA MORO</option>
+                                                    <option value="MARIA QUITÉRIA FERREIRA DOS SANTOS">MARIA QUITÉRIA FERREIRA DOS SANTOS</option>
+                                                    <option value="MARINA DA CONCEICAO FRANCISCO SILVA">MARINA DA CONCEICAO FRANCISCO SILVA</option>
+                                                    <option value="MAURICIO DE BARROS SANTOS">MAURICIO DE BARROS SANTOS</option>
+                                                    <option value="MICHELE DE PINHO MORAES">MICHELE DE PINHO MORAES</option>
+                                                    <option value="MOISES ANTONIO DE BARROS">MOISES ANTONIO DE BARROS</option>
+                                                    <option value="PAULA ARMANI VILA">PAULA ARMANI VILA</option>
+                                                    <option value="PAULO ROBERTO DA SILVA ITO">PAULO ROBERTO DA SILVA ITO</option>
+                                                    <option value="PEDRO ZANOTTI FILHO">PEDRO ZANOTTI FILHO</option>
+                                                    <option value="RAUL PEREIRA VILERA JUNIOR">RAUL PEREIRA VILERA JUNIOR</option>
+                                                    <option value="REGIANE CURTI DE SOUZA OLIVEIRA">REGIANE CURTI DE SOUZA OLIVEIRA</option>
+                                                    <option value="REGINA DA SILZA CASTRO">REGINA DA SILVA CASTRO</option>
+                                                    <option value="RICARDO AMERICO DA SILVA">RICARDO AMERICO DA SILVA</option>
+                                                    <option value="ROBERTO SALGADO">ROBERTO SALGADO</option>
+                                                    <option value="RODRIGO VIEIRA">RODRIGO VIEIRA</option>
+                                                    <option value="ROSANGELA CAFASSO MOREIRA">ROSANGELA CAFASSO MOREIRA</option>
+                                                    <option value="ROSIMERY DE SOUZA PESSOA">ROSIMERY DE SOUZA PESSOA</option>
+                                                    <option value="ROSMARA DA SILVA CARDOSO">ROSMARA DA SILVA CARDOSO</option>
+                                                    <option value="SANDRA CRISTINA MACEDO MORAES">SANDRA CRISTINA MACEDO MORAES</option>
+                                                    <option value="SELMA GOMES DA SILVA">SELMA GOMES DA SILVA</option>
+                                                    <option value="SERGIO AGRIPINO VILLA NOVA">SERGIO AGRIPINO VILLA NOVA</option>
+                                                    <option value="SOLANGE ALMEIDA DA SILVA">SOLANGE ALMEIDA DA SILZA</option>
+                                                    <option value="SUZINEIDE SILVA DE FREITAS">SUZINEIDE SILVA DE FREITAS</option>
+                                                    <option value="THIAGO FABIANO BRITO">THIAGO FABIANO BRITO</option>
+                                                    <option value="TITTO AUGUSTO NASCIMENTO SILVA">TITTO AUGUSTO NASCIMENTO SILVA</option>
+                                                    <option value="VANDERSON HYPPOLITO">VANDERSON HYPPOLITO</option>
+                                                    <option value="VANESSA IVETE GOMES DOS SANTOS">VANESSA IVETE GOMES DOS SANTOS</option>
+                                                    <option value="VANIA PENHA DE BARROS">VANIA PENHA DE BARROS</option>
+                                                    <option value="VIVIANE LEAL CAMERA DE MORAES">VIVIANE LEAL CAMERA DE MORAES</option>
+                                                    <option value="WILSON RODRIGUES MOTA">WILSON RODRIGUES MOTA</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-col">
+                                        <div class="form-group date-input-container">
+                                            <label for="occurrenceDate" class="required">Data da ocorrência</label>
+                                            <input type="date" id="occurrenceDate" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-col">
+                                        <div class="form-group">
+                                            <label for="studentClass" class="required">Turma</label>
+                                            <div class="student-select-container">
+                                                <select id="studentClass" required>
+                                                    <option value="">Selecione a turma</option>
+                                                    <option value="6° ANO A MANHA">6° ANO A MANHA</option>
+                                                    <option value="6° ANO B MANHA">6° ANO B MANHA</option>
+                                                    <option value="6° ANO C MANHA">6° ANO C MANHA</option>
+                                                    <option value="6° ANO D MANHA">6° ANO D MANHA</option>
+                                                    <option value="6° ANO E TARDE">6° ANO E TARDE</option>
+                                                    <option value="6° ANO F TARDE">6° ANO F TARDE</option>
+                                                    <option value="7° ANO A TARDE">7° ANO A TARDE</option>
+                                                    <option value="7° ANO B TARDE">7° ANO B TARDE</option>
+                                                    <option value="7° ANO C TARDE">7° ANO C TARDE</option>
+                                                    <option value="7° ANO D TARDE">7° ANO D TARDE</option>
+                                                    <option value="7° ANO E TARDE">7° ANO E TARDE</option>
+                                                    <option value="7° ANO F TARDE">7° ANO F TARDE</option>
+                                                    <option value="8° ANO A TARDE">8° ANO A TARDE</option>
+                                                    <option value="8° ANO B TARDE">8° ANO B TARDE</option>
+                                                    <option value="8° ANO C TARDE">8° ANO C TARDE</option>
+                                                    <option value="8° ANO D TARDE">8° ANO D TARDE</option>
+                                                    <option value="8° ANO E TARDE">8° ANO E TARDE</option>
+                                                    <option value="9° ANO A TARDE">9° ANO A TARDE</option>
+                                                    <option value="9° ANO B TARDE">9° ANO B TARDE</option>
+                                                    <option value="9° ANO C TARDE">9° ANO C TARDE</option>
+                                                    <option value="9° ANO D TARDE">9° ANO D TARDE</option>
+                                                    <option value="1ª SERIE A MANHA">1ª SERIE A MANHA</option>
+                                                    <option value="1ª SERIE B MANHA">1ª SERIE B MANHA</option>
+                                                    <option value="1ª SERIE C MANHA">1ª SERIE C MANHA</option>
+                                                    <option value="1ª SERIE D MANHA">1ª SERIE D MANHA</option>
+                                                    <option value="1ª SERIE E MANHA">1ª SERIE E MANHA</option>
+                                                    <option value="1ª SERIE F MANHA">1ª SERIE F MANHA</option>
+                                                    <option value="1ª SERIE G TARDE">1ª SERIE G TARDE</option>
+                                                    <option value="1ª SERIE H NOITE">1ª SERIE H NOITE</option>
+                                                    <option value="1ª SERIE I NOITE">1ª SERIE I NOITE</option>
+                                                    <option value="2ª SERIE A MANHA">2ª SERIE A MANHA</option>
+                                                    <option value="2ª SERIE B MANHA">2ª SERIE B MANHA</option>
+                                                    <option value="2ª SERIE C MANHA">2ª SERIE C MANHA</option>
+                                                    <option value="2ª SERIE D MANHA">2ª SERIE D MANHA</option>
+                                                    <option value="2ª SERIE E MANHA">2ª SERIE E MANHA</option>
+                                                    <option value="2ª SERIE F NOITE">2ª SERIE F NOITE</option>
+                                                    <option value="2ª SERIE G NOITE">2ª SERIE G NOITE</option>
+                                                    <option value="2ª SERIE H NOITE">2ª SERIE H NOITE</option>
+                                                    <option value="3ª SERIE A MANHA">3ª SERIE A MANHA</option>
+                                                    <option value="3ª SERIE B MANHA">3ª SERIE B MANHA</option>
+                                                    <option value="3ª SERIE C MANHA">3ª SERIE C MANHA</option>
+                                                    <option value="3ª SERIE D NOITE">3ª SERIE D NOITE</option>
+                                                    <option value="3ª SERIE E NOITE">3ª SERIE E NOITE</option>
+                                                    <option value="3ª SERIE F NOITE">3ª SERIE F NOITE</option>
+                                                    <option value="4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA">4050 - ADMINISTRAÇÃO - 2ª SERIE A MANHA</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-col">
+                                        <div class="form-group">
+                                            <label for="student" class="required">Nome do aluno</label>
+                                            <div class="student-select-container">
+                                                <select id="student" required disabled>
+                                                    <option value="">Selecione primeiro a turma</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="section-title">
+                                    <i class="fas fa-exclamation-triangle"></i> Irregularidades
+                                </div>
+                                
+                                <div class="checkbox-group">
+                                    <label>Selecione as irregularidades (opcional):</label>
+                                    <div class="checkbox-container">
+                                        <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Não fez a lição"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
+                                            <input type="checkbox" id="irregularity1" name="irregularity" value="Não fez a lição">
+                                            <label for="irregularity1">Não fez a lição</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Não trouxe material"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
+                                            <input type="checkbox" id="irregularity2" name="irregularity" value="Não trouxe material">
+                                            <label for="irregularity2">Não trouxe material</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Fora do lugar constantemente durante a aula"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
+                                            <input type="checkbox" id="irregularity3" name="irregularity" value="Fora do lugar constantemente durante a aula">
+                                            <label for="irregularity3">Fora do lugar durante a aula</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Chegou atrasado"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
+                                            <input type="checkbox" id="irregularity4" name="irregularity" value="Chegou atrasado">
+                                            <label for="irregularity4">Chegou atrasado</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Circulando no corredor durante a aula"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
+                                            <input type="checkbox" id="irregularity5" name="irregularity" value="Circulando no corredor durante a aula">
+                                            <label for="irregularity5">Circulando no corredor</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Uso indevido do celular durante a aula"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
+                                            <input type="checkbox" id="irregularity6" name="irregularity" value="Uso indevido do celular durante a aula">
+                                            <label for="irregularity6">Uso indevido do celular</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Interrompe a aula constantemente"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
+                                            <input type="checkbox" id="irregularity7" name="irregularity" value="Interrompe a aula constantemente">
+                                            <label for="irregularity7">Interrompe a aula constantemente</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Falta de cuidado com o ambiente e o material"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
+                                            <input type="checkbox" id="irregularity8" name="irregularity" value="Falta de cuidado com o ambiente e o material">
+                                            <label for="irregularity8">Falta de cuidado com ambiente/material</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Vestimenta inadequada"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
+                                            <input type="checkbox" id="irregularity9" name="irregularity" value="Vestimenta inadequada">
+                                            <label for="irregularity9">Vestimenta inadequada</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Desrespeito com colegas"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
+                                            <input type="checkbox" id="irregularity10" name="irregularity" value="Desrespeito com colegas">
+                                            <label for="irregularity10">Desrespeito com colegas</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Desrespeito com funcionários"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
+                                            <input type="checkbox" id="irregularity11" name="irregularity" value="Desrespeito com funcionários">
+                                            <label for="irregularity11">Desrespeito com funcionários</label>
+                                        </div>
+                                        <div class="checkbox-item">
+                                            <div class="chart-container">
+                                                <canvas class="donut-chart" width="50" height="50" data-irregularity="Desrespeito com professores"></canvas>
+                                                <span class="chart-value">0</span>
+                                            </div>
+                                            <input type="checkbox" id="irregularity12" name="irregularity" value="Desrespeito com professores">
+                                            <label for="irregularity12">Desrespeito com professores</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="description">Observações (opcional):</label>
+                                    <textarea id="description" placeholder="Descreva a ocorrência em detalhes..."></textarea>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                                        <i class="fas fa-paper-plane"></i> CADASTRAR
+                                    </button>
+                                    <button type="button" class="btn btn-secondary btn-lg" id="clearBtn">
+                                        <i class="fas fa-eraser"></i> LIMPAR
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="stats-card">
+                        <h2><i class="fas fa-chart-bar"></i> Estatísticas Gerais</h2>
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <div class="stat-value" id="totalOccurrences">0</div>
+                                <div class="stat-label">Ocorrências Registradas</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="totalTeachers">10</div>
+                                <div class="stat-label">Professores Cadastrados</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="totalClasses">37</div>
+                                <div class="stat-label">Turmas Disponíveis</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-value" id="totalStudents">0</div>
+                                <div class="stat-label">Alunos Cadastrados</div>
+                            </div>
+                        </div>
+                        
+                        <div class="stats-chart-container">
+                            <canvas id="studentsPeriodChart"></canvas>
+                        </div>
+                        <div class="period-stats">
+                            <div class="period-item">
+                                <span class="period-value period-manha" id="morningCount">0</span>
+                                <span class="period-label">Manhã</span>
+                            </div>
+                            <div class="period-item">
+                                <span class="period-value period-tarde" id="afternoonCount">0</span>
+                                <span class="period-label">Tarde</span>
+                            </div>
+                            <div class="period-item">
+                                <span class="period-value period-noite" id="nightCount">0</span>
+                                <span class="period-label">Noite</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="student-occurrences-card" id="studentOccurrencesCard">
+                        <div class="student-occurrences-content">
+                            <div class="student-occurrences-name" id="studentOccurrencesName"></div>
+                            <div class="student-occurrences-count" id="studentOccurrencesCount">0</div>
+                            <div class="student-occurrences-label">Ocorrências Registradas</div>
+                        </div>
+                    </div>
+                    
+                    <div class="class-students-card" id="classStudentsCard">
+                        <div class="class-students-content">
+                            <div class="class-total-label">Alunos na turma: <span id="selectedClassPeriod"></span></div>
+                            <div class="class-students-count" id="classStudentsCount">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-history"></i> Histórico de Ocorrências
+                </div>
+                <div class="card-body">
+                    <div class="table-actions">
+                        <button class="btn btn-secondary" id="exportBtn">
+                            <i class="fas fa-file-excel"></i> Exportar para Excel
+                        </button>
+                    </div>
+                    <table class="registros-table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Professor</th>
+                                <th>Turma</th>
+                                <th>Aluno</th>
+                                <th>Irregularidades</th>
+                                <th>Observações</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="registrosTableBody">
+                            <tr><td colspan="7" class="no-records">Carregando registros...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="#"><i class="fas fa-info-circle"></i> Sobre</a>
+                <a href="#"><i class="fas fa-envelope"></i> Contato</a>
+                <a href="#"><i class="fas fa-shield-alt"></i> Política de Privacidade</a>
+            </div>
+            <p>&copy; 2025 Sistema de Registro de Ocorrências Escolares. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <div id="notification" class="notification">
+        <i id="notificationIcon" class="icon"></i>
+        <span id="notificationContent" class="content"></span>
+        <button class="close" id="notificationClose">&times;</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos do DOM
+            const form = document.getElementById('occurrenceForm');
+            const professorSelect = document.getElementById('professor');
+            const classSelect = document.getElementById('studentClass');
+            const studentSelect = document.getElementById('student');
+            const submitBtn = document.getElementById('submitBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const totalOccurrencesEl = document.getElementById('totalOccurrences');
+            const studentsPeriodChartCanvas = document.getElementById('studentsPeriodChart');
+            const morningCountEl = document.getElementById('morningCount');
+            const afternoonCountEl = document.getElementById('afternoonCount');
+            const nightCountEl = document.getElementById('nightCount');
+            const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
+            const studentOccurrencesName = document.getElementById('studentOccurrencesName');
+            const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
+            const classStudentsCard = document.getElementById('classStudentsCard');
+            const classStudentsCount = document.getElementById('classStudentsCount');
+            const selectedClassPeriod = document.getElementById('selectedClassPeriod');
+            const registrosTableBody = document.getElementById('registrosTableBody');
+            const exportBtn = document.getElementById('exportBtn');
+            const registrosTable = document.querySelector('.registros-table');
+            const notification = document.getElementById('notification');
+            const notificationIcon = document.getElementById('notificationIcon');
+            const notificationContent = document.getElementById('notificationContent');
+            const notificationClose = document.getElementById('notificationClose');
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            const retryConnection = document.getElementById('retryConnection');
+
+            // Configurações da planilha - CORRIGIDAS
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpsoHGOiqJXD-5OMgGJIXtPg7w3EjRLlkSMU1WQUFyYJfGm_Kq-okpgAW_msGj6wN9/exec";
+
+            // Variáveis globais
+            const charts = {};
+            let studentsPeriodChart = null;
+            let currentEditId = null;
+            let connectionStatus = 'connecting';
+
+            // Preencher data atual como padrão
+            const today = new Date();
+            const formattedDate = today.toISOString().split('T')[0];
+            document.getElementById('occurrenceDate').value = formattedDate;
+
+            // Função para atualizar status de conexão
+            function updateConnectionStatus(status, message) {
+                connectionStatus = status;
+                statusIndicator.className = `status-indicator status-${status}`;
+                statusText.textContent = message;
+                
+                if (status === 'disconnected') {
+                    retryConnection.style.display = 'inline-block';
+                } else {
+                    retryConnection.style.display = 'none';
+                }
+            }
+
+            // Função para mostrar notificações melhorada
+            function showNotification(type, message, duration = 5000) {
+                notification.classList.remove('success', 'error', 'info', 'warning');
+                notification.classList.add(type);
+                notificationContent.textContent = message;
+                
+                const iconMap = {
+                    'success': 'fas fa-check-circle icon',
+                    'error': 'fas fa-exclamation-circle icon',
+                    'info': 'fas fa-info-circle icon',
+                    'warning': 'fas fa-exclamation-triangle icon'
+                };
+                
+                notificationIcon.className = iconMap[type] || 'fas fa-info-circle icon';
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, duration);
+            }
+            
+            notificationClose.addEventListener('click', () => {
+                notification.classList.remove('show');
+            });
+
+            // Função para criar gráficos de rosca
+            function createDonutChart(canvas, value, maxValue = 10) {
+                const ctx = canvas.getContext('2d');
+                const chartKey = canvas.getAttribute('data-irregularity');
+
+                // Destruir gráfico anterior se existir
+                if (charts[chartKey]) {
+                    charts[chartKey].destroy();
+                }
+
+                charts[chartKey] = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        datasets: [{
+                            data: [value, Math.max(0, maxValue - value)],
+                            backgroundColor: [
+                                '#3498db', // Cor da ocorrência
+                                '#e0e0e0' // Cor de fundo
+                            ],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: {
+                        cutout: '70%',
+                        responsive: false,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { enabled: false }
+                        }
+                    }
+                });
+
+                // Atualizar o número de ocorrências
+                const chartValue = canvas.parentElement.querySelector('.chart-value');
+                chartValue.textContent = value;
+            }
+
+            // Função para fazer requisições seguras - VERSÃO MELHORADA
+            async function safeFetch(url, options = {}) {
+                try {
+                    console.log('Fazendo requisição para:', url);
+                    console.log('Opções:', options);
+                    
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 segundos
+                    
+                    const fetchOptions = {
+                        ...options,
+                        signal: controller.signal,
+                        mode: 'cors',
+                        redirect: 'follow',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...options.headers
+                        }
+                    };
+
+                    const response = await fetch(url, fetchOptions);
+                    clearTimeout(timeoutId);
+
+                    console.log('Status da resposta:', response.status);
+                    console.log('Headers da resposta:', response.headers);
+
+                    // Verificar status da resposta
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('Erro HTTP:', response.status, errorText);
+                        throw new Error(`Erro HTTP ${response.status}: ${errorText.substring(0, 200)}`);
+                    }
+
+                    // Verificar se a resposta é JSON válido
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const text = await response.text();
+                        console.error('Resposta não é JSON:', text);
+                        throw new Error(`Resposta inválida: Esperado JSON, recebido: ${text.substring(0, 200)}`);
+                    }
+
+                    const data = await response.json();
+                    console.log('Dados recebidos:', data);
+                    return data;
+                    
+                } catch (error) {
+                    console.error('Erro na requisição safeFetch:', error);
+                    
+                    if (error.name === 'AbortError') {
+                        return {
+                            status: "error",
+                            message: "Timeout: A requisição demorou mais de 30 segundos para responder."
+                        };
+                    }
+                    
+                    return {
+                        status: "error",
+                        message: error.message || "Erro na conexão com o servidor."
+                    };
+                }
+            }
+
+            // Função para testar conexão
+            async function testConnection() {
+                updateConnectionStatus('connecting', 'Testando conexão...');
+                
+                try {
+                    const url = `${SCRIPT_URL}?action=testConnection`;
+                    const data = await safeFetch(url);
+                    
+                    if (data && data.status === "success") {
+                        updateConnectionStatus('connected', 'Conectado à planilha Google Sheets');
+                        return true;
+                    } else {
+                        const errorMsg = data?.message || 'Erro ao testar conexão';
+                        updateConnectionStatus('disconnected', `Erro: ${errorMsg}`);
+                        return false;
+                    }
+                } catch (error) {
+                    console.error('Erro ao testar conexão:', error);
+                    updateConnectionStatus('disconnected', `Erro de conexão: ${error.message}`);
+                    return false;
+                }
+            }
+
+            // Event listener para retry de conexão
+            retryConnection.addEventListener('click', testConnection);
+
+            // Carregar alunos quando uma turma for selecionada - VERSÃO CORRIGIDA
+            classSelect.addEventListener('change', async function() {
+                const selectedClass = this.value;
+                studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
+                studentSelect.disabled = true;
+                studentOccurrencesCard.style.display = 'none';
+                classStudentsCard.style.display = 'none';
+
+                // Resetar gráficos
+                const chartCanvases = document.querySelectorAll('.donut-chart');
+                chartCanvases.forEach(canvas => {
+                    createDonutChart(canvas, 0);
+                });
+
+                if (!selectedClass) {
+                    studentSelect.innerHTML = '<option value="">Selecione uma turma</option>';
+                    return;
+                }
+
+                // Buscar alunos reais da planilha
+                const url = `${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
+                
+                const data = await safeFetch(url);
+
+                if (data && data.status === "success" && Array.isArray(data.students)) {
+                    studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
+                    data.students.forEach(student => {
+                        const option = document.createElement('option');
+                        option.value = student;
+                        option.textContent = student;
+                        studentSelect.appendChild(option);
+                    });
+                    studentSelect.disabled = false;
+                    
+                    // Atualizar o card com o total de alunos na turma
+                    classStudentsCount.textContent = data.students.length;
+                    
+                    // Determinar o período da turma
+                    const periodo = selectedClass.includes("MANHA") ? "Manhã" :
+                                   selectedClass.includes("TARDE") ? "Tarde" :
+                                   selectedClass.includes("NOITE") ? "Noite" : "Desconhecido";
+                    selectedClassPeriod.textContent = periodo;
+                    
+                    classStudentsCard.style.display = 'block';
+                    
+                    if (data.students.length === 0) {
+                        showNotification('warning', 'Nenhum aluno encontrado nesta turma.');
+                    }
+                } else {
+                    const errorMsg = data?.message || 'Erro ao carregar alunos da turma.';
+                    studentSelect.innerHTML = `<option value="">Erro: ${errorMsg}</option>`;
+                    showNotification('error', `Erro ao carregar alunos: ${errorMsg}`);
+                }
+            });
+
+            // Quando um aluno é selecionado - VERSÃO CORRIGIDA
+            studentSelect.addEventListener('change', async function() {
+                if (this.value) {
+                    // Mostrar o card de ocorrências do aluno
+                    studentOccurrencesCard.style.display = 'block';
+                    studentOccurrencesName.textContent = this.value;
+                    studentOccurrencesCount.textContent = "Carregando...";
+                    
+                    // Buscar estatísticas do aluno
+                    const url = `${SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
+                    
+                    const data = await safeFetch(url);
+
+                    if (data && data.status === "success") {
+                        studentOccurrencesCount.textContent = data.totalOccurrences;
+                        // Atualizar gráficos com os dados detalhados
+                        if (data.detailedStats) {
+                            updateAllCharts(data.detailedStats);
+                        }
+                    } else {
+                        studentOccurrencesCount.textContent = "0";
+                        const errorMsg = data?.message || 'Erro ao buscar estatísticas do aluno.';
+                        console.error('Erro ao buscar estatísticas:', errorMsg);
+                        showNotification('warning', `Não foi possível carregar estatísticas: ${errorMsg}`);
+                    }
+                } else {
+                    studentOccurrencesCard.style.display = 'none';
+                    // Resetar gráficos
+                    const chartCanvases = document.querySelectorAll('.donut-chart');
+                    chartCanvases.forEach(canvas => {
+                        createDonutChart(canvas, 0);
+                    });
+                }
+            });
+
+            // Função para atualizar todos os gráficos
+            function updateAllCharts(stats) {
+                const chartCanvases = document.querySelectorAll('.donut-chart');
+                chartCanvases.forEach(canvas => {
+                    const irregularity = canvas.getAttribute('data-irregularity');
+                    const count = stats[irregularity] || 0;
+                    createDonutChart(canvas, count);
+                });
+            }
+
+            // Limpar formulário
+            clearBtn.addEventListener('click', function() {
+                form.reset();
+                document.getElementById('occurrenceDate').value = formattedDate;
+                professorSelect.selectedIndex = 0;
+                studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                studentSelect.disabled = true;
+                studentOccurrencesCard.style.display = 'none';
+                classStudentsCard.style.display = 'none';
+                classSelect.selectedIndex = 0;
+                currentEditId = null;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> CADASTRAR';
+
+                // Resetar gráficos
+                const chartCanvases = document.querySelectorAll('.donut-chart');
+                chartCanvases.forEach(canvas => {
+                    createDonutChart(canvas, 0);
+                });
+
+                // Desmarcar todos os checkboxes
+                document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                // Remover erros de validação
+                document.querySelectorAll('.input-error').forEach(el => {
+                    el.classList.remove('input-error');
+                });
+                
+                showNotification('info', 'Formulário limpo com sucesso!');
+            });
+
+            // Função para enviar dados com retentativas - VERSÃO MELHORADA
+            async function sendFormData(formData, retries = 3) {
+                for (let attempt = 1; attempt <= retries; attempt++) {
+                    try {
+                        // Mostrar status de tentativa
+                        if (attempt > 1) {
+                            showNotification('info', `Tentativa ${attempt} de ${retries}...`);
+                        }
+
+                        const requestData = {
+                            action: currentEditId ? 'updateOccurrence' : 'addOccurrence',
+                            ...formData
+                        };
+                        
+                        if (currentEditId) {
+                            requestData.id = currentEditId;
+                        }
+
+                        console.log('Enviando dados:', requestData);
+
+                        const response = await fetch(SCRIPT_URL, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(requestData)
+                        });
+
+                        if (!response.ok) {
+                            const errorText = await response.text();
+                            throw new Error(`HTTP error! Status: ${response.status}, Mensagem: ${errorText.substring(0, 200)}`);
+                        }
+
+                        const data = await response.json();
+                        console.log('Resposta recebida:', data);
+                        
+                        if (data && data.status === "success") {
+                            return data;
+                        } else {
+                            throw new Error(data?.message || "Erro desconhecido ao enviar ocorrência");
+                        }
+                    } catch (error) {
+                        console.error(`Tentativa ${attempt} falhou:`, error);
+                        if (attempt < retries) {
+                            // Esperar antes de tentar novamente (exponential backoff)
+                            await new Promise(resolve => setTimeout(resolve, 2000 * attempt));
+                        } else {
+                            throw error;
+                        }
+                    }
+                }
+            }
+
+            // Função para carregar registros na tabela - VERSÃO CORRIGIDA
+            async function loadRegistrosTable() {
+                registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Carregando registros...</td></tr>';
+                
+                try {
+                    const url = `${SCRIPT_URL}?action=getAllOccurrences`;
+                    const data = await safeFetch(url);
+                    
+                    if (data && data.status === "success" && Array.isArray(data.occurrences)) {
+                        registrosTableBody.innerHTML = '';
+                        
+                        if (data.occurrences.length === 0) {
+                            registrosTableBody.innerHTML = '<tr><td colspan="7" class="no-records">Nenhum registro encontrado</td></tr>';
+                            totalOccurrencesEl.textContent = '0';
+                            return;
+                        }
+                        
+                        // Atualizar contador total
+                        totalOccurrencesEl.textContent = data.occurrences.length;
+                        
+                        data.occurrences.forEach(occurrence => {
+                            const row = document.createElement('tr');
+                            row.setAttribute('data-id', occurrence.id);
+                            row.innerHTML = `
+                                <td>${occurrence.date || 'N/A'}</td>
+                                <td>${occurrence.professor || 'N/A'}</td>
+                                <td>${occurrence.class || 'N/A'}</td>
+                                <td>${occurrence.student || 'N/A'}</td>
+                                <td>${occurrence.irregularities || 'N/A'}</td>
+                                <td>${occurrence.description || 'N/A'}</td>
+                                <td class="actions-cell">
+                                    <button class="btn-action btn-edit" data-id="${occurrence.id}">
+                                        <i class="fas fa-edit"></i> Editar
+                                    </button>
+                                    <button class="btn-action btn-delete" data-id="${occurrence.id}">
+                                        <i class="fas fa-trash-alt"></i> Excluir
+                                    </button>
+                                </td>
+                            `;
+                            registrosTableBody.appendChild(row);
+                        });
+                    } else {
+                        const errorMsg = data?.message || 'Erro ao carregar registros.';
+                        registrosTableBody.innerHTML = `<tr><td colspan="7" class="no-records">Erro ao carregar registros: ${errorMsg}</td></tr>`;
+                        showNotification('error', `Erro ao carregar registros: ${errorMsg}`);
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar registros:', error);
+                    registrosTableBody.innerHTML = `<tr><td colspan="7" class="no-records">Erro ao carregar registros: ${error.message || 'Erro desconhecido'}</td></tr>`;
+                    showNotification('error', `Erro ao carregar registros: ${error.message || 'Erro desconhecido'}`);
+                }
+            }
+
+            // Lidar com o envio do formulário - VERSÃO CORRIGIDA
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault();
+
+                // Verificar conexão antes de enviar
+                if (connectionStatus === 'disconnected') {
+                    showNotification('error', 'Sem conexão com o servidor. Verifique a conexão e tente novamente.');
+                    return;
+                }
+
+                // Validação básica
+                let isValid = true;
+                document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+
+                const professor = professorSelect.value;
+                const occurrenceDate = document.getElementById('occurrenceDate').value;
+                const studentClass = classSelect.value;
+                const student = studentSelect.value;
+                const description = document.getElementById('description').value;
+
+                if (!professor) { 
+                    document.getElementById('professor').classList.add('input-error'); 
+                    isValid = false; 
+                }
+                if (!occurrenceDate) { 
+                    document.getElementById('occurrenceDate').classList.add('input-error'); 
+                    isValid = false; 
+                }
+                if (!studentClass) { 
+                    document.getElementById('studentClass').classList.add('input-error'); 
+                    isValid = false; 
+                }
+                if (!student) { 
+                    document.getElementById('student').classList.add('input-error'); 
+                    isValid = false; 
+                }
+
+                if (!isValid) {
+                    showNotification('error', 'Por favor, preencha todos os campos obrigatórios.');
+                    return;
+                }
+
+                const selectedIrregularities = Array.from(document.querySelectorAll('input[name="irregularity"]:checked'))
+                                                    .map(checkbox => checkbox.value);
+
+                const formData = {
+                    professor: professor,
+                    date: occurrenceDate,
+                    class: studentClass,
+                    student: student,
+                    irregularities: selectedIrregularities.join(', '),
+                    description: description
+                };
+
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<span class="loading"></span> Enviando...';
+                submitBtn.disabled = true;
+
+                try {
+                    const result = await sendFormData(formData);
+                    
+                    showNotification('success', currentEditId ? 'Ocorrência atualizada com sucesso!' : 'Ocorrência registrada com sucesso!');
+                    
+                    // Limpar formulário e redefinir estado
+                    form.reset();
+                    document.getElementById('occurrenceDate').value = formattedDate;
+                    professorSelect.selectedIndex = 0;
+                    studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                    studentSelect.disabled = true;
+                    classSelect.selectedIndex = 0;
+                    studentOccurrencesCard.style.display = 'none';
+                    classStudentsCard.style.display = 'none';
+                    currentEditId = null;
+                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> CADASTRAR';
+
+                    // Recarregar dados
+                    loadStudentPeriodStats();
+                    loadRegistrosTable();
+                    
+                } catch (error) {
+                    console.error('Erro ao enviar ocorrência:', error);
+                    showNotification('error', `Erro ao registrar ocorrência: ${error.message || 'Erro desconhecido'}`);
+                } finally {
+                    // Restaurar botão de envio
+                    submitBtn.innerHTML = originalBtnText;
+                    submitBtn.disabled = false;
+                }
+            });
+
+            // Atualizar gráfico de distribuição por período
+            function updateStudentsPeriodChart(data) {
+                if (studentsPeriodChart) {
+                    studentsPeriodChart.destroy();
+                }
+                
+                const ctx = studentsPeriodChartCanvas.getContext('2d');
+                studentsPeriodChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Manhã', 'Tarde', 'Noite'],
+                        datasets: [{
+                            label: 'Quantidade de Alunos',
+                            data: [data.morningCount, data.afternoonCount, data.nightCount],
+                            backgroundColor: [
+                                'rgba(241, 196, 15, 0.8)',
+                                'rgba(230, 126, 34, 0.8)',
+                                'rgba(155, 89, 182, 0.8)'
+                            ],
+                            borderColor: [
+                                'rgb(241, 196, 15)',
+                                'rgb(230, 126, 34)',
+                                'rgb(155, 89, 182)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        return `${context.dataset.label}: ${context.parsed.y}`;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Quantidade de Alunos'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Período'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Carregar estatísticas de alunos por período - VERSÃO CORRIGIDA
+            async function loadStudentPeriodStats() {
+                try {
+                    const url = `${SCRIPT_URL}?action=getStudentPeriodStats`;
+                    const data = await safeFetch(url);
+                    
+                    if (data && data.status === "success") {
+                        document.getElementById('totalStudents').textContent = data.totalStudents;
+                        morningCountEl.textContent = data.morningCount;
+                        afternoonCountEl.textContent = data.afternoonCount;
+                        nightCountEl.textContent = data.nightCount;
+                        
+                        // Atualizar gráfico de distribuição por período
+                        updateStudentsPeriodChart(data);
+                    } else {
+                        const errorMsg = data?.message || "Erro ao carregar estatísticas de alunos";
+                        throw new Error(errorMsg);
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar estatísticas de alunos:', error);
+                    // Usar dados padrão em caso de erro
+                    const demoData = {
+                        totalStudents: 0,
+                        morningCount: 0,
+                        afternoonCount: 0,
+                        nightCount: 0
+                    };
+                    document.getElementById('totalStudents').textContent = demoData.totalStudents;
+                    morningCountEl.textContent = demoData.morningCount;
+                    afternoonCountEl.textContent = demoData.afternoonCount;
+                    nightCountEl.textContent = demoData.nightCount;
+                    updateStudentsPeriodChart(demoData);
+                    showNotification('warning', `Não foi possível carregar estatísticas: ${error.message}`);
+                }
+            }
+            
+            // Função para exportar dados para Excel - VERSÃO CORRIGIDA
+            exportBtn.addEventListener('click', async function() {
+                try {
+                    const url = `${SCRIPT_URL}?action=getAllOccurrences`;
+                    const data = await safeFetch(url);
+                    
+                    if (data && data.status === "success" && Array.isArray(data.occurrences)) {
+                        if (data.occurrences.length === 0) {
+                            showNotification('warning', 'Não há dados para exportar.');
+                            return;
+                        }
+                        
+                        // Preparar dados para exportação
+                        const exportData = data.occurrences.map(occurrence => {
+                            return {
+                                'Data': occurrence.date || '',
+                                'Professor': occurrence.professor || '',
+                                'Turma': occurrence.class || '',
+                                'Aluno': occurrence.student || '',
+                                'Irregularidades': occurrence.irregularities || '',
+                                'Observações': occurrence.description || ''
+                            };
+                        });
+                        
+                        // Criar planilha
+                        const worksheet = XLSX.utils.json_to_sheet(exportData);
+                        const workbook = XLSX.utils.book_new();
+                        XLSX.utils.book_append_sheet(workbook, worksheet, "OCORRENCIAS");
+                        
+                        // Exportar para arquivo Excel
+                        const fileName = `ocorrencias_escolares_${new Date().toISOString().split('T')[0]}.xlsx`;
+                        XLSX.writeFile(workbook, fileName);
+                        showNotification('success', 'Dados exportados para Excel com sucesso!');
+                    } else {
+                        const errorMsg = data?.message || 'Erro ao exportar dados.';
+                        showNotification('error', `Erro ao exportar dados: ${errorMsg}`);
+                    }
+                } catch (error) {
+                    console.error('Erro ao exportar dados:', error);
+                    showNotification('error', `Erro ao exportar dados: ${error.message || 'Erro desconhecido'}`);
+                }
+            });
+            
+            // Delegation para botões de editar e excluir
+            registrosTable.addEventListener('click', function(e) {
+                const target = e.target;
+                const editBtn = target.closest('.btn-edit');
+                const deleteBtn = target.closest('.btn-delete');
+                
+                if (editBtn) {
+                    const occurrenceId = editBtn.getAttribute('data-id');
+                    editOccurrence(occurrenceId);
+                }
+                
+                if (deleteBtn) {
+                    const occurrenceId = deleteBtn.getAttribute('data-id');
+                    if (confirm('Tem certeza que deseja excluir esta ocorrência?')) {
+                        deleteOccurrence(occurrenceId);
+                    }
+                }
+            });
+
+            // Função para editar ocorrência - VERSÃO CORRIGIDA
+            async function editOccurrence(occurrenceId) {
+                try {
+                    const url = `${SCRIPT_URL}?action=getOccurrenceById&id=${occurrenceId}`;
+                    const response = await safeFetch(url);
+                    
+                    if (response && response.status === "success" && response.occurrence) {
+                        const occurrence = response.occurrence;
+                        
+                        // Preencher formulário com os dados da ocorrência
+                        professorSelect.value = occurrence.professor;
+                        document.getElementById('occurrenceDate').value = occurrence.date;
+                        classSelect.value = occurrence.class;
+                        
+                        // Disparar evento para carregar alunos
+                        const event = new Event('change');
+                        classSelect.dispatchEvent(event);
+                        
+                        // Aguardar um pouco para o carregamento dos alunos
+                        setTimeout(() => {
+                            studentSelect.value = occurrence.student;
+                            
+                            // Disparar evento para carregar estatísticas do aluno
+                            studentSelect.dispatchEvent(new Event('change'));
+                            
+                            // Preencher irregularidades
+                            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                                checkbox.checked = occurrence.irregularities.includes(checkbox.value);
+                            });
+                            
+                            // Preencher descrição
+                            document.getElementById('description').value = occurrence.description || '';
+                            
+                            // Alterar botão para "Atualizar"
+                            submitBtn.innerHTML = '<i class="fas fa-sync-alt"></i> ATUALIZAR';
+                            currentEditId = occurrenceId;
+                            
+                            // Rolar para o topo do formulário
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            
+                            showNotification('success', 'Ocorrência carregada para edição');
+                        }, 500);
+                    } else {
+                        const errorMsg = response?.message || "Erro ao carregar ocorrência para edição";
+                        throw new Error(errorMsg);
+                    }
+                } catch (error) {
+                    console.error('Erro ao editar ocorrência:', error);
+                    showNotification('error', `Erro ao carregar ocorrência para edição: ${error.message || 'Erro desconhecido'}`);
+                }
+            }
+
+            // Função para excluir ocorrência - VERSÃO CORRIGIDA
+            async function deleteOccurrence(occurrenceId) {
+                try {
+                    const response = await fetch(SCRIPT_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            action: 'deleteOccurrence',
+                            id: occurrenceId
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`HTTP error! Status: ${response.status}, Mensagem: ${errorText.substring(0, 200)}`);
+                    }
+
+                    const data = await response.json();
+                    
+                    if (data && data.status === "success") {
+                        showNotification('success', 'Ocorrência excluída com sucesso!');
+                        // Recarregar tabela
+                        loadRegistrosTable();
+                        // Recarregar estatísticas
+                        loadStudentPeriodStats();
+                    } else {
+                        const errorMsg = data?.message || "Erro ao excluir ocorrência";
+                        throw new Error(errorMsg);
+                    }
+                } catch (error) {
+                    console.error('Erro ao excluir ocorrência:', error);
+                    showNotification('error', `Erro ao excluir ocorrência: ${error.message || 'Erro desconhecido'}`);
+                }
+            }
+
+            // Inicialização
+            async function initialize() {
+                // Inicializar gráficos com valores zero
+                document.querySelectorAll('.donut-chart').forEach(canvas => {
+                    createDonutChart(canvas, 0);
+                });
+                
+                // Testar conexão
+                const connected = await testConnection();
+                
+                if (connected) {
+                    // Carregar dados iniciais
+                    await loadStudentPeriodStats();
+                    await loadRegistrosTable();
+                    showNotification('success', 'Sistema carregado com sucesso!');
+                } else {
+                    showNotification('error', 'Falha na conexão inicial. Algumas funcionalidades podem não funcionar.');
+                }
+            }
+
+            // Inicializar o sistema
+            initialize();
+        });
+    </script>
+</body>
+</html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Registro de Ocorrências Escolares - VERSÃO CORRIGIDA</title>
