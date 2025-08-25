@@ -1719,7 +1719,7 @@
                 updateConnectionStatus('connecting', 'Testando conexão...');
                 
                 try {
-                    const url = `${SCRIPT_URL}?action=testConnection`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbyWBpCKe2fKjbITf0pFplRq-n8jnqSZfaYtf-by1q0S3CA0hNGBDg2bkR24vQa2tp7x/exec"}?action=testConnection`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success") {
@@ -1760,7 +1760,7 @@
                 }
 
                 // Buscar alunos reais da planilha
-                const url = `${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
+                const url = `${"https://script.google.com/macros/s/AKfycbyWBpCKe2fKjbITf0pFplRq-n8jnqSZfaYtf-by1q0S3CA0hNGBDg2bkR24vQa2tp7x/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
                 
                 const data = await safeFetch(url);
 
@@ -1804,7 +1804,7 @@
                     studentOccurrencesCount.textContent = "Carregando...";
                     
                     // Buscar estatísticas do aluno
-                    const url = `${SCRIPT_URL}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbyWBpCKe2fKjbITf0pFplRq-n8jnqSZfaYtf-by1q0S3CA0hNGBDg2bkR24vQa2tp7x/exec"}?action=getStudentStats&student=${encodeURIComponent(this.value)}`;
                     
                     const data = await safeFetch(url);
 
@@ -1892,7 +1892,7 @@
 
                         console.log('Enviando dados:', requestData);
 
-                        const response = await fetch(SCRIPT_URL, {
+                        const response = await fetch("https://script.google.com/macros/s/AKfycbyWBpCKe2fKjbITf0pFplRq-n8jnqSZfaYtf-by1q0S3CA0hNGBDg2bkR24vQa2tp7x/exec", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -1930,7 +1930,7 @@
                 registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Carregando registros...</td></tr>';
                 
                 try {
-                    const url = `${SCRIPT_URL}?action=getAllOccurrences`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbyWBpCKe2fKjbITf0pFplRq-n8jnqSZfaYtf-by1q0S3CA0hNGBDg2bkR24vQa2tp7x/exec"}?action=getAllOccurrences`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
@@ -2131,7 +2131,7 @@
             // Carregar estatísticas de alunos por período - VERSÃO CORRIGIDA
             async function loadStudentPeriodStats() {
                 try {
-                    const url = `${SCRIPT_URL}?action=getStudentPeriodStats`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbyWBpCKe2fKjbITf0pFplRq-n8jnqSZfaYtf-by1q0S3CA0hNGBDg2bkR24vQa2tp7x/exec"}?action=getStudentPeriodStats`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success") {
@@ -2167,7 +2167,7 @@
             // Função para exportar dados para Excel - VERSÃO CORRIGIDA
             exportBtn.addEventListener('click', async function() {
                 try {
-                    const url = `${SCRIPT_URL}?action=getAllOccurrences`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbyWBpCKe2fKjbITf0pFplRq-n8jnqSZfaYtf-by1q0S3CA0hNGBDg2bkR24vQa2tp7x/exec"}?action=getAllOccurrences`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
@@ -2229,7 +2229,7 @@
             // Função para editar ocorrência - VERSÃO CORRIGIDA
             async function editOccurrence(occurrenceId) {
                 try {
-                    const url = `${SCRIPT_URL}?action=getOccurrenceById&id=${occurrenceId}`;
+                    const url = `${"https://script.google.com/macros/s/AKfycbyWBpCKe2fKjbITf0pFplRq-n8jnqSZfaYtf-by1q0S3CA0hNGBDg2bkR24vQa2tp7x/exec"}?action=getOccurrenceById&id=${occurrenceId}`;
                     const response = await safeFetch(url);
                     
                     if (response && response.status === "success" && response.occurrence) {
@@ -2281,7 +2281,7 @@
             // Função para excluir ocorrência - VERSÃO CORRIGIDA
             async function deleteOccurrence(occurrenceId) {
                 try {
-                    const response = await fetch(SCRIPT_URL, {
+                    const response = await fetch("https://script.google.com/macros/s/AKfycbyWBpCKe2fKjbITf0pFplRq-n8jnqSZfaYtf-by1q0S3CA0hNGBDg2bkR24vQa2tp7x/exec", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
