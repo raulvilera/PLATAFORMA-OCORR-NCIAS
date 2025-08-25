@@ -1563,7 +1563,7 @@
             const retryConnection = document.getElementById('retryConnection');
 
             // Configurações da planilha - CORRIGIDAS
-            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwpsoHGOiqJXD-5OMgGJIXtPg7w3EjRLlkSMU1WQUFyYJfGm_Kq-okpgAW_msGj6wN9/exec";
+            const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyWBpCKe2fKjbITf0pFplRq-n8jnqSZfaYtf-by1q0S3CA0hNGBDg2bkR24vQa2tp7x/exec";
 
             // Variáveis globais
             const charts = {};
@@ -1719,7 +1719,7 @@
                 updateConnectionStatus('connecting', 'Testando conexão...');
                 
                 try {
-                    const url = `${"https://script.google.com/macros/s/AKfycbwpsoHGOiqJXD-5OMgGJIXtPg7w3EjRLlkSMU1WQUFyYJfGm_Kq-okpgAW_msGj6wN9/exec"}?action=testConnection`;
+                    const url = `${SCRIPT_URL}?action=testConnection`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success") {
@@ -1760,7 +1760,7 @@
                 }
 
                 // Buscar alunos reais da planilha
-                const url = `${"https://script.google.com/macros/s/AKfycbwpsoHGOiqJXD-5OMgGJIXtPg7w3EjRLlkSMU1WQUFyYJfGm_Kq-okpgAW_msGj6wN9/exec"}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
+                const url = `${SCRIPT_URL}?action=getStudents&class=${encodeURIComponent(selectedClass)}`;
                 
                 const data = await safeFetch(url);
 
@@ -1930,7 +1930,7 @@
                 registrosTableBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">Carregando registros...</td></tr>';
                 
                 try {
-                    const url = `${"https://script.google.com/macros/s/AKfycbwpsoHGOiqJXD-5OMgGJIXtPg7w3EjRLlkSMU1WQUFyYJfGm_Kq-okpgAW_msGj6wN9/exec"}?action=getAllOccurrences`;
+                    const url = `${SCRIPT_URL}?action=getAllOccurrences`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
@@ -2131,7 +2131,7 @@
             // Carregar estatísticas de alunos por período - VERSÃO CORRIGIDA
             async function loadStudentPeriodStats() {
                 try {
-                    const url = `${"https://script.google.com/macros/s/AKfycbwpsoHGOiqJXD-5OMgGJIXtPg7w3EjRLlkSMU1WQUFyYJfGm_Kq-okpgAW_msGj6wN9/exec"}?action=getStudentPeriodStats`;
+                    const url = `${SCRIPT_URL}?action=getStudentPeriodStats`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success") {
@@ -2167,7 +2167,7 @@
             // Função para exportar dados para Excel - VERSÃO CORRIGIDA
             exportBtn.addEventListener('click', async function() {
                 try {
-                    const url = `${"https://script.google.com/macros/s/AKfycbwpsoHGOiqJXD-5OMgGJIXtPg7w3EjRLlkSMU1WQUFyYJfGm_Kq-okpgAW_msGj6wN9/exec"}?action=getAllOccurrences`;
+                    const url = `${SCRIPT_URL}?action=getAllOccurrences`;
                     const data = await safeFetch(url);
                     
                     if (data && data.status === "success" && Array.isArray(data.occurrences)) {
@@ -2196,7 +2196,7 @@
                         // Exportar para arquivo Excel
                         const fileName = `ocorrencias_escolares_${new Date().toISOString().split('T')[0]}.xlsx`;
                         XLSX.writeFile(workbook, fileName);
-                        showNotification('success', 'Dados exportados para Excel com sucesjplo!');
+                        showNotification('success', 'Dados exportados para Excel com sucesso!');
                     } else {
                         const errorMsg = data?.message || 'Erro ao exportar dados.';
                         showNotification('error', `Erro ao exportar dados: ${errorMsg}`);
@@ -2229,7 +2229,7 @@
             // Função para editar ocorrência - VERSÃO CORRIGIDA
             async function editOccurrence(occurrenceId) {
                 try {
-                    const url = `${"https://script.google.com/macros/s/AKfycbwpsoHGOiqJXD-5OMgGJIXtPg7w3EjRLlkSMU1WQUFyYJfGm_Kq-okpgAW_msGj6wN9/exec"}?action=getOccurrenceById&id=${occurrenceId}`;
+                    const url = `${SCRIPT_URL}?action=getOccurrenceById&id=${occurrenceId}`;
                     const response = await safeFetch(url);
                     
                     if (response && response.status === "success" && response.occurrence) {
