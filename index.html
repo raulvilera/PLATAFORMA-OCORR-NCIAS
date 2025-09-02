@@ -1176,7 +1176,7 @@
                 try {
                     console.log('POST Request Payload:', payload);
                     
-                    const response = await fetch('https://script.google.com/macros/s/AKfycbxLbLqz2OG04anK3fwk9TPj0bllJKxjxwk9SJIdn_GRchyQJvWLEQikwV5tLUcUyCIC/exec', {
+                    const response = await fetch(url, {
                         method: 'POST',
                         headers: {
                             'Accept': 'application/json',
