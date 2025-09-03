@@ -122,11 +122,10 @@
             background: linear-gradient(135deg, #2ecc71 0%, #3498db 100%);
             color: white;
             border-radius: 16px;
-            padding: 20px;
+            padding: 25px;
             box-shadow: var(--shadow);
             position: relative;
             overflow: hidden;
-            height: auto;
         }
         
         .stats-card::after {
@@ -143,8 +142,8 @@
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
+            gap: 20px;
+            margin-top: 20px;
             position: relative;
             z-index: 2;
         }
@@ -152,7 +151,7 @@
         .stat-item {
             background: rgba(255, 255, 255, 0.15);
             border-radius: 12px;
-            padding: 12px;
+            padding: 15px;
             text-align: center;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -165,13 +164,13 @@
         }
         
         .stat-value {
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             font-weight: 700;
-            margin: 8px 0;
+            margin: 10px 0;
         }
         
         .stat-label {
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             opacity: 0.9;
         }
         
@@ -215,7 +214,7 @@
         }
         
         .card-body {
-            padding: 25px;
+            padding: 30px;
             position: relative;
             z-index: 2;
         }
@@ -428,7 +427,7 @@
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             position: relative;
         }
         
@@ -529,8 +528,8 @@
         
         .form-row {
             display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
+            gap: 25px;
+            margin-bottom: 25px;
         }
         
         .form-col {
@@ -1023,6 +1022,20 @@
                                     </div>
                                 </div>
                                 
+                                <!-- NOVO CAMPO: Classificação -->
+                                <div class="form-group">
+                                    <label for="classification" class="required">Classificação da ocorrência</label>
+                                    <div class="student-select-container">
+                                        <select id="classification" required>
+                                            <option value="">Selecione a classificação</option>
+                                            <option value="Leve">Leve</option>
+                                            <option value="Moderada">Moderada</option>
+                                            <option value="Grave">Grave</option>
+                                            <option value="Gravíssima">Gravíssima</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
                                 <div class="section-title">
                                     <i class="fas fa-exclamation-triangle"></i> Irregularidades
                                 </div>
@@ -1180,8 +1193,9 @@
             // =========================================================================
             // CONFIGURAÇÕES E CONSTANTES
             // =========================================================================
-            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwW-w3dcUk3sZCjpNC4AThiplVTQi4-OUUBRC6W_GaAbTZRcroQDkb5cuD6-N0JTGEl/exec';
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwxqRp4VnsPoLzoPllmWwjOPn8kGTge2jbjZehIPxWr-fxs8QQkfAaqCxXbv5fpKdPQ/exec';
 
+            // Lista de professores
             const teacherEmails = {
                 "ALEX LUTH PEREIRA MARANHAO": "luth@prof.educacao.sp.gov.br",
                 "ALEXSANDRA PAULA VARELLA DE SOUZA": "avarella@prof.educacao.sp.gov.br",
@@ -1239,30 +1253,28 @@
                 "MAURICIO DE BARROS SANTOS": "mauriciobsantos@prof.educacao.sp.gov.br",
                 "MICHELE DE PINHO MORAES": "michelepinho@prof.educacao.sp.gov.br",
                 "MOISES ANTONIO DE BARROS": "moisesbarros@prof.educacao.sp.gov.br",
-                "PAULA ARMANI VILA": "paulaarmani@prof.educacao.sp.gov.br",
-                "PAULO ROBERTO DA SILSA ITO": "pauloito@prof.educacao.sp.gov.br",
-                "PEDRO ZANOTTI FILHO": "pedrozanotti@prof.educacao.sp.gov.br",
-                "RAUL PEREIRA VILERA JUNIOR": "vilera@prof.educacao.sp.gov.br",
-                "REGIANE CURTI DE SOUZA OLIVEIRA": "regianecurti@prof.educacao.sp.gov.br",
-                "REGINA DA SILSA CASTRO": "reginasilvacastro@prof.educacao.sp.gov.br",
-                "RICARDO AMERICO DA SILSA": "ricardoamerico@prof.educacao.sp.gov.br",
-                "ROBERTO SALGADO": "robertosalgado@prof.educacao.sp.gov.br",
-                "RODRIGO VIEIRA": "rodrigovieira1@prof.educacao.sp.gov.br",
-                "ROSANGELA CAFASSO MOREIRA": "cafasso@prof.educacao.sp.gov.br",
-                "ROSIMERY DE SOUZA PESSOA": "rosimerypessoa@prof.educacao.sp.gov.br",
-                "ROSMARA DA SILSA CARDOSO": "rosmaracardoso@prof.educacao.sp.gov.br",
-                "SANDRA CRISTINA MACEDO MORAES": "sandracristinamacedo@prof.educacao.sp.gov.br",
-                "SELMA GOMES DA SILSA": "selmagomess@prof.educacao.sp.gov.br",
-                "SERGIO AGRIPINO VILLA NOVA": "sergioagripino@prof.educacao.sp.gov.br",
-                "SOLANGE ALMEIDA DA SILSA": "almeidafazio@prof.educacao.sp.gov.br",
-                "SUZINEIDE SILSA DE FREITAS": "suzineidefreitas@prof.educacao.sp.gov.br",
-                "THIAGO FABIANO BRITO": "thiagofabiano@prof.educacao.sp.gov.br",
-                "TITTO AUGUSTO NASCIMENTO SILSA": "titto@prof.educacao.sp.gov.br",
-                "VANDERSON HYPPOLITO": "vhypolito@prof.educacao.sp.gov.br",
-                "VANESSA IVETE GOMES DOS SANTOS": "vanessaivete@prof.educacao.sp.gov.br",
-                "VANIA PENHA DE BARROS": "vaniapenha@prof.educacao.sp.gov.br",
-                "VIVIANE LEAL CAMERA DE MORAES": "camera@prof.educacao.sp.gov.br",
-                "WILSON RODRIGUES MOTA": "wmota@prof.educacao.sp.gov.br"
+                "PATRICIA APARECIDA GONCALVES": "patriciaaparecida@prof.educacao.sp.gov.br",
+                "PATRICIA CRISTINA ALVES PEREIRA": "patriciacristina@prof.educacao.sp.gov.br",
+                "PATRICIA HELENA SILVA SANTOS": "patriciahelena@prof.educacao.sp.gov.br",
+                "PAULO CESAR ALVES": "paulocesar@prof.educacao.sp.gov.br",
+                "PAULO ROBERTO SILVA": "pauloroberto@prof.educacao.sp.gov.br",
+                "PRISCILA APARECIDA SILVA": "priscilasilva@prof.educacao.sp.gov.br",
+                "RAFAEL AUGUSTO SANTOS": "rafaelaugusto@prof.educacao.sp.gov.br",
+                "REGINA CELIA OLIVEIRA": "reginacelia@prof.educacao.sp.gov.br",
+                "RENATA CRISTINA SANTOS": "renatacristina@prof.educacao.sp.gov.br",
+                "RICARDO JOSE SILVA": "ricardojose@prof.educacao.sp.gov.br",
+                "ROBERTA APARECIDA SANTOS": "robertaaparecida@prof.educacao.sp.gov.br",
+                "RODRIGO CESAR ALMEIDA": "rodrigocesar@prof.educacao.sp.gov.br",
+                "ROSANA APARECIDA SILVA": "rosanaaparecida@prof.educacao.sp.gov.br",
+                "SANDRA REGINA SANTOS": "sandraregina@prof.educacao.sp.gov.br",
+                "SILVIA HELENA OLIVEIRA": "silviahelena@prof.educacao.sp.gov.br",
+                "SIMONE APARECIDA SILVA": "simoneaparecida@prof.educacao.sp.gov.br",
+                "SUELI CRISTINA SANTOS": "suelicristina@prof.educacao.sp.gov.br",
+                "TANIA REGINA SILVA": "taniaregina@prof.educacao.sp.gov.br",
+                "VALERIA CRISTINA SANTOS": "valeriacristina@prof.educacao.sp.gov.br",
+                "VANESSA APARECIDA SILVA": "vanessaaparecida@prof.educacao.sp.gov.br",
+                "VERA LUCIA SANTOS": "veralucia@prof.educacao.sp.gov.br",
+                "VIVIANE CRISTINA SILVA": "vivianecristina@prof.educacao.sp.gov.br"
             };
 
             // =========================================================================
@@ -1270,12 +1282,17 @@
             // =========================================================================
             const form = document.getElementById('occurrenceForm');
             const professorSelect = document.getElementById('professor');
+            const occurrenceDateInput = document.getElementById('occurrenceDate');
             const classSelect = document.getElementById('studentClass');
             const studentSelect = document.getElementById('student');
-            const occurrenceDateInput = document.getElementById('occurrenceDate');
+            const classificationSelect = document.getElementById('classification'); // NOVO CAMPO
             const descriptionTextarea = document.getElementById('description');
             const submitBtn = document.getElementById('submitBtn');
             const clearBtn = document.getElementById('clearBtn');
+            
+            // Elementos de status
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
             
             // Elementos de estatísticas
             const totalOccurrencesEl = document.getElementById('totalOccurrences');
@@ -1285,26 +1302,22 @@
             const afternoonCountEl = document.getElementById('afternoonCount');
             const nightCountEl = document.getElementById('nightCount');
             
+            // Elementos de contagem de alunos
+            const classStudentCount = document.getElementById('classStudentCount');
+            const studentCountText = document.getElementById('studentCountText');
+            
             // Elementos de registros
             const registrosList = document.getElementById('registrosList');
             const registrosCount = document.getElementById('registrosCount');
-            const searchRegistros = document.getElementById('searchRegistros');
             const refreshRegistrosBtn = document.getElementById('refreshRegistrosBtn');
             const refreshIcon = document.getElementById('refreshIcon');
+            const searchRegistros = document.getElementById('searchRegistros');
             
             // Elementos de notificação
             const notification = document.getElementById('notification');
             const notificationIcon = notification.querySelector('.icon');
             const notificationContent = notification.querySelector('.content');
             const notificationClose = notification.querySelector('.close');
-            
-            // Elementos de status
-            const statusIndicator = document.getElementById('statusIndicator');
-            const statusText = document.getElementById('statusText');
-            
-            // Novo elemento para contador de alunos
-            const classStudentCount = document.getElementById('classStudentCount');
-            const studentCountText = document.getElementById('studentCountText');
 
             // =========================================================================
             // VARIÁVEIS GLOBAIS
@@ -1312,19 +1325,29 @@
             let allRegistros = [];
             let filteredRegistros = [];
             let autoRefreshInterval = null;
-            let currentStudentCount = 0;
 
             // =========================================================================
-            // FUNÇÕES DE INICIALIZAÇÃO
+            // INICIALIZAÇÃO
             // =========================================================================
             function initialize() {
                 console.log('Inicializando sistema...');
+                
+                // Configura data padrão
                 setDefaultDate();
-                populateTeachers();
-                loadClasses();
+                
+                // Carrega professores
+                loadTeachers();
+                
+                // Carrega dados iniciais
                 loadInitialData();
+                
+                // Configura event listeners
                 setupEventListeners();
+                
+                // Inicia auto-refresh
                 startAutoRefresh();
+                
+                console.log('Sistema inicializado com sucesso');
             }
 
             function setDefaultDate() {
@@ -1333,32 +1356,64 @@
                 occurrenceDateInput.value = formattedDate;
             }
 
-            function populateTeachers() {
+            function loadTeachers() {
                 const teachers = Object.keys(teacherEmails).sort();
+                professorSelect.innerHTML = '<option value="">Selecione seu nome</option>';
+                
                 teachers.forEach(teacher => {
                     const option = document.createElement('option');
                     option.value = teacher;
                     option.textContent = teacher;
                     professorSelect.appendChild(option);
                 });
+                
+                console.log(`${teachers.length} professores carregados`);
+            }
+
+            async function loadInitialData() {
+                try {
+                    updateConnectionStatus(true, 'Carregando dados...');
+                    
+                    // Carrega turmas
+                    await loadClasses();
+                    
+                    // Carrega estatísticas
+                    await loadStatistics();
+                    
+                    // Carrega registros recentes
+                    await loadRecentOccurrences();
+                    
+                    updateConnectionStatus(true, 'Conectado à planilha Google Sheets');
+                    
+                } catch (error) {
+                    console.error('Erro ao carregar dados iniciais:', error);
+                    updateConnectionStatus(false, 'Erro na conexão com Google Sheets');
+                }
             }
 
             function setupEventListeners() {
+                // Formulário
                 form.addEventListener('submit', handleFormSubmit);
                 clearBtn.addEventListener('click', clearForm);
-                classSelect.addEventListener('change', handleClassChange);
-                searchRegistros.addEventListener('input', handleSearchRegistros);
-                refreshRegistrosBtn.addEventListener('click', () => loadRecentOccurrences(true));
-                notificationClose.addEventListener('click', () => notification.classList.remove('show'));
                 
-                // Auto-hide notification after 5 seconds
-                notification.addEventListener('transitionend', (e) => {
-                    if (e.propertyName === 'opacity' && notification.classList.contains('show')) {
-                        setTimeout(() => {
-                            notification.classList.remove('show');
-                        }, 5000);
-                    }
+                // Seleção de turma
+                classSelect.addEventListener('change', handleClassChange);
+                
+                // Registros
+                refreshRegistrosBtn.addEventListener('click', loadRecentOccurrences);
+                searchRegistros.addEventListener('input', handleSearchRegistros);
+                
+                // Notificação
+                notificationClose.addEventListener('click', () => {
+                    notification.classList.remove('show');
                 });
+                
+                // Auto-hide notificação
+                setTimeout(() => {
+                    if (notification.classList.contains('show')) {
+                        notification.classList.remove('show');
+                    }
+                }, 5000);
             }
 
             // =========================================================================
@@ -1366,25 +1421,28 @@
             // =========================================================================
             async function loadClasses() {
                 try {
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbwW-w3dcUk3sZCjpNC4AThiplVTQi4-OUUBRC6W_GaAbTZRcroQDkb5cuD6-N0JTGEl/exec'}?action=getClassList`);
-                    const data = await response.json();
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbwxqRp4VnsPoLzoPllmWwjOPn8kGTge2jbjZehIPxWr-fxs8QQkfAaqCxXbv5fpKdPQ/exec'}?action=getClassList`);
+                    const result = await response.json();
                     
-                    if (data.status === 'success' && data.classes) {
+                    if (result.status === 'success') {
+                        const classes = result.classes || [];
                         classSelect.innerHTML = '<option value="">Selecione a turma</option>';
-                        data.classes.forEach(className => {
+                        
+                        classes.forEach(className => {
                             const option = document.createElement('option');
                             option.value = className;
                             option.textContent = className;
                             classSelect.appendChild(option);
                         });
-                        updateTotalClasses(data.classes.length);
+                        
+                        updateTotalClasses(classes.length);
+                        console.log(`${classes.length} turmas carregadas`);
                     } else {
-                        console.error('Erro ao carregar turmas:', data.message);
-                        updateConnectionStatus(false, 'Erro ao carregar turmas');
+                        throw new Error(result.message || 'Erro ao carregar turmas');
                     }
                 } catch (error) {
                     console.error('Erro ao carregar turmas:', error);
-                    updateConnectionStatus(false, 'Erro de conexão');
+                    showNotification('error', 'Erro ao carregar lista de turmas');
                 }
             }
 
@@ -1393,118 +1451,96 @@
                     studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
                     studentSelect.disabled = true;
                     
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbwW-w3dcUk3sZCjpNC4AThiplVTQi4-OUUBRC6W_GaAbTZRcroQDkb5cuD6-N0JTGEl/exec'}?action=getStudentsByClass&className=${encodeURIComponent(className)}`);
-                    const data = await response.json();
+                    const response = await fetch(`$'https://script.google.com/macros/s/AKfycbwxqRp4VnsPoLzoPllmWwjOPn8kGTge2jbjZehIPxWr-fxs8QQkfAaqCxXbv5fpKdPQ/exec'}?action=getStudentsByClass&className=${encodeURIComponent(className)}`);
+                    const result = await response.json();
                     
-                    if (data.status === 'success' && data.students) {
+                    if (result.status === 'success') {
+                        const students = result.students || [];
                         studentSelect.innerHTML = '<option value="">Selecione o aluno</option>';
-                        data.students.forEach(student => {
-                            if (student && student.trim()) {
-                                const option = document.createElement('option');
-                                option.value = student;
-                                option.textContent = student;
-                                studentSelect.appendChild(option);
-                            }
+                        
+                        students.forEach(student => {
+                            const option = document.createElement('option');
+                            option.value = student;
+                            option.textContent = student;
+                            studentSelect.appendChild(option);
                         });
+                        
                         studentSelect.disabled = false;
-                        
-                        // Atualizar contador de alunos
-                        currentStudentCount = data.students.filter(s => s && s.trim()).length;
-                        updateClassStudentCount(currentStudentCount);
-                        
+                        updateClassStudentCount(students.length);
+                        console.log(`${students.length} alunos carregados para a turma ${className}`);
                     } else {
-                        studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
-                        console.error('Erro ao carregar alunos:', data.message);
-                        updateClassStudentCount(0);
+                        throw new Error(result.message || 'Erro ao carregar alunos');
                     }
                 } catch (error) {
                     console.error('Erro ao carregar alunos:', error);
                     studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
-                    updateClassStudentCount(0);
-                }
-            }
-
-            async function loadInitialData() {
-                try {
-                    await Promise.all([
-                        loadStatistics(),
-                        loadStudentCounts(),
-                        loadRecentOccurrences()
-                    ]);
-                    updateConnectionStatus(true, 'Conectado à planilha Google Sheets');
-                } catch (error) {
-                    console.error('Erro ao carregar dados iniciais:', error);
-                    updateConnectionStatus(false, 'Erro ao conectar com Google Sheets');
+                    studentSelect.disabled = true;
+                    showNotification('error', 'Erro ao carregar alunos da turma');
                 }
             }
 
             async function loadStatistics() {
                 try {
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbwW-w3dcUk3sZCjpNC4AThiplVTQi4-OUUBRC6W_GaAbTZRcroQDkb5cuD6-N0JTGEl/exec'}?action=getStatistics`);
-                    const data = await response.json();
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbwxqRp4VnsPoLzoPllmWwjOPn8kGTge2jbjZehIPxWr-fxs8QQkfAaqCxXbv5fpKdPQ/exec'}?action=getStatistics`);
+                    const result = await response.json();
                     
-                    if (data.status === 'success' && data.statistics) {
-                        const stats = data.statistics;
-                        totalOccurrencesEl.textContent = stats.totalOccurrences || 0;
+                    if (result.status === 'success') {
+                        const stats = result.statistics;
                         
-                        // Atualizar contadores por período
-                        if (stats.periodCounts) {
-                            morningCountEl.textContent = stats.periodCounts.manha || 0;
-                            afternoonCountEl.textContent = stats.periodCounts.tarde || 0;
-                            nightCountEl.textContent = stats.periodCounts.noite || 0;
-                        }
+                        totalOccurrencesEl.textContent = stats.totalOccurrences || 0;
+                        morningCountEl.textContent = stats.periodCounts?.manha || 0;
+                        afternoonCountEl.textContent = stats.periodCounts?.tarde || 0;
+                        nightCountEl.textContent = stats.periodCounts?.noite || 0;
+                        
+                        console.log('Estatísticas carregadas:', stats);
+                    } else {
+                        throw new Error(result.message || 'Erro ao carregar estatísticas');
                     }
                 } catch (error) {
                     console.error('Erro ao carregar estatísticas:', error);
                 }
             }
 
-            async function loadStudentCounts() {
+            async function loadRecentOccurrences() {
                 try {
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbwW-w3dcUk3sZCjpNC4AThiplVTQi4-OUUBRC6W_GaAbTZRcroQDkb5cuD6-N0JTGEl/exec'}?action=getStudentCountsByPeriod`);
-                    const data = await response.json();
+                    // Mostra loading
+                    registrosList.innerHTML = `
+                        <div class="registros-loading">
+                            <div class="loading-spinner"></div>
+                            Carregando registros...
+                        </div>
+                    `;
                     
-                    if (data.status === 'success' && data.counts) {
-                        const counts = data.counts;
-                        const total = (counts.manha || 0) + (counts.tarde || 0) + (counts.noite || 0);
-                        totalStudentsEl.textContent = total;
-                        
-                        // Atualizar os períodos individualmente
-                        morningCountEl.textContent = counts.manha || 0;
-                        afternoonCountEl.textContent = counts.tarde || 0;
-                        nightCountEl.textContent = counts.noite || 0;
-                    }
-                } catch (error) {
-                    console.error('Erro ao carregar contagem de alunos:', error);
-                }
-            }
-
-            async function loadRecentOccurrences(isRefresh = false) {
-                try {
-                    if (isRefresh) {
-                        refreshIcon.style.animation = 'spin 1s linear infinite';
-                    }
+                    // Anima o ícone de refresh
+                    refreshIcon.style.animation = 'spin 1s linear infinite';
                     
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbwW-w3dcUk3sZCjpNC4AThiplVTQi4-OUUBRC6W_GaAbTZRcroQDkb5cuD6-N0JTGEl/exec'}?action=getRecentOccurrences&limit=20`);
-                    const data = await response.json();
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbwxqRp4VnsPoLzoPllmWwjOPn8kGTge2jbjZehIPxWr-fxs8QQkfAaqCxXbv5fpKdPQ/exec'}?action=getRecentOccurrences&limit=20`);
+                    const result = await response.json();
                     
-                    if (data.status === 'success') {
-                        allRegistros = data.occurrences || [];
+                    if (result.status === 'success') {
+                        allRegistros = result.occurrences || [];
                         filteredRegistros = [...allRegistros];
+                        
                         updateRegistrosList();
                         updateRegistrosCount();
+                        
+                        console.log(`${allRegistros.length} registros carregados`);
                     } else {
-                        showRegistrosError(data.message || 'Erro ao carregar registros');
+                        throw new Error(result.message || 'Erro ao carregar registros');
                     }
                 } catch (error) {
                     console.error('Erro ao carregar registros:', error);
-                    showRegistrosError('Erro ao carregar registros');
+                    showRegistrosError('Erro ao carregar registros recentes');
                 } finally {
-                    if (isRefresh) {
-                        setTimeout(() => {
-                            refreshIcon.style.animation = '';
-                        }, 1000);
-                    }
+                    // Para a animação do ícone
+                    refreshIcon.style.animation = '';
+                    
+                    // Pequeno delay para suavizar a transição
+                    setTimeout(() => {
+                        if (refreshIcon.style.animation === '') {
+                            refreshIcon.style.transform = 'rotate(0deg)';
+                        }
+                    }, 1000);
                 }
             }
 
@@ -1513,17 +1549,21 @@
             // =========================================================================
             async function makePostRequest(formData) {
                 try {
+                    console.log('Enviando dados:', formData);
+                    
                     const payload = {
                         action: 'addOccurrence',
                         date: formData.date,
                         professor: formData.professor,
                         class: formData.class,
                         student: formData.student,
+                        classification: formData.classification, // NOVO CAMPO
                         irregularities: formData.irregularities,
-                        description: formData.description
+                        description: formData.description,
+                        timestamp: new Date().toISOString() // TIMESTAMP AUTOMÁTICO
                     };
 
-                    const response = await fetch('https://script.google.com/macros/s/AKfycbwW-w3dcUk3sZCjpNC4AThiplVTQi4-OUUBRC6W_GaAbTZRcroQDkb5cuD6-N0JTGEl/exec', {
+                    const response = await fetch('https://script.google.com/macros/s/AKfycbwxqRp4VnsPoLzoPllmWwjOPn8kGTge2jbjZehIPxWr-fxs8QQkfAaqCxXbv5fpKdPQ/exec', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -1536,6 +1576,7 @@
                     }
 
                     const result = await response.json();
+                    console.log('Resposta do servidor:', result);
                     return result;
                 } catch (error) {
                     console.error('Erro na requisição POST:', error);
@@ -1628,6 +1669,11 @@
                 notificationIcon.className = type === 'success' ? 'icon fas fa-check-circle' : 'icon fas fa-exclamation-circle';
                 notificationContent.textContent = message;
                 notification.classList.add('show');
+                
+                // Auto-hide após 5 segundos
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 5000);
             }
 
             // =========================================================================
@@ -1676,7 +1722,7 @@
                     
                 } catch (error) {
                     console.error('Erro ao enviar formulário:', error);
-                    showNotification('error', 'Erro ao registrar ocorrência. Tente novamente.');
+                    showNotification('error', 'Erro de conexão. Verifique sua internet e tente novamente.');
                 } finally {
                     // Restaura o botão
                     submitButton.disabled = false;
@@ -1716,13 +1762,14 @@
                     professor: professorSelect.value,
                     class: classSelect.value,
                     student: studentSelect.value,
+                    classification: classificationSelect.value, // NOVO CAMPO
                     irregularities: irregularities,
                     description: descriptionTextarea.value
                 };
             }
 
             function validateFormData(data) {
-                const requiredFields = ['date', 'professor', 'class', 'student'];
+                const requiredFields = ['date', 'professor', 'class', 'student', 'classification']; // ADICIONADO classification
                 
                 for (const field of requiredFields) {
                     if (!data[field] || data[field].trim() === '') {
@@ -1739,7 +1786,8 @@
                     date: 'Data da ocorrência',
                     professor: 'Nome do professor',
                     class: 'Turma',
-                    student: 'Nome do aluno'
+                    student: 'Nome do aluno',
+                    classification: 'Classificação da ocorrência' // NOVO CAMPO
                 };
                 return labels[field] || field;
             }
