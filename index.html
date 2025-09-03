@@ -1366,7 +1366,7 @@
             // =========================================================================
             async function loadClasses() {
                 try {
-                    const response = await fetch(`$'https://script.google.com/macros/s/AKfycbwW-w3dcUk3sZCjpNC4AThiplVTQi4-OUUBRC6W_GaAbTZRcroQDkb5cuD6-N0JTGEl/exec'}?action=getClassList`);
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbwW-w3dcUk3sZCjpNC4AThiplVTQi4-OUUBRC6W_GaAbTZRcroQDkb5cuD6-N0JTGEl/exec'}?action=getClassList`);
                     const data = await response.json();
                     
                     if (data.status === 'success' && data.classes) {
