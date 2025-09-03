@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Registro de Ocorrências Escolares</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         :root {
             --primary-color: #1a73e8;
@@ -15,6 +13,7 @@
             --accent-color: #f1c40f;
             --success-color: #2ecc71;
             --error-color: #e74c3c;
+            --warning-color: #f39c12;
             --border-color: #dadce0;
             --text-color: #202124;
             --light-text: #5f6368;
@@ -123,10 +122,11 @@
             background: linear-gradient(135deg, #2ecc71 0%, #3498db 100%);
             color: white;
             border-radius: 16px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: var(--shadow);
             position: relative;
             overflow: hidden;
+            height: auto;
         }
         
         .stats-card::after {
@@ -143,8 +143,8 @@
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
+            gap: 15px;
+            margin-top: 15px;
             position: relative;
             z-index: 2;
         }
@@ -152,7 +152,7 @@
         .stat-item {
             background: rgba(255, 255, 255, 0.15);
             border-radius: 12px;
-            padding: 15px;
+            padding: 12px;
             text-align: center;
             backdrop-filter: blur(10px);
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -165,13 +165,13 @@
         }
         
         .stat-value {
-            font-size: 2.2rem;
+            font-size: 1.8rem;
             font-weight: 700;
-            margin: 10px 0;
+            margin: 8px 0;
         }
         
         .stat-label {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             opacity: 0.9;
         }
         
@@ -215,12 +215,11 @@
         }
         
         .card-body {
-            padding: 30px;
+            padding: 25px;
             position: relative;
             z-index: 2;
         }
         
-        /* ESTILOS PARA ÚLTIMOS REGISTROS */
         .registros-card {
             background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
             color: white;
@@ -429,7 +428,7 @@
         }
         
         .form-group {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             position: relative;
         }
         
@@ -530,8 +529,8 @@
         
         .form-row {
             display: flex;
-            gap: 25px;
-            margin-bottom: 25px;
+            gap: 20px;
+            margin-bottom: 20px;
         }
         
         .form-col {
@@ -787,6 +786,7 @@
         
         .notification .content {
             flex-grow: 1;
+            font-weight: 500;
         }
         
         .notification .close {
@@ -857,6 +857,34 @@
         .period-manha { color: #f1c40f; }
         .period-tarde { color: #e67e22; }
         .period-noite { color: #9b59b6; }
+        
+        .class-student-count {
+            background: rgba(26, 115, 232, 0.1);
+            border: 1px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            font-weight: 600;
+            display: none;
+        }
+        
+        .class-student-count.show {
+            display: block;
+            animation: fadeInUp 0.3s ease;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
         
         @media (max-width: 1200px) {
             .dashboard {
@@ -937,8 +965,8 @@
                         <i class="fas fa-plug"></i>
                         <div>
                             <strong>Status de integração:</strong> 
-                            <span class="status-indicator status-connected"></span>
-                            Conectado à planilha Google Sheets
+                            <span class="status-indicator status-connected" id="statusIndicator"></span>
+                            <span id="statusText">Conectado à planilha Google Sheets</span>
                         </div>
                     </div>
                     
@@ -977,6 +1005,9 @@
                                                     <option value="">Selecione a turma</option>
                                                     <!-- Turmas serão carregadas dinamicamente -->
                                                 </select>
+                                            </div>
+                                            <div class="class-student-count" id="classStudentCount">
+                                                <i class="fas fa-users"></i> <span id="studentCountText">0 alunos matriculados</span>
                                             </div>
                                         </div>
                                     </div>
@@ -1072,8 +1103,8 @@
                             <div class="stat-label">Total de Ocorrências</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value" id="totalTeachers">0</div>
-                            <div class="stat-label">Professores</div>
+                            <div class="stat-value" id="totalStudents">0</div>
+                            <div class="stat-label">Total de Alunos</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-value" id="totalClasses">0</div>
@@ -1097,7 +1128,7 @@
                     </div>
                 </div>
                 
-                <!-- NOVA SEÇÃO: ÚLTIMOS REGISTROS -->
+                <!-- SEÇÃO: ÚLTIMOS REGISTROS -->
                 <div class="registros-card">
                     <div class="registros-header">
                         <div class="registros-title">
@@ -1149,7 +1180,7 @@
             // =========================================================================
             // CONFIGURAÇÕES E CONSTANTES
             // =========================================================================
-            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxm2vlVQoaaw0R3yPS-YTNKACr03v7vDoe5HpupxC4IFBJb0vytvks24BfBio6B-PK0/exec';
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwW-w3dcUk3sZCjpNC4AThiplVTQi4-OUUBRC6W_GaAbTZRcroQDkb5cuD6-N0JTGEl/exec';
 
             const teacherEmails = {
                 "ALEX LUTH PEREIRA MARANHAO": "luth@prof.educacao.sp.gov.br",
@@ -1164,7 +1195,7 @@
                 "ANTONIO WILTON WANDERLEY CABRAL": "antoniowilton@prof.educacao.sp.gov.br",
                 "AUGUSTO LINO PESSOA NETO": "augustolino@prof.educacao.sp.gov.br",
                 "AUREA MARIA DE JESUS MARQUES": "aureamaria@prof.educacao.sp.gov.br",
-                "CAROLINA PERNOMIAN PARUSSOLO": "carolinapernomian@prof.educacao.sp.gov.br",
+                "CAROLINA PERNOMIAN PARUSSOLOLO": "carolinapernomian@prof.educacao.sp.gov.br",
                 "CASSIA OLIVEIRA ANTONIAZI": "cassiaosilva@prof.educacao.sp.gov.br",
                 "CLAUDINEIA DE AGUIAR LIMA": "aguiarl@prof.educacao.sp.gov.br",
                 "DANIEL DE FREITAS ALMEIDA": "danielalmeida@prof.educacao.sp.gov.br",
@@ -1173,7 +1204,7 @@
                 "DANIELLE LUCIA BATISTA DE ALMEIDA": "danieleLucia@prof.educacao.sp.gov.br",
                 "EDIANE VIEIRA DA SILVA": "ediane@prof.educacao.sp.gov.br",
                 "EDILEUSA NUNES PEREIRA": "edileusa@prof.educacao.sp.gov.br",
-                "EDUARDO HENRIQUE DA FONSECA": "henriquefonseca@prof.educacao.sp.gov.br",
+                "EDUARDA HENRIQUE DA FONSECA": "henriquefonseca@prof.educacao.sp.gov.br",
                 "ELIANE SANTOS SILVA": "essantos@prof.educacao.sp.gov.br",
                 "ELIAS MONTEIRO DA SILVA": "elias1@prof.educacao.sp.gov.br",
                 "ELISABETE APARECIDA PIRES": "elisabetepires@prof.educacao.sp.gov.br",
@@ -1188,45 +1219,45 @@
                 "FRANCISCA EDIVANIA DE MORAIS COSTA": "fedivania@prof.educacao.sp.gov.br",
                 "GABRIELA SERIGHELLI DE MELO": "gabrielaserighelli@prof.educacao.sp.gov.br",
                 "GELSON DE ALMEIDA BATISTA": "gelsonalmeida@prof.educacao.sp.gov.br",
-                "GENILTON DE OLIVEIRA SILVA": "genilton@prof.educacao.sp.gov.br",
+                "GENILTON DE OLIVEIRA SILSA": "genilton@prof.educacao.sp.gov.br",
                 "GIANI CRISTINA DO PRADO": "gianiprado@prof.educacao.sp.gov.br",
                 "INGRYD CAROLINA SUGUIMOTO VIEIRA": "ingryd@prof.educacao.sp.gov.br",
                 "IVANILDES DOS SANTOS OSHIKAWA": "oshikawa@prof.educacao.sp.gov.br",
                 "JANINA DOS PASSOS BRAGA DE ALMEIDA": "janinabraga@prof.educacao.sp.gov.br",
-                "JOSE APARECIDO DA SILVA": "joseaparecidosilva@prof.educacao.sp.gov.br",
+                "JOSE APARECIDO DA SILSA": "joseaparecidosilva@prof.educacao.sp.gov.br",
                 "JUAREZ GOMES DE MAGALHAES FILHO": "juarezgomes@prof.educacao.sp.gov.br",
                 "JUREMA SOLEDADE FURINI SANTOS": "juremas@prof.educacao.sp.gov.br",
                 "KATIUSCIA ALVES BOMFIM": "katiusciabornfim@prof.educacao.sp.gov.br",
                 "LUANA CAROLINE ALVES LIMA": "luanalima01@prof.educacao.sp.gov.br",
-                "LUANA DE FREITAS SILVA": "luanafreitas@prof.educacao.sp.gov.br",
+                "LUANA DE FREITAS SILSA": "luanafreitas@prof.educacao.sp.gov.br",
                 "LUCIANA NOVAIS CORREIA SANTOS": "novaiscorreia@prof.educacao.sp.gov.br",
                 "LUCIANO MOREIRA DE AZEVEDO": "lucianomoreira@prof.educacao.sp.gov.br",
-                "MARCIEL DA SILVA": "marcielsilva@prof.educacao.sp.gov.br",
+                "MARCIEL DA SILSA": "marcielsilva@prof.educacao.sp.gov.br",
                 "MARIA HELENA CUNHA MORO": "marcunha@prof.educacao.sp.gov.br",
                 "MARIA QUITÉRIA FERREIRA DOS SANTOS": "quiteriasantos@prof.educacao.sp.gov.br",
-                "MARINA DA CONCEICAO FRANCISCO SILVA": "marinafrancisco@prof.educacao.sp.gov.br",
+                "MARINA DA CONCEICAO FRANCISCO SILSA": "marinafrancisco@prof.educacao.sp.gov.br",
                 "MAURICIO DE BARROS SANTOS": "mauriciobsantos@prof.educacao.sp.gov.br",
                 "MICHELE DE PINHO MORAES": "michelepinho@prof.educacao.sp.gov.br",
                 "MOISES ANTONIO DE BARROS": "moisesbarros@prof.educacao.sp.gov.br",
                 "PAULA ARMANI VILA": "paulaarmani@prof.educacao.sp.gov.br",
-                "PAULO ROBERTO DA SILVA ITO": "pauloito@prof.educacao.sp.gov.br",
+                "PAULO ROBERTO DA SILSA ITO": "pauloito@prof.educacao.sp.gov.br",
                 "PEDRO ZANOTTI FILHO": "pedrozanotti@prof.educacao.sp.gov.br",
                 "RAUL PEREIRA VILERA JUNIOR": "vilera@prof.educacao.sp.gov.br",
                 "REGIANE CURTI DE SOUZA OLIVEIRA": "regianecurti@prof.educacao.sp.gov.br",
-                "REGINA DA SILVA CASTRO": "reginasilvacastro@prof.educacao.sp.gov.br",
-                "RICARDO AMERICO DA SILVA": "ricardoamerico@prof.educacao.sp.gov.br",
+                "REGINA DA SILSA CASTRO": "reginasilvacastro@prof.educacao.sp.gov.br",
+                "RICARDO AMERICO DA SILSA": "ricardoamerico@prof.educacao.sp.gov.br",
                 "ROBERTO SALGADO": "robertosalgado@prof.educacao.sp.gov.br",
                 "RODRIGO VIEIRA": "rodrigovieira1@prof.educacao.sp.gov.br",
                 "ROSANGELA CAFASSO MOREIRA": "cafasso@prof.educacao.sp.gov.br",
                 "ROSIMERY DE SOUZA PESSOA": "rosimerypessoa@prof.educacao.sp.gov.br",
-                "ROSMARA DA SILVA CARDOSO": "rosmaracardoso@prof.educacao.sp.gov.br",
+                "ROSMARA DA SILSA CARDOSO": "rosmaracardoso@prof.educacao.sp.gov.br",
                 "SANDRA CRISTINA MACEDO MORAES": "sandracristinamacedo@prof.educacao.sp.gov.br",
-                "SELMA GOMES DA SILVA": "selmagomess@prof.educacao.sp.gov.br",
+                "SELMA GOMES DA SILSA": "selmagomess@prof.educacao.sp.gov.br",
                 "SERGIO AGRIPINO VILLA NOVA": "sergioagripino@prof.educacao.sp.gov.br",
-                "SOLANGE ALMEIDA DA SILVA": "almeidafazio@prof.educacao.sp.gov.br",
-                "SUZINEIDE SILVA DE FREITAS": "suzineidefreitas@prof.educacao.sp.gov.br",
+                "SOLANGE ALMEIDA DA SILSA": "almeidafazio@prof.educacao.sp.gov.br",
+                "SUZINEIDE SILSA DE FREITAS": "suzineidefreitas@prof.educacao.sp.gov.br",
                 "THIAGO FABIANO BRITO": "thiagofabiano@prof.educacao.sp.gov.br",
-                "TITTO AUGUSTO NASCIMENTO SILVA": "titto@prof.educacao.sp.gov.br",
+                "TITTO AUGUSTO NASCIMENTO SILSA": "titto@prof.educacao.sp.gov.br",
                 "VANDERSON HYPPOLITO": "vhypolito@prof.educacao.sp.gov.br",
                 "VANESSA IVETE GOMES DOS SANTOS": "vanessaivete@prof.educacao.sp.gov.br",
                 "VANIA PENHA DE BARROS": "vaniapenha@prof.educacao.sp.gov.br",
@@ -1241,81 +1272,269 @@
             const professorSelect = document.getElementById('professor');
             const classSelect = document.getElementById('studentClass');
             const studentSelect = document.getElementById('student');
-            const clearBtn = document.getElementById('clearBtn');
+            const occurrenceDateInput = document.getElementById('occurrenceDate');
+            const descriptionTextarea = document.getElementById('description');
             const submitBtn = document.getElementById('submitBtn');
-            const notification = document.getElementById('notification');
-            const notificationIcon = notification.querySelector('.icon');
-            const notificationContent = notification.querySelector('.content');
-            const notificationClose = notification.querySelector('.close');
+            const clearBtn = document.getElementById('clearBtn');
             
-            // Elementos das estatísticas
+            // Elementos de estatísticas
             const totalOccurrencesEl = document.getElementById('totalOccurrences');
-            const totalTeachersEl = document.getElementById('totalTeachers');
+            const totalStudentsEl = document.getElementById('totalStudents');
             const totalClassesEl = document.getElementById('totalClasses');
             const morningCountEl = document.getElementById('morningCount');
             const afternoonCountEl = document.getElementById('afternoonCount');
             const nightCountEl = document.getElementById('nightCount');
             
-            // Elementos dos últimos registros
+            // Elementos de registros
             const registrosList = document.getElementById('registrosList');
             const registrosCount = document.getElementById('registrosCount');
+            const searchRegistros = document.getElementById('searchRegistros');
             const refreshRegistrosBtn = document.getElementById('refreshRegistrosBtn');
             const refreshIcon = document.getElementById('refreshIcon');
-            const searchRegistros = document.getElementById('searchRegistros');
             
-            // Variáveis globais
+            // Elementos de notificação
+            const notification = document.getElementById('notification');
+            const notificationIcon = notification.querySelector('.icon');
+            const notificationContent = notification.querySelector('.content');
+            const notificationClose = notification.querySelector('.close');
+            
+            // Elementos de status
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            
+            // Novo elemento para contador de alunos
+            const classStudentCount = document.getElementById('classStudentCount');
+            const studentCountText = document.getElementById('studentCountText');
+
+            // =========================================================================
+            // VARIÁVEIS GLOBAIS
+            // =========================================================================
             let allRegistros = [];
             let filteredRegistros = [];
             let autoRefreshInterval = null;
+            let currentStudentCount = 0;
 
             // =========================================================================
-            // FUNÇÕES DE REQUISIÇÃO HTTP
+            // FUNÇÕES DE INICIALIZAÇÃO
             // =========================================================================
-            
-            /**
-             * Faz uma requisição GET para o backend
-             */
-            async function makeGetRequest(params) {
-                try {
-                    const url = new URL('https://script.google.com/macros/s/AKfycbxm2vlVQoaaw0R3yPS-YTNKACr03v7vDoe5HpupxC4IFBJb0vytvks24BfBio6B-PK0/exec');
-                    Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
-                    
-                    const response = await fetch(url.toString(), {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+            function initialize() {
+                console.log('Inicializando sistema...');
+                setDefaultDate();
+                populateTeachers();
+                loadClasses();
+                loadInitialData();
+                setupEventListeners();
+                startAutoRefresh();
+            }
+
+            function setDefaultDate() {
+                const today = new Date();
+                const formattedDate = today.toISOString().split('T')[0];
+                occurrenceDateInput.value = formattedDate;
+            }
+
+            function populateTeachers() {
+                const teachers = Object.keys(teacherEmails).sort();
+                teachers.forEach(teacher => {
+                    const option = document.createElement('option');
+                    option.value = teacher;
+                    option.textContent = teacher;
+                    professorSelect.appendChild(option);
+                });
+            }
+
+            function setupEventListeners() {
+                form.addEventListener('submit', handleFormSubmit);
+                clearBtn.addEventListener('click', clearForm);
+                classSelect.addEventListener('change', handleClassChange);
+                searchRegistros.addEventListener('input', handleSearchRegistros);
+                refreshRegistrosBtn.addEventListener('click', () => loadRecentOccurrences(true));
+                notificationClose.addEventListener('click', () => notification.classList.remove('show'));
+                
+                // Auto-hide notification after 5 seconds
+                notification.addEventListener('transitionend', (e) => {
+                    if (e.propertyName === 'opacity' && notification.classList.contains('show')) {
+                        setTimeout(() => {
+                            notification.classList.remove('show');
+                        }, 5000);
                     }
+                });
+            }
+
+            // =========================================================================
+            // FUNÇÕES DE CARREGAMENTO DE DADOS
+            // =========================================================================
+            async function loadClasses() {
+                try {
+                    const response = await fetch(`$'https://script.google.com/macros/s/AKfycbwW-w3dcUk3sZCjpNC4AThiplVTQi4-OUUBRC6W_GaAbTZRcroQDkb5cuD6-N0JTGEl/exec'}?action=getClassList`);
+                    const data = await response.json();
                     
-                    const result = await response.json();
-                    return result;
+                    if (data.status === 'success' && data.classes) {
+                        classSelect.innerHTML = '<option value="">Selecione a turma</option>';
+                        data.classes.forEach(className => {
+                            const option = document.createElement('option');
+                            option.value = className;
+                            option.textContent = className;
+                            classSelect.appendChild(option);
+                        });
+                        updateTotalClasses(data.classes.length);
+                    } else {
+                        console.error('Erro ao carregar turmas:', data.message);
+                        updateConnectionStatus(false, 'Erro ao carregar turmas');
+                    }
                 } catch (error) {
-                    console.error('Erro na requisição GET:', error);
-                    throw error;
+                    console.error('Erro ao carregar turmas:', error);
+                    updateConnectionStatus(false, 'Erro de conexão');
                 }
             }
 
-            /**
-             * Faz uma requisição POST para o backend
-             */
-            async function makePostRequest(data) {
+            async function loadStudentsByClass(className) {
                 try {
-                    const response = await fetch('https://script.google.com/macros/s/AKfycbxm2vlVQoaaw0R3yPS-YTNKACr03v7vDoe5HpupxC4IFBJb0vytvks24BfBio6B-PK0/exec', {
+                    studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
+                    studentSelect.disabled = true;
+                    
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbwW-w3dcUk3sZCjpNC4AThiplVTQi4-OUUBRC6W_GaAbTZRcroQDkb5cuD6-N0JTGEl/exec'}?action=getStudentsByClass&className=${encodeURIComponent(className)}`);
+                    const data = await response.json();
+                    
+                    if (data.status === 'success' && data.students) {
+                        studentSelect.innerHTML = '<option value="">Selecione o aluno</option>';
+                        data.students.forEach(student => {
+                            if (student && student.trim()) {
+                                const option = document.createElement('option');
+                                option.value = student;
+                                option.textContent = student;
+                                studentSelect.appendChild(option);
+                            }
+                        });
+                        studentSelect.disabled = false;
+                        
+                        // Atualizar contador de alunos
+                        currentStudentCount = data.students.filter(s => s && s.trim()).length;
+                        updateClassStudentCount(currentStudentCount);
+                        
+                    } else {
+                        studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
+                        console.error('Erro ao carregar alunos:', data.message);
+                        updateClassStudentCount(0);
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar alunos:', error);
+                    studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
+                    updateClassStudentCount(0);
+                }
+            }
+
+            async function loadInitialData() {
+                try {
+                    await Promise.all([
+                        loadStatistics(),
+                        loadStudentCounts(),
+                        loadRecentOccurrences()
+                    ]);
+                    updateConnectionStatus(true, 'Conectado à planilha Google Sheets');
+                } catch (error) {
+                    console.error('Erro ao carregar dados iniciais:', error);
+                    updateConnectionStatus(false, 'Erro ao conectar com Google Sheets');
+                }
+            }
+
+            async function loadStatistics() {
+                try {
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbwW-w3dcUk3sZCjpNC4AThiplVTQi4-OUUBRC6W_GaAbTZRcroQDkb5cuD6-N0JTGEl/exec'}?action=getStatistics`);
+                    const data = await response.json();
+                    
+                    if (data.status === 'success' && data.statistics) {
+                        const stats = data.statistics;
+                        totalOccurrencesEl.textContent = stats.totalOccurrences || 0;
+                        
+                        // Atualizar contadores por período
+                        if (stats.periodCounts) {
+                            morningCountEl.textContent = stats.periodCounts.manha || 0;
+                            afternoonCountEl.textContent = stats.periodCounts.tarde || 0;
+                            nightCountEl.textContent = stats.periodCounts.noite || 0;
+                        }
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar estatísticas:', error);
+                }
+            }
+
+            async function loadStudentCounts() {
+                try {
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbwW-w3dcUk3sZCjpNC4AThiplVTQi4-OUUBRC6W_GaAbTZRcroQDkb5cuD6-N0JTGEl/exec'}?action=getStudentCountsByPeriod`);
+                    const data = await response.json();
+                    
+                    if (data.status === 'success' && data.counts) {
+                        const counts = data.counts;
+                        const total = (counts.manha || 0) + (counts.tarde || 0) + (counts.noite || 0);
+                        totalStudentsEl.textContent = total;
+                        
+                        // Atualizar os períodos individualmente
+                        morningCountEl.textContent = counts.manha || 0;
+                        afternoonCountEl.textContent = counts.tarde || 0;
+                        nightCountEl.textContent = counts.noite || 0;
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar contagem de alunos:', error);
+                }
+            }
+
+            async function loadRecentOccurrences(isRefresh = false) {
+                try {
+                    if (isRefresh) {
+                        refreshIcon.style.animation = 'spin 1s linear infinite';
+                    }
+                    
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbwW-w3dcUk3sZCjpNC4AThiplVTQi4-OUUBRC6W_GaAbTZRcroQDkb5cuD6-N0JTGEl/exec'}?action=getRecentOccurrences&limit=20`);
+                    const data = await response.json();
+                    
+                    if (data.status === 'success') {
+                        allRegistros = data.occurrences || [];
+                        filteredRegistros = [...allRegistros];
+                        updateRegistrosList();
+                        updateRegistrosCount();
+                    } else {
+                        showRegistrosError(data.message || 'Erro ao carregar registros');
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar registros:', error);
+                    showRegistrosError('Erro ao carregar registros');
+                } finally {
+                    if (isRefresh) {
+                        setTimeout(() => {
+                            refreshIcon.style.animation = '';
+                        }, 1000);
+                    }
+                }
+            }
+
+            // =========================================================================
+            // FUNÇÕES DE ENVIO DE DADOS
+            // =========================================================================
+            async function makePostRequest(formData) {
+                try {
+                    const payload = {
+                        action: 'addOccurrence',
+                        date: formData.date,
+                        professor: formData.professor,
+                        class: formData.class,
+                        student: formData.student,
+                        irregularities: formData.irregularities,
+                        description: formData.description
+                    };
+
+                    const response = await fetch('https://script.google.com/macros/s/AKfycbwW-w3dcUk3sZCjpNC4AThiplVTQi4-OUUBRC6W_GaAbTZRcroQDkb5cuD6-N0JTGEl/exec', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(data)
+                        body: JSON.stringify(payload)
                     });
-                    
+
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
-                    
+
                     const result = await response.json();
                     return result;
                 } catch (error) {
@@ -1325,245 +1544,31 @@
             }
 
             // =========================================================================
-            // FUNÇÕES DE CARREGAMENTO DE DADOS
+            // FUNÇÕES DE INTERFACE
             // =========================================================================
-
-            /**
-             * Carrega a lista de turmas
-             */
-            async function loadClasses() {
-                try {
-                    const result = await makeGetRequest({ action: 'getClassList' });
-                    
-                    if (result && result.status === 'success' && result.classes) {
-                        classSelect.innerHTML = '<option value="">Selecione a turma</option>';
-                        result.classes.forEach(className => {
-                            if (className && className.trim() !== '') {
-                                const option = document.createElement('option');
-                                option.value = className;
-                                option.textContent = className;
-                                classSelect.appendChild(option);
-                            }
-                        });
-                        
-                        totalClassesEl.textContent = result.classes.length;
-                    } else {
-                        console.error('Erro ao carregar turmas:', result?.message || 'Resposta inválida');
-                        showNotification('error', 'Erro ao carregar lista de turmas');
-                    }
-                } catch (error) {
-                    console.error('Erro ao carregar turmas:', error);
-                    showNotification('error', 'Erro ao conectar com o servidor para carregar turmas');
+            function updateConnectionStatus(connected, message) {
+                if (connected) {
+                    statusIndicator.className = 'status-indicator status-connected';
+                    statusText.textContent = message;
+                } else {
+                    statusIndicator.className = 'status-indicator status-disconnected';
+                    statusText.textContent = message;
                 }
             }
 
-            /**
-             * Carrega alunos de uma turma específica
-             */
-            async function loadStudentsByClass(className) {
-                try {
-                    studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
-                    studentSelect.disabled = true;
-                    
-                    const result = await makeGetRequest({ 
-                        action: 'getStudentsByClass', 
-                        className: className 
-                    });
-                    
-                    if (result && result.status === 'success' && result.students) {
-                        studentSelect.innerHTML = '<option value="">Selecione o aluno</option>';
-                        result.students.forEach(studentName => {
-                            if (studentName && studentName.trim() !== '') {
-                                const option = document.createElement('option');
-                                option.value = studentName;
-                                option.textContent = studentName;
-                                studentSelect.appendChild(option);
-                            }
-                        });
-                        studentSelect.disabled = false;
-                    } else {
-                        studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
-                        console.error('Erro ao carregar alunos:', result?.message || 'Resposta inválida');
-                        showNotification('error', 'Erro ao carregar alunos da turma');
-                    }
-                } catch (error) {
-                    studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
-                    console.error('Erro ao carregar alunos:', error);
-                    showNotification('error', 'Erro ao conectar com o servidor para carregar alunos');
+            function updateTotalClasses(count) {
+                totalClassesEl.textContent = count;
+            }
+
+            function updateClassStudentCount(count) {
+                if (count > 0) {
+                    studentCountText.textContent = `${count} aluno${count !== 1 ? 's' : ''} matriculado${count !== 1 ? 's' : ''}`;
+                    classStudentCount.classList.add('show');
+                } else {
+                    classStudentCount.classList.remove('show');
                 }
             }
 
-            /**
-             * Carrega todos os dados para estatísticas
-             */
-            async function fetchAllData() {
-                try {
-                    const result = await makeGetRequest({ action: 'getAllData' });
-                    
-                    if (result && result.status === 'success') {
-                        updateDashboard(result.occurrences || []);
-                    } else {
-                        console.error('Erro ao carregar dados:', result?.message || 'Resposta inválida');
-                    }
-                } catch (error) {
-                    console.error('Erro ao carregar dados:', error);
-                }
-            }
-
-            /**
-             * Carrega estatísticas específicas
-             */
-            async function fetchStatistics() {
-                try {
-                    const result = await makeGetRequest({ action: 'getStatistics' });
-                    
-                    if (result && result.status === 'success') {
-                        // Atualiza contadores de período
-                        if (result.periodCounts) {
-                            morningCountEl.textContent = result.periodCounts.manha || 0;
-                            afternoonCountEl.textContent = result.periodCounts.tarde || 0;
-                            nightCountEl.textContent = result.periodCounts.noite || 0;
-                        }
-                        
-                        // Atualiza total de ocorrências
-                        if (result.totalOccurrences !== undefined) {
-                            totalOccurrencesEl.textContent = result.totalOccurrences;
-                        }
-                        
-                        // Atualiza total de professores únicos
-                        if (result.uniqueProfessors !== undefined) {
-                            totalTeachersEl.textContent = result.uniqueProfessors;
-                        }
-                    } else {
-                        console.error('Erro ao carregar estatísticas:', result?.message || 'Resposta inválida');
-                    }
-                } catch (error) {
-                    console.error('Erro ao carregar estatísticas:', error);
-                }
-            }
-
-            /**
-             * Carrega os últimos registros
-             */
-            async function loadRecentOccurrences() {
-                try {
-                    // Mostra loading
-                    refreshIcon.classList.add('fa-spin');
-                    
-                    const result = await makeGetRequest({ 
-                        action: 'getRecentOccurrences', 
-                        limit: 10 
-                    });
-                    
-                    if (result && result.status === 'success') {
-                        allRegistros = result.occurrences || [];
-                        filteredRegistros = [...allRegistros];
-                        updateRegistrosList();
-                        updateRegistrosCount();
-                    } else {
-                        console.error('Erro ao carregar registros:', result?.message || 'Resposta inválida');
-                        showRegistrosError('Erro ao carregar registros: ' + (result?.message || 'Resposta inválida'));
-                    }
-                } catch (error) {
-                    console.error('Erro ao carregar registros:', error);
-                    showRegistrosError('Erro ao conectar com o servidor');
-                } finally {
-                    // Remove loading
-                    refreshIcon.classList.remove('fa-spin');
-                }
-            }
-
-            // =========================================================================
-            // FUNÇÕES DE INICIALIZAÇÃO
-            // =========================================================================
-
-            /**
-             * Inicializa o sistema
-             */
-            async function initialize() {
-                console.log('Inicializando sistema...');
-                
-                // Configura data padrão
-                setDefaultDate();
-                
-                // Popula lista de professores
-                populateTeachers();
-                
-                // Carrega dados iniciais
-                await Promise.all([
-                    loadClasses(),
-                    fetchAllData(),
-                    fetchStatistics(),
-                    loadRecentOccurrences()
-                ]);
-                
-                // Configura event listeners
-                setupEventListeners();
-                
-                // Inicia atualização automática
-                startAutoRefresh();
-                
-                console.log('Sistema inicializado com sucesso!');
-            }
-
-            /**
-             * Define a data padrão como hoje
-             */
-            function setDefaultDate() {
-                const today = new Date();
-                const formattedDate = today.toISOString().split('T')[0];
-                document.getElementById('occurrenceDate').value = formattedDate;
-            }
-
-            /**
-             * Popula a lista de professores
-             */
-            function populateTeachers() {
-                professorSelect.innerHTML = '<option value="">Selecione seu nome</option>';
-                
-                Object.keys(teacherEmails).sort().forEach(teacherName => {
-                    const option = document.createElement('option');
-                    option.value = teacherName;
-                    option.textContent = teacherName;
-                    professorSelect.appendChild(option);
-                });
-                
-                totalTeachersEl.textContent = Object.keys(teacherEmails).length;
-            }
-
-            /**
-             * Configura todos os event listeners
-             */
-            function setupEventListeners() {
-                // Event listeners do formulário
-                form.addEventListener('submit', handleFormSubmit);
-                clearBtn.addEventListener('click', clearForm);
-                classSelect.addEventListener('change', handleClassChange);
-                
-                // Event listeners dos registros
-                refreshRegistrosBtn.addEventListener('click', loadRecentOccurrences);
-                searchRegistros.addEventListener('input', handleSearchRegistros);
-                
-                // Event listener da notificação
-                notificationClose.addEventListener('click', () => {
-                    notification.classList.remove('show');
-                });
-                
-                // Auto-hide da notificação
-                notification.addEventListener('click', (e) => {
-                    if (e.target === notification) {
-                        notification.classList.remove('show');
-                    }
-                });
-            }
-
-            // =========================================================================
-            // FUNÇÕES DOS ÚLTIMOS REGISTROS
-            // =========================================================================
-
-            /**
-             * Atualiza a lista de registros na interface
-             */
             function updateRegistrosList() {
                 if (filteredRegistros.length === 0) {
                     registrosList.innerHTML = `
@@ -1605,16 +1610,10 @@
                 registrosList.innerHTML = registrosHTML;
             }
 
-            /**
-             * Atualiza o contador de registros
-             */
             function updateRegistrosCount() {
                 registrosCount.textContent = `(${filteredRegistros.length})`;
             }
 
-            /**
-             * Mostra erro nos registros
-             */
             function showRegistrosError(message) {
                 registrosList.innerHTML = `
                     <div class="registros-empty">
@@ -1624,52 +1623,16 @@
                 `;
             }
 
-            /**
-             * Manipula a busca nos registros
-             */
-            function handleSearchRegistros() {
-                const searchTerm = searchRegistros.value.toLowerCase().trim();
-                
-                if (searchTerm === '') {
-                    filteredRegistros = [...allRegistros];
-                } else {
-                    filteredRegistros = allRegistros.filter(registro => 
-                        registro.student.toLowerCase().includes(searchTerm) ||
-                        registro.professor.toLowerCase().includes(searchTerm) ||
-                        registro.class.toLowerCase().includes(searchTerm) ||
-                        (registro.irregularities && registro.irregularities.toLowerCase().includes(searchTerm)) ||
-                        (registro.description && registro.description.toLowerCase().includes(searchTerm))
-                    );
-                }
-                
-                updateRegistrosList();
-                updateRegistrosCount();
-            }
-
-            /**
-             * Inicia atualização automática dos registros
-             */
-            function startAutoRefresh() {
-                // Atualiza a cada 30 segundos
-                autoRefreshInterval = setInterval(() => {
-                    loadRecentOccurrences();
-                }, 30000);
-            }
-
-            /**
-             * Para a atualização automática
-             */
-            function stopAutoRefresh() {
-                if (autoRefreshInterval) {
-                    clearInterval(autoRefreshInterval);
-                    autoRefreshInterval = null;
-                }
+            function showNotification(type, message) {
+                notification.className = `notification ${type}`;
+                notificationIcon.className = type === 'success' ? 'icon fas fa-check-circle' : 'icon fas fa-exclamation-circle';
+                notificationContent.textContent = message;
+                notification.classList.add('show');
             }
 
             // =========================================================================
             // MANIPULADORES DE EVENTOS
             // =========================================================================
-
             function handleClassChange() {
                 const selectedClass = classSelect.value;
                 if (selectedClass) {
@@ -1677,6 +1640,7 @@
                 } else {
                     studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
                     studentSelect.disabled = true;
+                    classStudentCount.classList.remove('show');
                 }
             }
 
@@ -1700,28 +1664,12 @@
                     }
                     
                     // Envia os dados para o backend
-                    const payload = {
-                        action: 'addOccurrence',
-                        date: formData.date,
-                        professor: formData.professor,
-                        class: formData.class,
-                        student: formData.student,
-                        irregularities: formData.irregularities,
-                        description: formData.description
-                    };
-                    
-                    const result = await makePostRequest(payload);
+                    const result = await makePostRequest(formData);
                     
                     if (result && result.status === 'success') {
                         showNotification('success', result.message || 'Ocorrência registrada com sucesso!');
                         clearForm();
-                        
-                        // Atualiza todos os dados
-                        await Promise.all([
-                            fetchAllData(),
-                            fetchStatistics(),
-                            loadRecentOccurrences()
-                        ]);
+                        loadInitialData(); // Recarrega todos os dados
                     } else {
                         showNotification('error', result.message || 'Erro ao registrar ocorrência');
                     }
@@ -1736,22 +1684,40 @@
                 }
             }
 
+            function handleSearchRegistros() {
+                const searchTerm = searchRegistros.value.toLowerCase().trim();
+                
+                if (searchTerm === '') {
+                    filteredRegistros = [...allRegistros];
+                } else {
+                    filteredRegistros = allRegistros.filter(registro => 
+                        registro.student.toLowerCase().includes(searchTerm) ||
+                        registro.professor.toLowerCase().includes(searchTerm) ||
+                        registro.class.toLowerCase().includes(searchTerm) ||
+                        (registro.irregularities && registro.irregularities.toLowerCase().includes(searchTerm)) ||
+                        (registro.description && registro.description.toLowerCase().includes(searchTerm))
+                    );
+                }
+                
+                updateRegistrosList();
+                updateRegistrosCount();
+            }
+
             // =========================================================================
             // FUNÇÕES AUXILIARES
             // =========================================================================
-
             function collectFormData() {
                 const irregularities = Array.from(document.querySelectorAll('input[name="irregularity"]:checked'))
                     .map(checkbox => checkbox.value)
                     .join(', ');
 
                 return {
-                    date: document.getElementById('occurrenceDate').value,
-                    professor: document.getElementById('professor').value,
-                    class: document.getElementById('studentClass').value,
-                    student: document.getElementById('student').value,
+                    date: occurrenceDateInput.value,
+                    professor: professorSelect.value,
+                    class: classSelect.value,
+                    student: studentSelect.value,
                     irregularities: irregularities,
-                    description: document.getElementById('description').value
+                    description: descriptionTextarea.value
                 };
             }
 
@@ -1782,47 +1748,22 @@
                 form.reset();
                 studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
                 studentSelect.disabled = true;
+                classStudentCount.classList.remove('show');
                 setDefaultDate();
             }
 
-            function updateDashboard(occurrences) {
-                if (!Array.isArray(occurrences)) {
-                    occurrences = [];
-                }
-                
-                totalOccurrencesEl.textContent = occurrences.length;
-                
-                // Conta ocorrências por período
-                let morningCount = 0;
-                let afternoonCount = 0;
-                let nightCount = 0;
-                
-                occurrences.forEach(occurrence => {
-                    const className = String(occurrence[2] || '').toUpperCase();
-                    if (className.includes('MANHA')) {
-                        morningCount++;
-                    } else if (className.includes('TARDE')) {
-                        afternoonCount++;
-                    } else if (className.includes('NOITE')) {
-                        nightCount++;
-                    }
-                });
-                
-                morningCountEl.textContent = morningCount;
-                afternoonCountEl.textContent = afternoonCount;
-                nightCountEl.textContent = nightCount;
+            function startAutoRefresh() {
+                // Atualiza a cada 30 segundos
+                autoRefreshInterval = setInterval(() => {
+                    loadRecentOccurrences();
+                }, 30000);
             }
 
-            function showNotification(type, message) {
-                notification.className = `notification ${type}`;
-                notificationIcon.className = type === 'success' ? 'icon fas fa-check-circle' : 'icon fas fa-exclamation-circle';
-                notificationContent.textContent = message;
-                notification.classList.add('show');
-                
-                // Remove automaticamente após 5 segundos
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                }, 5000);
+            function stopAutoRefresh() {
+                if (autoRefreshInterval) {
+                    clearInterval(autoRefreshInterval);
+                    autoRefreshInterval = null;
+                }
             }
 
             // =========================================================================
@@ -1840,5 +1781,3 @@
     </script>
 </body>
 </html>
-
-Corrigir e preservar funcionalidades HTML/CSS/JS e Backend - Manus
