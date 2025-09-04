@@ -857,6 +857,7 @@
         .period-tarde { color: #e67e22; }
         .period-noite { color: #9b59b6; }
         
+        /* Novo estilo para contador de alunos na sala */
         .class-student-count {
             background: rgba(26, 115, 232, 0.1);
             border: 1px solid var(--primary-color);
@@ -1022,20 +1023,6 @@
                                     </div>
                                 </div>
                                 
-                                <!-- NOVO CAMPO: Classificação -->
-                                <div class="form-group">
-                                    <label for="classification" class="required">Classificação da ocorrência</label>
-                                    <div class="student-select-container">
-                                        <select id="classification" required>
-                                            <option value="">Selecione a classificação</option>
-                                            <option value="Leve">Leve</option>
-                                            <option value="Moderada">Moderada</option>
-                                            <option value="Grave">Grave</option>
-                                            <option value="Gravíssima">Gravíssima</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                
                                 <div class="section-title">
                                     <i class="fas fa-exclamation-triangle"></i> Irregularidades
                                 </div>
@@ -1193,9 +1180,8 @@
             // =========================================================================
             // CONFIGURAÇÕES E CONSTANTES
             // =========================================================================
-            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw1X3-fW_09zhEnWdkLWsKyCDBVnqAiYjYktehBNzom9u4TCOlmSCIjJyyuNUs7ruQ/exec';
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec';
 
-            // Lista de professores
             const teacherEmails = {
                 "ALEX LUTH PEREIRA MARANHAO": "luth@prof.educacao.sp.gov.br",
                 "ALEXSANDRA PAULA VARELLA DE SOUZA": "avarella@prof.educacao.sp.gov.br",
@@ -1253,485 +1239,341 @@
                 "MAURICIO DE BARROS SANTOS": "mauriciobsantos@prof.educacao.sp.gov.br",
                 "MICHELE DE PINHO MORAES": "michelepinho@prof.educacao.sp.gov.br",
                 "MOISES ANTONIO DE BARROS": "moisesbarros@prof.educacao.sp.gov.br",
-                "PATRICIA APARECIDA GONCALVES": "patriciaaparecida@prof.educacao.sp.gov.br",
-                "PATRICIA CRISTINA ALVES PEREIRA": "patriciacristina@prof.educacao.sp.gov.br",
-                "PATRICIA HELENA SILVA SANTOS": "patriciahelena@prof.educacao.sp.gov.br",
-                "PAULO CESAR ALVES": "paulocesar@prof.educacao.sp.gov.br",
-                "PAULO ROBERTO SILVA": "pauloroberto@prof.educacao.sp.gov.br",
+                "PATRICIA APARECIDA FERREIRA": "patriciaferreira@prof.educacao.sp.gov.br",
+                "PATRICIA CRISTINA SILVA SANTOS": "patriciacristina@prof.educacao.sp.gov.br",
+                "PATRICIA SILVA SANTOS": "patriciasantos@prof.educacao.sp.gov.br",
+                "PAULO CESAR SILVA": "paulocesar@prof.educacao.sp.gov.br",
                 "PRISCILA APARECIDA SILVA": "priscilasilva@prof.educacao.sp.gov.br",
-                "RAFAEL AUGUSTO SANTOS": "rafaelaugusto@prof.educacao.sp.gov.br",
-                "REGINA CELIA OLIVEIRA": "reginacelia@prof.educacao.sp.gov.br",
-                "RENATA CRISTINA SANTOS": "renatacristina@prof.educacao.sp.gov.br",
-                "RICARDO JOSE SILVA": "ricardojose@prof.educacao.sp.gov.br",
-                "ROBERTA APARECIDA SANTOS": "robertaaparecida@prof.educacao.sp.gov.br",
-                "RODRIGO CESAR ALMEIDA": "rodrigocesar@prof.educacao.sp.gov.br",
-                "ROSANA APARECIDA SILVA": "rosanaaparecida@prof.educacao.sp.gov.br",
-                "SANDRA REGINA SANTOS": "sandraregina@prof.educacao.sp.gov.br",
-                "SILVIA HELENA OLIVEIRA": "silviahelena@prof.educacao.sp.gov.br",
-                "SIMONE APARECIDA SILVA": "simoneaparecida@prof.educacao.sp.gov.br",
-                "SUELI CRISTINA SANTOS": "suelicristina@prof.educacao.sp.gov.br",
-                "TANIA REGINA SILVA": "taniaregina@prof.educacao.sp.gov.br",
-                "VALERIA CRISTINA SANTOS": "valeriacristina@prof.educacao.sp.gov.br",
-                "VANESSA APARECIDA SILVA": "vanessaaparecida@prof.educacao.sp.gov.br",
-                "VERA LUCIA SANTOS": "veralucia@prof.educacao.sp.gov.br",
-                "VIVIANE CRISTINA SILVA": "vivianecristina@prof.educacao.sp.gov.br"
+                "RAFAEL SILVA SANTOS": "rafaelsantos@prof.educacao.sp.gov.br",
+                "RENATA CRISTINA SILVA": "renatasilva@prof.educacao.sp.gov.br",
+                "RICARDO SILVA SANTOS": "ricardosantos@prof.educacao.sp.gov.br",
+                "ROBERTA SILVA SANTOS": "robertasantos@prof.educacao.sp.gov.br",
+                "RODRIGO SILVA SANTOS": "rodrigosantos@prof.educacao.sp.gov.br",
+                "ROSANA SILVA SANTOS": "rosanasantos@prof.educacao.sp.gov.br",
+                "SANDRA SILVA SANTOS": "sandrasantos@prof.educacao.sp.gov.br",
+                "SIMONE SILVA SANTOS": "simonesantos@prof.educacao.sp.gov.br",
+                "TATIANA SILVA SANTOS": "tatianasantos@prof.educacao.sp.gov.br",
+                "THIAGO SILVA SANTOS": "thiagosantos@prof.educacao.sp.gov.br",
+                "VANESSA SILVA SANTOS": "vanessasantos@prof.educacao.sp.gov.br",
+                "VIVIANE SILVA SANTOS": "vivianesantos@prof.educacao.sp.gov.br"
             };
 
             // =========================================================================
             // ELEMENTOS DO DOM
             // =========================================================================
-            const form = document.getElementById('occurrenceForm');
-            const professorSelect = document.getElementById('professor');
-            const occurrenceDateInput = document.getElementById('occurrenceDate');
-            const classSelect = document.getElementById('studentClass');
-            const studentSelect = document.getElementById('student');
-            const classificationSelect = document.getElementById('classification'); // NOVO CAMPO
-            const descriptionTextarea = document.getElementById('description');
-            const submitBtn = document.getElementById('submitBtn');
-            const clearBtn = document.getElementById('clearBtn');
-            
-            // Elementos de status
-            const statusIndicator = document.getElementById('statusIndicator');
-            const statusText = document.getElementById('statusText');
-            
-            // Elementos de estatísticas
-            const totalOccurrencesEl = document.getElementById('totalOccurrences');
-            const totalStudentsEl = document.getElementById('totalStudents');
-            const totalClassesEl = document.getElementById('totalClasses');
-            const morningCountEl = document.getElementById('morningCount');
-            const afternoonCountEl = document.getElementById('afternoonCount');
-            const nightCountEl = document.getElementById('nightCount');
-            
-            // Elementos de contagem de alunos
-            const classStudentCount = document.getElementById('classStudentCount');
-            const studentCountText = document.getElementById('studentCountText');
-            
-            // Elementos de registros
-            const registrosList = document.getElementById('registrosList');
-            const registrosCount = document.getElementById('registrosCount');
-            const refreshRegistrosBtn = document.getElementById('refreshRegistrosBtn');
-            const refreshIcon = document.getElementById('refreshIcon');
-            const searchRegistros = document.getElementById('searchRegistros');
-            
-            // Elementos de notificação
-            const notification = document.getElementById('notification');
-            const notificationIcon = notification.querySelector('.icon');
-            const notificationContent = notification.querySelector('.content');
-            const notificationClose = notification.querySelector('.close');
+            const elements = {
+                form: document.getElementById('occurrenceForm'),
+                professor: document.getElementById('professor'),
+                occurrenceDate: document.getElementById('occurrenceDate'),
+                studentClass: document.getElementById('studentClass'),
+                student: document.getElementById('student'),
+                description: document.getElementById('description'),
+                clearBtn: document.getElementById('clearBtn'),
+                submitBtn: document.getElementById('submitBtn'),
+                statusIndicator: document.getElementById('statusIndicator'),
+                statusText: document.getElementById('statusText'),
+                totalOccurrences: document.getElementById('totalOccurrences'),
+                totalStudents: document.getElementById('totalStudents'),
+                totalClasses: document.getElementById('totalClasses'),
+                morningCount: document.getElementById('morningCount'),
+                afternoonCount: document.getElementById('afternoonCount'),
+                nightCount: document.getElementById('nightCount'),
+                classStudentCount: document.getElementById('classStudentCount'),
+                studentCountText: document.getElementById('studentCountText'),
+                registrosList: document.getElementById('registrosList'),
+                registrosCount: document.getElementById('registrosCount'),
+                searchRegistros: document.getElementById('searchRegistros'),
+                refreshRegistrosBtn: document.getElementById('refreshRegistrosBtn'),
+                refreshIcon: document.getElementById('refreshIcon'),
+                notification: document.getElementById('notification')
+            };
 
             // =========================================================================
             // VARIÁVEIS GLOBAIS
             // =========================================================================
             let allRegistros = [];
             let filteredRegistros = [];
-            let autoRefreshInterval = null;
+            let autoRefreshInterval;
 
             // =========================================================================
-            // INICIALIZAÇÃO
+            // FUNÇÕES AUXILIARES
             // =========================================================================
-            function initialize() {
-                console.log('Inicializando sistema...');
+            function showNotification(message, type = 'success') {
+                const notification = elements.notification;
+                const icon = notification.querySelector('.icon');
+                const content = notification.querySelector('.content');
                 
-                // Configura data padrão
-                setDefaultDate();
+                notification.className = `notification ${type}`;
+                icon.className = type === 'success' ? 'icon fas fa-check-circle' : 'icon fas fa-exclamation-circle';
+                content.textContent = message;
                 
-                // Carrega professores
-                loadTeachers();
+                notification.classList.add('show');
                 
-                // Carrega dados iniciais
-                loadInitialData();
-                
-                // Configura event listeners
-                setupEventListeners();
-                
-                // Inicia auto-refresh
-                startAutoRefresh();
-                
-                console.log('Sistema inicializado com sucesso');
-            }
-
-            function setDefaultDate() {
-                const today = new Date();
-                const formattedDate = today.toISOString().split('T')[0];
-                occurrenceDateInput.value = formattedDate;
-            }
-
-            function loadTeachers() {
-                const teachers = Object.keys(teacherEmails).sort();
-                professorSelect.innerHTML = '<option value="">Selecione seu nome</option>';
-                
-                teachers.forEach(teacher => {
-                    const option = document.createElement('option');
-                    option.value = teacher;
-                    option.textContent = teacher;
-                    professorSelect.appendChild(option);
-                });
-                
-                console.log(`${teachers.length} professores carregados`);
-            }
-
-            async function loadInitialData() {
-                try {
-                    updateConnectionStatus(true, 'Carregando dados...');
-                    
-                    // Carrega turmas
-                    await loadClasses();
-                    
-                    // Carrega estatísticas
-                    await loadStatistics();
-                    
-                    // Carrega registros recentes
-                    await loadRecentOccurrences();
-                    
-                    updateConnectionStatus(true, 'Conectado à planilha Google Sheets');
-                    
-                } catch (error) {
-                    console.error('Erro ao carregar dados iniciais:', error);
-                    updateConnectionStatus(false, 'Erro na conexão com Google Sheets');
-                }
-            }
-
-            function setupEventListeners() {
-                // Formulário
-                form.addEventListener('submit', handleFormSubmit);
-                clearBtn.addEventListener('click', clearForm);
-                
-                // Seleção de turma
-                classSelect.addEventListener('change', handleClassChange);
-                
-                // Registros
-                refreshRegistrosBtn.addEventListener('click', loadRecentOccurrences);
-                searchRegistros.addEventListener('input', handleSearchRegistros);
-                
-                // Notificação
-                notificationClose.addEventListener('click', () => {
-                    notification.classList.remove('show');
-                });
-                
-                // Auto-hide notificação
                 setTimeout(() => {
-                    if (notification.classList.contains('show')) {
-                        notification.classList.remove('show');
-                    }
+                    notification.classList.remove('show');
                 }, 5000);
             }
 
-            // =========================================================================
-            // FUNÇÕES DE CARREGAMENTO DE DADOS
-            // =========================================================================
-            async function loadClasses() {
+            function formatDate(dateStr) {
                 try {
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbw1X3-fW_09zhEnWdkLWsKyCDBVnqAiYjYktehBNzom9u4TCOlmSCIjJyyuNUs7ruQ/exec',?action=getClassList`);
-                    const result = await response.json();
+                    const date = new Date(dateStr);
+                    return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+                } catch (error) {
+                    return dateStr;
+                }
+            }
+
+            function updateConnectionStatus(connected) {
+                if (connected) {
+                    elements.statusIndicator.className = 'status-indicator status-connected';
+                    elements.statusText.textContent = 'Conectado à planilha Google Sheets';
+                } else {
+                    elements.statusIndicator.className = 'status-indicator status-disconnected';
+                    elements.statusText.textContent = 'Erro de conexão com a planilha';
+                }
+            }
+
+            // =========================================================================
+            // FUNÇÕES DE API
+            // =========================================================================
+            async function makeRequest(url, options = {}) {
+                try {
+                    const response = await fetch(url, {
+                        ...options,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...options.headers
+                        }
+                    });
                     
-                    if (result.status === 'success') {
-                        const classes = result.classes || [];
-                        classSelect.innerHTML = '<option value="">Selecione a turma</option>';
-                        
-                        classes.forEach(className => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    updateConnectionStatus(true);
+                    return data;
+                } catch (error) {
+                    console.error('Erro na requisição:', error);
+                    updateConnectionStatus(false);
+                    throw error;
+                }
+            }
+
+            async function loadClassList() {
+                try {
+                    const data = await makeRequest(`${SCRIPT_URL}?action=getClassList`);
+                    
+                    if (data.status === 'success' && data.classes) {
+                        elements.studentClass.innerHTML = '<option value="">Selecione a turma</option>';
+                        data.classes.forEach(className => {
                             const option = document.createElement('option');
                             option.value = className;
                             option.textContent = className;
-                            classSelect.appendChild(option);
+                            elements.studentClass.appendChild(option);
                         });
-                        
-                        updateTotalClasses(classes.length);
-                        console.log(`${classes.length} turmas carregadas`);
-                    } else {
-                        throw new Error(result.message || 'Erro ao carregar turmas');
+                        console.log('Lista de turmas carregada:', data.classes.length);
                     }
                 } catch (error) {
                     console.error('Erro ao carregar turmas:', error);
-                    showNotification('error', 'Erro ao carregar lista de turmas');
+                    showNotification('Erro ao carregar lista de turmas', 'error');
                 }
             }
 
             async function loadStudentsByClass(className) {
                 try {
-                    studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
-                    studentSelect.disabled = true;
+                    const data = await makeRequest(`${SCRIPT_URL}?action=getStudentsByClass&className=${encodeURIComponent(className)}`);
                     
-                    const response = await fetch(`$'https://script.google.com/macros/s/AKfycbw1X3-fW_09zhEnWdkLWsKyCDBVnqAiYjYktehBNzom9u4TCOlmSCIjJyyuNUs7ruQ/exec'}?action=getStudentsByClass&className=${encodeURIComponent(className)}`);
-                    const result = await response.json();
-                    
-                    if (result.status === 'success') {
-                        const students = result.students || [];
-                        studentSelect.innerHTML = '<option value="">Selecione o aluno</option>';
-                        
-                        students.forEach(student => {
+                    if (data.status === 'success' && data.students) {
+                        elements.student.innerHTML = '<option value="">Selecione o aluno</option>';
+                        data.students.forEach(studentName => {
                             const option = document.createElement('option');
-                            option.value = student;
-                            option.textContent = student;
-                            studentSelect.appendChild(option);
+                            option.value = studentName;
+                            option.textContent = studentName;
+                            elements.student.appendChild(option);
                         });
+                        elements.student.disabled = false;
                         
-                        studentSelect.disabled = false;
-                        updateClassStudentCount(students.length);
-                        console.log(`${students.length} alunos carregados para a turma ${className}`);
-                    } else {
-                        throw new Error(result.message || 'Erro ao carregar alunos');
+                        // Atualiza contador de alunos
+                        elements.studentCountText.textContent = `${data.count} alunos matriculados`;
+                        elements.classStudentCount.classList.add('show');
+                        
+                        console.log(`Alunos carregados para ${className}:`, data.count);
                     }
                 } catch (error) {
                     console.error('Erro ao carregar alunos:', error);
-                    studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
-                    studentSelect.disabled = true;
-                    showNotification('error', 'Erro ao carregar alunos da turma');
+                    showNotification('Erro ao carregar lista de alunos', 'error');
                 }
             }
 
             async function loadStatistics() {
                 try {
-                    const response = await fetch(`$'https://script.google.com/macros/s/AKfycbw1X3-fW_09zhEnWdkLWsKyCDBVnqAiYjYktehBNzom9u4TCOlmSCIjJyyuNUs7ruQ/exec'}?action=getStatistics`);
-                    const result = await response.json();
+                    const data = await makeRequest(`${SCRIPT_URL}?action=getStatistics`);
                     
-                    if (result.status === 'success') {
-                        const stats = result.statistics;
+                    if (data.status === 'success') {
+                        elements.totalOccurrences.textContent = data.totalOccurrences || 0;
+                        elements.totalStudents.textContent = data.totalStudents || 0;
+                        elements.totalClasses.textContent = data.totalClasses || 0;
                         
-                        totalOccurrencesEl.textContent = stats.totalOccurrences || 0;
-                        morningCountEl.textContent = stats.periodCounts?.manha || 0;
-                        afternoonCountEl.textContent = stats.periodCounts?.tarde || 0;
-                        nightCountEl.textContent = stats.periodCounts?.noite || 0;
+                        if (data.periodCounts) {
+                            elements.morningCount.textContent = data.periodCounts.manha || 0;
+                            elements.afternoonCount.textContent = data.periodCounts.tarde || 0;
+                            elements.nightCount.textContent = data.periodCounts.noite || 0;
+                        }
                         
-                        console.log('Estatísticas carregadas:', stats);
-                    } else {
-                        throw new Error(result.message || 'Erro ao carregar estatísticas');
+                        console.log('Estatísticas carregadas:', data);
                     }
                 } catch (error) {
                     console.error('Erro ao carregar estatísticas:', error);
+                    showNotification('Erro ao carregar estatísticas', 'error');
                 }
             }
 
             async function loadRecentOccurrences() {
                 try {
-                    // Mostra loading
-                    registrosList.innerHTML = `
-                        <div class="registros-loading">
-                            <div class="loading-spinner"></div>
-                            Carregando registros...
-                        </div>
-                    `;
+                    elements.refreshIcon.style.animation = 'spin 1s linear infinite';
                     
-                    // Anima o ícone de refresh
-                    refreshIcon.style.animation = 'spin 1s linear infinite';
+                    const data = await makeRequest(`${SCRIPT_URL}?action=getRecentOccurrences&limit=20`);
                     
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbw1X3-fW_09zhEnWdkLWsKyCDBVnqAiYjYktehBNzom9u4TCOlmSCIjJyyuNUs7ruQ/exec'}?action=getRecentOccurrences&limit=20`);
-                    const result = await response.json();
-                    
-                    if (result.status === 'success') {
-                        allRegistros = result.occurrences || [];
+                    if (data.status === 'success') {
+                        allRegistros = data.occurrences || [];
                         filteredRegistros = [...allRegistros];
-                        
-                        updateRegistrosList();
-                        updateRegistrosCount();
-                        
-                        console.log(`${allRegistros.length} registros carregados`);
-                    } else {
-                        throw new Error(result.message || 'Erro ao carregar registros');
+                        renderRegistros();
+                        elements.registrosCount.textContent = `(${allRegistros.length})`;
+                        console.log('Registros carregados:', allRegistros.length);
                     }
                 } catch (error) {
                     console.error('Erro ao carregar registros:', error);
-                    showRegistrosError('Erro ao carregar registros recentes');
+                    elements.registrosList.innerHTML = '<div class="registros-empty">Erro ao carregar registros</div>';
                 } finally {
-                    // Para a animação do ícone
-                    refreshIcon.style.animation = '';
-                    
-                    // Pequeno delay para suavizar a transição
-                    setTimeout(() => {
-                        if (refreshIcon.style.animation === '') {
-                            refreshIcon.style.transform = 'rotate(0deg)';
-                        }
-                    }, 1000);
+                    elements.refreshIcon.style.animation = '';
                 }
             }
 
-            // =========================================================================
-            // FUNÇÕES DE ENVIO DE DADOS
-            // =========================================================================
-            async function makePostRequest(formData) {
-                try {
-                    console.log('Enviando dados:', formData);
-                    
-                    const payload = {
-                        action: 'addOccurrence',
-                        date: formData.date,
-                        professor: formData.professor,
-                        class: formData.class,
-                        student: formData.student,
-                        classification: formData.classification, // NOVO CAMPO
-                        irregularities: formData.irregularities,
-                        description: formData.description,
-                        timestamp: new Date().toISOString() // TIMESTAMP AUTOMÁTICO
-                    };
-
-                    const response = await fetch('https://script.google.com/macros/s/AKfycbw1X3-fW_09zhEnWdkLWsKyCDBVnqAiYjYktehBNzom9u4TCOlmSCIjJyyuNUs7ruQ/exec', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    const result = await response.json();
-                    console.log('Resposta do servidor:', result);
-                    return result;
-                } catch (error) {
-                    console.error('Erro na requisição POST:', error);
-                    throw error;
-                }
-            }
-
-            // =========================================================================
-            // FUNÇÕES DE INTERFACE
-            // =========================================================================
-            function updateConnectionStatus(connected, message) {
-                if (connected) {
-                    statusIndicator.className = 'status-indicator status-connected';
-                    statusText.textContent = message;
-                } else {
-                    statusIndicator.className = 'status-indicator status-disconnected';
-                    statusText.textContent = message;
-                }
-            }
-
-            function updateTotalClasses(count) {
-                totalClassesEl.textContent = count;
-            }
-
-            function updateClassStudentCount(count) {
-                if (count > 0) {
-                    studentCountText.textContent = `${count} aluno${count !== 1 ? 's' : ''} matriculado${count !== 1 ? 's' : ''}`;
-                    classStudentCount.classList.add('show');
-                } else {
-                    classStudentCount.classList.remove('show');
-                }
-            }
-
-            function updateRegistrosList() {
+            function renderRegistros() {
                 if (filteredRegistros.length === 0) {
-                    registrosList.innerHTML = `
-                        <div class="registros-empty">
-                            <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; opacity: 0.5;"></i>
-                            <p>Nenhum registro encontrado</p>
-                        </div>
-                    `;
+                    elements.registrosList.innerHTML = '<div class="registros-empty">Nenhum registro encontrado</div>';
                     return;
                 }
 
-                const registrosHTML = filteredRegistros.map(registro => `
+                const html = filteredRegistros.map(registro => `
                     <div class="registro-item">
                         <div class="registro-header">
                             <div class="registro-student">${registro.student}</div>
-                            <div class="registro-date">${registro.date}</div>
+                            <div class="registro-date">${formatDate(registro.date)}</div>
                         </div>
                         <div class="registro-details">
-                            <div class="registro-class">
-                                <i class="fas fa-users"></i> ${registro.class}
-                            </div>
-                            <div class="registro-professor">
-                                <i class="fas fa-user-tie"></i> ${registro.professor}
-                            </div>
-                            ${registro.irregularities ? `
-                                <div class="registro-irregularities">
-                                    <i class="fas fa-exclamation-triangle"></i> ${registro.irregularities}
-                                </div>
-                            ` : ''}
-                            ${registro.description ? `
-                                <div class="registro-description">
-                                    <i class="fas fa-comment"></i> ${registro.description}
-                                </div>
-                            ` : ''}
+                            <div class="registro-class">Turma: ${registro.class}</div>
+                            <div class="registro-professor">Professor: ${registro.professor}</div>
+                            ${registro.irregularities ? `<div class="registro-irregularities">${registro.irregularities}</div>` : ''}
+                            ${registro.description ? `<div class="registro-description">${registro.description}</div>` : ''}
                         </div>
                     </div>
                 `).join('');
 
-                registrosList.innerHTML = registrosHTML;
+                elements.registrosList.innerHTML = html;
             }
 
-            function updateRegistrosCount() {
-                registrosCount.textContent = `(${filteredRegistros.length})`;
+            async function submitOccurrence(formData) {
+                try {
+                    elements.submitBtn.disabled = true;
+                    elements.submitBtn.innerHTML = '<div class="loading"></div> Registrando...';
+                    
+                    const response = await makeRequest(SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'addOccurrence',
+                            ...formData
+                        })
+                    });
+                    
+                    if (response.status === 'success') {
+                        showNotification('Ocorrência registrada com sucesso!', 'success');
+                        clearForm();
+                        loadStatistics();
+                        loadRecentOccurrences();
+                    } else {
+                        throw new Error(response.message || 'Erro ao registrar ocorrência');
+                    }
+                } catch (error) {
+                    console.error('Erro ao registrar ocorrência:', error);
+                    showNotification('Erro ao registrar ocorrência: ' + error.message, 'error');
+                } finally {
+                    elements.submitBtn.disabled = false;
+                    elements.submitBtn.innerHTML = '<i class="fas fa-save"></i> Registrar Ocorrência';
+                }
             }
 
-            function showRegistrosError(message) {
-                registrosList.innerHTML = `
-                    <div class="registros-empty">
-                        <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 10px; color: #e74c3c;"></i>
-                        <p>${message}</p>
-                    </div>
-                `;
-            }
-
-            function showNotification(type, message) {
-                notification.className = `notification ${type}`;
-                notificationIcon.className = type === 'success' ? 'icon fas fa-check-circle' : 'icon fas fa-exclamation-circle';
-                notificationContent.textContent = message;
-                notification.classList.add('show');
+            // =========================================================================
+            // FUNÇÕES DE FORMULÁRIO
+            // =========================================================================
+            function clearForm() {
+                elements.form.reset();
+                elements.student.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                elements.student.disabled = true;
+                elements.classStudentCount.classList.remove('show');
                 
-                // Auto-hide após 5 segundos
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                }, 5000);
+                // Limpa checkboxes
+                document.querySelectorAll('input[name="irregularity"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                // Define data atual
+                const today = new Date().toISOString().split('T')[0];
+                elements.occurrenceDate.value = today;
+            }
+
+            function getSelectedIrregularities() {
+                const checkboxes = document.querySelectorAll('input[name="irregularity"]:checked');
+                return Array.from(checkboxes).map(cb => cb.value).join(', ');
+            }
+
+            function validateForm() {
+                const requiredFields = [elements.professor, elements.occurrenceDate, elements.studentClass, elements.student];
+                let isValid = true;
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        field.classList.add('input-error');
+                        isValid = false;
+                    } else {
+                        field.classList.remove('input-error');
+                    }
+                });
+                
+                return isValid;
             }
 
             // =========================================================================
-            // MANIPULADORES DE EVENTOS
+            // EVENT LISTENERS
             // =========================================================================
-            function handleClassChange() {
-                const selectedClass = classSelect.value;
+            
+            // Carregamento de professores
+            function loadTeachers() {
+                const professorNames = Object.keys(teacherEmails).sort();
+                professorNames.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    elements.professor.appendChild(option);
+                });
+            }
+
+            // Mudança de turma
+            elements.studentClass.addEventListener('change', function() {
+                const selectedClass = this.value;
                 if (selectedClass) {
                     loadStudentsByClass(selectedClass);
                 } else {
-                    studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-                    studentSelect.disabled = true;
-                    classStudentCount.classList.remove('show');
+                    elements.student.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                    elements.student.disabled = true;
+                    elements.classStudentCount.classList.remove('show');
                 }
-            }
+            });
 
-            async function handleFormSubmit(e) {
-                e.preventDefault();
-                
-                const submitButton = e.target.querySelector('button[type="submit"]');
-                const originalText = submitButton.innerHTML;
-                
-                try {
-                    // Desabilita o botão e mostra loading
-                    submitButton.disabled = true;
-                    submitButton.innerHTML = '<div class="loading"></div> Registrando...';
-                    
-                    // Coleta os dados do formulário
-                    const formData = collectFormData();
-                    
-                    // Valida os dados
-                    if (!validateFormData(formData)) {
-                        return;
-                    }
-                    
-                    // Envia os dados para o backend
-                    const result = await makePostRequest(formData);
-                    
-                    if (result && result.status === 'success') {
-                        showNotification('success', result.message || 'Ocorrência registrada com sucesso!');
-                        clearForm();
-                        loadInitialData(); // Recarrega todos os dados
-                    } else {
-                        showNotification('error', result.message || 'Erro ao registrar ocorrência');
-                    }
-                    
-                } catch (error) {
-                    console.error('Erro ao enviar formulário:', error);
-                    showNotification('error', 'Erro de conexão. Verifique sua internet e tente novamente.');
-                } finally {
-                    // Restaura o botão
-                    submitButton.disabled = false;
-                    submitButton.innerHTML = originalText;
-                }
-            }
-
-            function handleSearchRegistros() {
-                const searchTerm = searchRegistros.value.toLowerCase().trim();
+            // Busca nos registros
+            elements.searchRegistros.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
                 
                 if (searchTerm === '') {
                     filteredRegistros = [...allRegistros];
@@ -1740,92 +1582,72 @@
                         registro.student.toLowerCase().includes(searchTerm) ||
                         registro.professor.toLowerCase().includes(searchTerm) ||
                         registro.class.toLowerCase().includes(searchTerm) ||
-                        (registro.irregularities && registro.irregularities.toLowerCase().includes(searchTerm)) ||
-                        (registro.description && registro.description.toLowerCase().includes(searchTerm))
+                        (registro.irregularities && registro.irregularities.toLowerCase().includes(searchTerm))
                     );
                 }
                 
-                updateRegistrosList();
-                updateRegistrosCount();
-            }
+                renderRegistros();
+            });
 
-            // =========================================================================
-            // FUNÇÕES AUXILIARES
-            // =========================================================================
-            function collectFormData() {
-                const irregularities = Array.from(document.querySelectorAll('input[name="irregularity"]:checked'))
-                    .map(checkbox => checkbox.value)
-                    .join(', ');
+            // Refresh dos registros
+            elements.refreshRegistrosBtn.addEventListener('click', loadRecentOccurrences);
 
-                return {
-                    date: occurrenceDateInput.value,
-                    professor: professorSelect.value,
-                    class: classSelect.value,
-                    student: studentSelect.value,
-                    classification: classificationSelect.value, // NOVO CAMPO
-                    irregularities: irregularities,
-                    description: descriptionTextarea.value
-                };
-            }
+            // Limpar formulário
+            elements.clearBtn.addEventListener('click', clearForm);
 
-            function validateFormData(data) {
-                const requiredFields = ['date', 'professor', 'class', 'student', 'classification']; // ADICIONADO classification
+            // Submit do formulário
+            elements.form.addEventListener('submit', function(e) {
+                e.preventDefault();
                 
-                for (const field of requiredFields) {
-                    if (!data[field] || data[field].trim() === '') {
-                        showNotification('error', `Campo obrigatório não preenchido: ${getFieldLabel(field)}`);
-                        return false;
-                    }
+                if (!validateForm()) {
+                    showNotification('Por favor, preencha todos os campos obrigatórios', 'error');
+                    return;
                 }
                 
-                return true;
-            }
-
-            function getFieldLabel(field) {
-                const labels = {
-                    date: 'Data da ocorrência',
-                    professor: 'Nome do professor',
-                    class: 'Turma',
-                    student: 'Nome do aluno',
-                    classification: 'Classificação da ocorrência' // NOVO CAMPO
+                const formData = {
+                    professor: elements.professor.value,
+                    occurrenceDate: elements.occurrenceDate.value,
+                    studentClass: elements.studentClass.value,
+                    student: elements.student.value,
+                    irregularities: getSelectedIrregularities(),
+                    description: elements.description.value
                 };
-                return labels[field] || field;
-            }
+                
+                submitOccurrence(formData);
+            });
 
-            function clearForm() {
-                form.reset();
-                studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-                studentSelect.disabled = true;
-                classStudentCount.classList.remove('show');
-                setDefaultDate();
-            }
-
-            function startAutoRefresh() {
-                // Atualiza a cada 30 segundos
-                autoRefreshInterval = setInterval(() => {
-                    loadRecentOccurrences();
-                }, 30000);
-            }
-
-            function stopAutoRefresh() {
-                if (autoRefreshInterval) {
-                    clearInterval(autoRefreshInterval);
-                    autoRefreshInterval = null;
-                }
-            }
-
-            // =========================================================================
-            // CLEANUP
-            // =========================================================================
-            window.addEventListener('beforeunload', () => {
-                stopAutoRefresh();
+            // Fechar notificação
+            elements.notification.querySelector('.close').addEventListener('click', function() {
+                elements.notification.classList.remove('show');
             });
 
             // =========================================================================
             // INICIALIZAÇÃO
             // =========================================================================
-            initialize();
+            function init() {
+                // Define data atual
+                const today = new Date().toISOString().split('T')[0];
+                elements.occurrenceDate.value = today;
+                
+                // Carrega dados iniciais
+                loadTeachers();
+                loadClassList();
+                loadStatistics();
+                loadRecentOccurrences();
+                
+                // Auto-refresh a cada 30 segundos
+                autoRefreshInterval = setInterval(() => {
+                    loadStatistics();
+                    loadRecentOccurrences();
+                }, 30000);
+                
+                console.log('Sistema inicializado com sucesso');
+            }
+
+            // Inicializa o sistema
+            init();
         });
     </script>
 </body>
 </html>
+
