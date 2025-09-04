@@ -1180,7 +1180,7 @@
             // =========================================================================
             // CONFIGURAÇÕES E CONSTANTES
             // =========================================================================
-            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec';
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwGAPwcT7eIkK73KJtAUxoPfzZSMSfyeZM_6lLGrInD96Dg1imPow1JzblqoauaKHgN/exec';
 
             const teacherEmails = {
                 "ALEX LUTH PEREIRA MARANHAO": "luth@prof.educacao.sp.gov.br",
@@ -1362,7 +1362,7 @@
 
             async function loadClassList() {
                 try {
-                    const data = await makeRequest(`${SCRIPT_URL}?action=getClassList`);
+                    const data = await makeRequest(`${'https://script.google.com/macros/s/AKfycbwGAPwcT7eIkK73KJtAUxoPfzZSMSfyeZM_6lLGrInD96Dg1imPow1JzblqoauaKHgN/exec'}?action=getClassList`);
                     
                     if (data.status === 'success' && data.classes) {
                         elements.studentClass.innerHTML = '<option value="">Selecione a turma</option>';
@@ -1382,7 +1382,7 @@
 
             async function loadStudentsByClass(className) {
                 try {
-                    const data = await makeRequest(`${SCRIPT_URL}?action=getStudentsByClass&className=${encodeURIComponent(className)}`);
+                    const data = await makeRequest(`${'https://script.google.com/macros/s/AKfycbwGAPwcT7eIkK73KJtAUxoPfzZSMSfyeZM_6lLGrInD96Dg1imPow1JzblqoauaKHgN/exec'}?action=getStudentsByClass&className=${encodeURIComponent(className)}`);
                     
                     if (data.status === 'success' && data.students) {
                         elements.student.innerHTML = '<option value="">Selecione o aluno</option>';
@@ -1408,7 +1408,7 @@
 
             async function loadStatistics() {
                 try {
-                    const data = await makeRequest(`${SCRIPT_URL}?action=getStatistics`);
+                    const data = await makeRequest(`${'https://script.google.com/macros/s/AKfycbwGAPwcT7eIkK73KJtAUxoPfzZSMSfyeZM_6lLGrInD96Dg1imPow1JzblqoauaKHgN/exec'}?action=getStatistics`);
                     
                     if (data.status === 'success') {
                         elements.totalOccurrences.textContent = data.totalOccurrences || 0;
@@ -1433,7 +1433,7 @@
                 try {
                     elements.refreshIcon.style.animation = 'spin 1s linear infinite';
                     
-                    const data = await makeRequest(`${SCRIPT_URL}?action=getRecentOccurrences&limit=20`);
+                    const data = await makeRequest(`${'https://script.google.com/macros/s/AKfycbwGAPwcT7eIkK73KJtAUxoPfzZSMSfyeZM_6lLGrInD96Dg1imPow1JzblqoauaKHgN/exec'}?action=getRecentOccurrences&limit=20`);
                     
                     if (data.status === 'success') {
                         allRegistros = data.occurrences || [];
@@ -1479,7 +1479,7 @@
                     elements.submitBtn.disabled = true;
                     elements.submitBtn.innerHTML = '<div class="loading"></div> Registrando...';
                     
-                    const response = await makeRequest(SCRIPT_URL, {
+                    const response = await makeRequest('https://script.google.com/macros/s/AKfycbwGAPwcT7eIkK73KJtAUxoPfzZSMSfyeZM_6lLGrInD96Dg1imPow1JzblqoauaKHgN/exec', {
                         method: 'POST',
                         body: JSON.stringify({
                             action: 'addOccurrence',
