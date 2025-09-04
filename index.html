@@ -1180,7 +1180,7 @@
             // =========================================================================
             // CONFIGURAÇÕES E CONSTANTES
             // =========================================================================
-            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzV9u2qu90NUXirG83JII-NqnnzR1hVLdr48tnQvw0YJzMBthoAHwrgYfnq9D8J5z23/exec';
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec';
 
             // =========================================================================
             // ELEMENTOS DO DOM
@@ -1271,7 +1271,7 @@
                 try {
                     updateConnectionStatus(true, 'Carregando dados...');
                     
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbzV9u2qu90NUXirG83JII-NqnnzR1hVLdr48tnQvw0YJzMBthoAHwrgYfnq9D8J5z23/exec'}?action=getAllData`);
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getAllData`);
                     
                     if (!response.ok) {
                         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
@@ -1340,7 +1340,7 @@
             
             async function loadStudentsByClass(className) {
                 try {
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbzV9u2qu90NUXirG83JII-NqnnzR1hVLdr48tnQvw0YJzMBthoAHwrgYfnq9D8J5z23/exec'}?action=getStudentsByClass&className=${encodeURIComponent(className)}`);
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getStudentsByClass&className=${encodeURIComponent(className)}`);
                     const result = await response.json();
                     
                     if (result.status === 'success') {
@@ -1396,7 +1396,7 @@
                         refreshIcon.style.animation = 'spin 1s linear infinite';
                     }
                     
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbzV9u2qu90NUXirG83JII-NqnnzR1hVLdr48tnQvw0YJzMBthoAHwrgYfnq9D8J5z23/exec'}?action=getRecentOccurrences&limit=20`);
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getRecentOccurrences&limit=20`);
                     const result = await response.json();
                     
                     if (result.status === 'success') {
