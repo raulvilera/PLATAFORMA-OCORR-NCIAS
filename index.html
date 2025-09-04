@@ -1274,7 +1274,7 @@
                     updateConnectionStatus(true, 'Carregando dados...');
                     
                     // Carregar todos os dados de uma vez
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbzLJGF6s4RHnVYPMe3WpFO7Egf_csG8vUKGwSSWY09qDDhzDD4CQ-D_A5Iyrq_tKDSV/exec'}?action=getAllData`);
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getAllData`);
                     const result = await response.json();
                     
                     if (result.status === 'success') {
@@ -1334,7 +1334,7 @@
             
             async function loadStudentsByClass(className) {
                 try {
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbzLJGF6s4RHnVYPMe3WpFO7Egf_csG8vUKGwSSWY09qDDhzDD4CQ-D_A5Iyrq_tKDSV/exec'}?action=getStudentsByClass&className=${encodeURIComponent(className)}`);
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getStudentsByClass&className=${encodeURIComponent(className)}`);
                     const result = await response.json();
                     
                     if (result.status === 'success') {
@@ -1373,7 +1373,7 @@
                         </div>
                     `;
                     
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbzLJGF6s4RHnVYPMe3WpFO7Egf_csG8vUKGwSSWY09qDDhzDD4CQ-D_A5Iyrq_tKDSV/exec'}?action=getRecentOccurrences&limit=20`);
+                    const response = await fetch(`$'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getRecentOccurrences&limit=20`);
                     const result = await response.json();
                     
                     if (result.status === 'success') {
@@ -1424,7 +1424,7 @@
                     
                     console.log('Payload preparado:', payload);
 
-                    const response = await fetch('https://script.google.com/macros/s/AKfycbzLJGF6s4RHnVYPMe3WpFO7Egf_csG8vUKGwSSWY09qDDhzDD4CQ-D_A5Iyrq_tKDSV/exec', {
+                    const response = await fetch('https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
