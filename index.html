@@ -671,6 +671,12 @@
             color: #27ae60;
         }
         
+        .alert-error {
+            background: linear-gradient(135deg, rgba(231, 76, 60, 0.15) 0%, rgba(192, 57, 43, 0.15) 100%);
+            border: 1px solid var(--error-color);
+            color: #c0392b;
+        }
+        
         .integration-status {
             background: #e8f5e9;
             padding: 15px;
@@ -975,6 +981,16 @@
                             <i class="fas fa-clipboard-list"></i> Informações da Ocorrência
                         </div>
                         <div class="card-body">
+                            <div class="alert alert-success" id="successAlert">
+                                <i class="fas fa-check-circle"></i>
+                                <span id="successMessage">Ocorrência registrada com sucesso!</span>
+                            </div>
+                            
+                            <div class="alert alert-error" id="errorAlert">
+                                <i class="fas fa-exclamation-circle"></i>
+                                <span id="errorMessage">Erro ao registrar ocorrência.</span>
+                            </div>
+                            
                             <form id="occurrenceForm">
                                 <div class="form-row">
                                     <div class="form-col">
@@ -1194,7 +1210,9 @@
             const clearBtn = document.getElementById('clearBtn');
             const submitBtn = document.getElementById('submitBtn');
             
-            // Elementos de estatísticas
+            // Elementos de status e estatísticas
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
             const totalOccurrencesEl = document.getElementById('totalOccurrences');
             const totalStudentsEl = document.getElementById('totalStudents');
             const totalClassesEl = document.getElementById('totalClasses');
@@ -1202,26 +1220,28 @@
             const afternoonCountEl = document.getElementById('afternoonCount');
             const nightCountEl = document.getElementById('nightCount');
             
-            // Elementos de status
-            const statusIndicator = document.getElementById('statusIndicator');
-            const statusText = document.getElementById('statusText');
-            
-            // Elementos de contador de alunos
+            // Elementos de contagem de alunos
             const classStudentCount = document.getElementById('classStudentCount');
             const studentCountText = document.getElementById('studentCountText');
             
             // Elementos de registros
             const registrosList = document.getElementById('registrosList');
             const registrosCount = document.getElementById('registrosCount');
+            const searchRegistros = document.getElementById('searchRegistros');
             const refreshRegistrosBtn = document.getElementById('refreshRegistrosBtn');
             const refreshIcon = document.getElementById('refreshIcon');
-            const searchRegistros = document.getElementById('searchRegistros');
             
             // Elementos de notificação
             const notification = document.getElementById('notification');
             const notificationIcon = notification.querySelector('.icon');
             const notificationContent = notification.querySelector('.content');
             const notificationClose = notification.querySelector('.close');
+            
+            // Elementos de alerta
+            const successAlert = document.getElementById('successAlert');
+            const errorAlert = document.getElementById('errorAlert');
+            const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
             
             // =========================================================================
             // VARIÁVEIS GLOBAIS
@@ -1247,21 +1267,20 @@
             }
             
             function setupEventListeners() {
+                // Eventos do formulário
                 form.addEventListener('submit', handleFormSubmit);
                 clearBtn.addEventListener('click', clearForm);
                 classSelect.addEventListener('change', handleClassChange);
-                refreshRegistrosBtn.addEventListener('click', loadRecentOccurrences);
+                
+                // Eventos de busca
                 searchRegistros.addEventListener('input', handleSearchRegistros);
-                notificationClose.addEventListener('click', () => {
-                    notification.classList.remove('show');
-                });
+                refreshRegistrosBtn.addEventListener('click', loadRecentOccurrences);
+                
+                // Eventos de notificação
+                notificationClose.addEventListener('click', hideNotification);
                 
                 // Auto-hide notification after 5 seconds
-                setTimeout(() => {
-                    if (notification.classList.contains('show')) {
-                        notification.classList.remove('show');
-                    }
-                }, 5000);
+                setTimeout(hideNotification, 5000);
             }
             
             // =========================================================================
@@ -1271,31 +1290,21 @@
                 try {
                     updateConnectionStatus(true, 'Carregando dados...');
                     
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getAllData`);
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-                    
+                    const response = await fetch(`${SCRIPT_URL}?action=getAllData`);
                     const result = await response.json();
-                    console.log('Resposta recebida:', result);
                     
                     if (result.status === 'success') {
                         // Carregar professores
-                        populateProfessors(result.professors);
+                        loadProfessors(result.professors);
                         
                         // Carregar turmas
-                        populateClasses(result.classes);
+                        loadClasses(result.classes);
                         
                         // Atualizar estatísticas
-                        if (result.statistics) {
-                            updateStatistics(result.statistics);
-                        }
+                        updateStatistics(result.statistics);
                         
-                        // Atualizar contadores por período - CORRIGIDO
-                        if (result.studentCounts) {
-                            updatePeriodCounts(result.studentCounts);
-                        }
+                        // Atualizar contadores por período
+                        updatePeriodCounts(result.studentCounts);
                         
                         // Carregar registros recentes
                         await loadRecentOccurrences();
@@ -1306,97 +1315,79 @@
                     }
                 } catch (error) {
                     console.error('Erro ao carregar dados iniciais:', error);
-                    updateConnectionStatus(false, `Erro de conexão: ${error.message}`);
-                    showNotification('error', 'Erro ao carregar dados do sistema. Verifique sua conexão com a internet.');
+                    updateConnectionStatus(false, 'Erro de conexão com Google Sheets');
+                    showNotification('error', 'Erro ao carregar dados do sistema');
                 }
             }
             
-            function populateProfessors(professors) {
+            function loadProfessors(professors) {
                 professorSelect.innerHTML = '<option value="">Selecione seu nome</option>';
-                if (professors && Array.isArray(professors)) {
-                    professors.forEach(professor => {
-                        const option = document.createElement('option');
-                        option.value = professor;
-                        option.textContent = professor;
-                        professorSelect.appendChild(option);
-                    });
-                }
+                professors.forEach(professor => {
+                    const option = document.createElement('option');
+                    option.value = professor;
+                    option.textContent = professor;
+                    professorSelect.appendChild(option);
+                });
             }
             
-            function populateClasses(classes) {
+            function loadClasses(classes) {
                 classSelect.innerHTML = '<option value="">Selecione a turma</option>';
-                if (classes && Array.isArray(classes)) {
-                    classes.forEach(className => {
-                        const option = document.createElement('option');
-                        option.value = className;
-                        option.textContent = className;
-                        classSelect.appendChild(option);
-                    });
-                    updateTotalClasses(classes.length);
-                } else {
-                    updateTotalClasses(0);
-                }
+                classes.forEach(className => {
+                    const option = document.createElement('option');
+                    option.value = className;
+                    option.textContent = className;
+                    classSelect.appendChild(option);
+                });
+                updateTotalClasses(classes.length);
             }
             
             async function loadStudentsByClass(className) {
                 try {
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getStudentsByClass&className=${encodeURIComponent(className)}`);
+                    studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
+                    studentSelect.disabled = true;
+                    
+                    const response = await fetch(`${SCRIPT_URL}?action=getStudentsByClass&className=${encodeURIComponent(className)}`);
                     const result = await response.json();
                     
                     if (result.status === 'success') {
-                        populateStudents(result.students);
+                        studentSelect.innerHTML = '<option value="">Selecione o aluno</option>';
+                        result.students.forEach(student => {
+                            const option = document.createElement('option');
+                            option.value = student;
+                            option.textContent = student;
+                            studentSelect.appendChild(option);
+                        });
+                        studentSelect.disabled = false;
                         updateClassStudentCount(result.count);
                     } else {
-                        throw new Error(result.message || 'Erro ao carregar alunos');
+                        studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
+                        showNotification('error', result.message || 'Erro ao carregar alunos da turma');
                     }
                 } catch (error) {
                     console.error('Erro ao carregar alunos:', error);
-                    showNotification('error', 'Erro ao carregar lista de alunos');
-                }
-            }
-            
-            function populateStudents(students) {
-                studentSelect.innerHTML = '<option value="">Selecione o aluno</option>';
-                if (students && Array.isArray(students)) {
-                    students.forEach(student => {
-                        const option = document.createElement('option');
-                        option.value = student;
-                        option.textContent = student;
-                        studentSelect.appendChild(option);
-                    });
-                    studentSelect.disabled = false;
-                } else {
-                    studentSelect.disabled = true;
-                }
-            }
-            
-            function updateStatistics(statistics) {
-                totalOccurrencesEl.textContent = statistics.totalOccurrences || 0;
-                totalStudentsEl.textContent = statistics.totalStudents || 0;
-                totalClassesEl.textContent = statistics.totalClasses || 0;
-            }
-            
-            // FUNÇÃO CORRIGIDA: updatePeriodCounts
-            function updatePeriodCounts(studentCounts) {
-                if (studentCounts) {
-                    morningCountEl.textContent = studentCounts.morning || 0;
-                    afternoonCountEl.textContent = studentCounts.afternoon || 0;
-                    nightCountEl.textContent = studentCounts.night || 0;
-                } else {
-                    morningCountEl.textContent = 0;
-                    afternoonCountEl.textContent = 0;
-                    nightCountEl.textContent = 0;
+                    studentSelect.innerHTML = '<option value="">Erro ao carregar alunos</option>';
+                    showNotification('error', 'Erro ao carregar alunos da turma');
                 }
             }
             
             async function loadRecentOccurrences() {
                 try {
-                    const refreshIcon = document.getElementById('refreshIcon');
+                    registrosList.innerHTML = `
+                        <div class="registros-loading">
+                            <div class="loading-spinner"></div>
+                            Carregando registros...
+                        </div>
+                    `;
+                    
+                    // Animação do botão de refresh
                     if (refreshIcon) {
                         refreshIcon.style.animation = 'spin 1s linear infinite';
+                        setTimeout(() => {
+                            refreshIcon.style.animation = '';
+                        }, 1000);
                     }
                     
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getRecentOccurrences&limit=20`);
+                    const response = await fetch(`${SCRIPT_URL}?action=getRecentOccurrences&limit=20`);
                     const result = await response.json();
                     
                     if (result.status === 'success') {
@@ -1409,19 +1400,28 @@
                     }
                 } catch (error) {
                     console.error('Erro ao carregar registros:', error);
-                    showRegistrosError('Erro ao carregar registros recentes');
-                } finally {
-                    const refreshIcon = document.getElementById('refreshIcon');
-                    if (refreshIcon) {
-                        setTimeout(() => {
-                            refreshIcon.style.animation = '';
-                        }, 1000);
-                    }
+                    showRegistrosError('Erro de conexão ao carregar registros');
                 }
             }
-
+            
+            function updateStatistics(statistics) {
+                if (statistics) {
+                    totalOccurrencesEl.textContent = statistics.totalOccurrences || 0;
+                    totalStudentsEl.textContent = statistics.totalStudents || 0;
+                    totalClassesEl.textContent = statistics.totalClasses || 0;
+                }
+            }
+            
+            function updatePeriodCounts(studentCounts) {
+                if (studentCounts) {
+                    morningCountEl.textContent = studentCounts.morning || 0;
+                    afternoonCountEl.textContent = studentCounts.afternoon || 0;
+                    nightCountEl.textContent = studentCounts.night || 0;
+                }
+            }
+            
             // =========================================================================
-            // FUNÇÕES DE ENVIO DE DADOS - CORRIGIDAS
+            // FUNÇÕES DE ENVIO DE DADOS
             // =========================================================================
             async function makePostRequest(formData) {
                 try {
@@ -1545,9 +1545,31 @@
                 notification.classList.add('show');
                 
                 // Auto-hide after 5 seconds
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                }, 5000);
+                setTimeout(hideNotification, 5000);
+            }
+            
+            function hideNotification() {
+                notification.classList.remove('show');
+            }
+            
+            function showAlert(type, message) {
+                hideAlerts();
+                
+                if (type === 'success') {
+                    successMessage.textContent = message;
+                    successAlert.style.display = 'flex';
+                } else if (type === 'error') {
+                    errorMessage.textContent = message;
+                    errorAlert.style.display = 'flex';
+                }
+                
+                // Auto-hide after 5 seconds
+                setTimeout(hideAlerts, 5000);
+            }
+            
+            function hideAlerts() {
+                successAlert.style.display = 'none';
+                errorAlert.style.display = 'none';
             }
 
             // =========================================================================
@@ -1575,6 +1597,9 @@
                     submitButton.disabled = true;
                     submitButton.innerHTML = '<div class="loading"></div> Registrando...';
                     
+                    // Esconde alertas anteriores
+                    hideAlerts();
+                    
                     // Coleta os dados do formulário
                     const formData = collectFormData();
                     
@@ -1587,16 +1612,21 @@
                     const result = await makePostRequest(formData);
                     
                     if (result && result.status === 'success') {
-                        showNotification('success', result.message || 'Ocorrência registrada com sucesso!');
+                        showAlert('success', result.message || 'Ocorrência registrada com sucesso!');
+                        showNotification('success', 'Ocorrência registrada com sucesso!');
                         clearForm();
                         loadInitialData(); // Recarrega todos os dados
                     } else {
-                        showNotification('error', result.message || 'Erro ao registrar ocorrência');
+                        const errorMsg = result.message || 'Erro desconhecido ao registrar ocorrência';
+                        showAlert('error', errorMsg);
+                        showNotification('error', errorMsg);
                     }
                     
                 } catch (error) {
                     console.error('Erro ao enviar formulário:', error);
-                    showNotification('error', 'Erro de conexão. Verifique sua internet e tente novamente.');
+                    const errorMsg = 'Erro de conexão. Verifique sua internet e tente novamente.';
+                    showAlert('error', errorMsg);
+                    showNotification('error', errorMsg);
                 } finally {
                     // Restaura o botão
                     submitButton.disabled = false;
@@ -1646,7 +1676,9 @@
                 
                 for (const field of requiredFields) {
                     if (!data[field] || data[field].trim() === '') {
-                        showNotification('error', `Campo obrigatório não preenchido: ${getFieldLabel(field)}`);
+                        const errorMsg = `Campo obrigatório não preenchido: ${getFieldLabel(field)}`;
+                        showAlert('error', errorMsg);
+                        showNotification('error', errorMsg);
                         return false;
                     }
                 }
@@ -1669,6 +1701,7 @@
                 studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
                 studentSelect.disabled = true;
                 classStudentCount.classList.remove('show');
+                hideAlerts();
                 setDefaultDate();
             }
 
