@@ -1193,7 +1193,7 @@
             // =========================================================================
             // CONFIGURAÇÕES E CONSTANTES
             // =========================================================================
-            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxJarUx7GyjpzWXDdwxvRSqe8_TEeb6pd8ZmGhfB2fpK9Zk9coeKJ6jD6Fod0lv3aTJ/exec';
+            const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec';
 
             // Lista de professores
             const teacherEmails = {
@@ -1421,7 +1421,7 @@
             // =========================================================================
             async function loadClasses() {
                 try {
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbxJarUx7GyjpzWXDdwxvRSqe8_TEeb6pd8ZmGhfB2fpK9Zk9coeKJ6jD6Fod0lv3aTJ/exec'}?action=getClassList`);
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getClassList`);
                     const result = await response.json();
                     
                     if (result.status === 'success') {
@@ -1451,7 +1451,7 @@
                     studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
                     studentSelect.disabled = true;
                     
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbxJarUx7GyjpzWXDdwxvRSqe8_TEeb6pd8ZmGhfB2fpK9Zk9coeKJ6jD6Fod0lv3aTJ/exec'}?action=getStudentsByClass&className=${encodeURIComponent(className)}`);
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getStudentsByClass&className=${encodeURIComponent(className)}`);
                     const result = await response.json();
                     
                     if (result.status === 'success') {
@@ -1481,7 +1481,7 @@
 
             async function loadStatistics() {
                 try {
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbxJarUx7GyjpzWXDdwxvRSqe8_TEeb6pd8ZmGhfB2fpK9Zk9coeKJ6jD6Fod0lv3aTJ/exec'}?action=getStatistics`);
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getStatistics`);
                     const result = await response.json();
                     
                     if (result.status === 'success') {
@@ -1514,7 +1514,7 @@
                     // Anima o ícone de refresh
                     refreshIcon.style.animation = 'spin 1s linear infinite';
                     
-                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbxJarUx7GyjpzWXDdwxvRSqe8_TEeb6pd8ZmGhfB2fpK9Zk9coeKJ6jD6Fod0lv3aTJ/exec'}?action=getRecentOccurrences&limit=20`);
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getRecentOccurrences&limit=20`);
                     const result = await response.json();
                     
                     if (result.status === 'success') {
@@ -1563,7 +1563,7 @@
                         timestamp: new Date().toISOString() // TIMESTAMP AUTOMÁTICO
                     };
 
-                    const response = await fetch('https://script.google.com/macros/s/AKfycbxJarUx7GyjpzWXDdwxvRSqe8_TEeb6pd8ZmGhfB2fpK9Zk9coeKJ6jD6Fod0lv3aTJ/exec', {
+                    const response = await fetch('https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
