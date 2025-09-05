@@ -1289,7 +1289,7 @@
 
             async function loadClassList() {
                 try {
-                    const response = await fetch(`${SCRIPT_URL}?action=getClassList`);
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getClassList`);
                     const result = await response.json();
                     
                     if (result.status === 'success') {
@@ -1307,7 +1307,7 @@
 
             async function loadStudentsByClass(className) {
                 try {
-                    const response = await fetch(`${SCRIPT_URL}?action=getStudentsByClass&className=${encodeURIComponent(className)}`);
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getStudentsByClass&className=${encodeURIComponent(className)}`);
                     const result = await response.json();
                     
                     if (result.status === 'success') {
@@ -1325,7 +1325,7 @@
 
             async function loadStatistics() {
                 try {
-                    const response = await fetch(`${SCRIPT_URL}?action=getStatistics`);
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getStatistics`);
                     const result = await response.json();
                     
                     if (result.status === 'success') {
@@ -1340,7 +1340,7 @@
 
             async function loadStudentCounts() {
                 try {
-                    const response = await fetch(`${SCRIPT_URL}?action=getStudentCountsByPeriod`);
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getStudentCountsByPeriod`);
                     const result = await response.json();
                     
                     if (result.status === 'success') {
@@ -1360,7 +1360,7 @@
                         refreshIcon.style.animation = 'spin 1s linear infinite';
                     }
                     
-                    const response = await fetch(`${SCRIPT_URL}?action=getRecentOccurrences&limit=20`);
+                    const response = await fetch(`${'https://script.google.com/macros/s/AKfycbx8IcZa7r9vqPhr7h3raIsYWRgWuiOA3XInZPi1qcZwv6O3TdmwsN8c57gV2TbjJV1a/exec'}?action=getRecentOccurrences&limit=20`);
                     const result = await response.json();
                     
                     if (result.status === 'success') {
