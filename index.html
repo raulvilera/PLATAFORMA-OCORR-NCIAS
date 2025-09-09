@@ -1208,7 +1208,7 @@ const utils = {
 const apiService = {
     async request(endpoint, options = {}) {
         try {
-            const url = `${API_BASE_URL}${endpoint}`;
+            const url = `${'https://script.google.com/macros/s/AKfycbw03SSUUMmnFs_THWxEE7LocBh_wHM2qytSQPlk7SewnPFSrFuNiYoDQFOdXVGbG4d0/exec'}${endpoint}`;
             const response = await fetch(url, {
                 headers: {
                     'Content-Type': 'application/json',
