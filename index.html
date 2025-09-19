@@ -55,30 +55,22 @@
     .form-group {flex: 1; display: flex; flex-direction:column;}
     .form-group label {margin-bottom: 6px;}
     .form-group-small {flex: 0.5;}
+    .form-group-medium {flex: 1.2;}
     .form-group-large {flex: 2;}
-    .form-group-auto {flex: 0 1 auto; width: auto;} /* Nova classe para campos com largura automática */
     .checkbox-group {display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;}
     .checkbox-item {background: #efefef; color: #111; padding: 6px 10px; border-radius: 999px; display: inline-flex; align-items: center;}
     .checkbox-item input {margin-right: 4px;}
     
-    /* Estilos para a nova área de gestão */
-    .gestao-form {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .gestao-form .full-width {
-      grid-column: 1 / -1;
-    }
+    /* Estilo específico para o campo Classificação */
+    .classification-container {display: flex; flex-direction: column; width: auto; min-width: 200px;}
+    .classification-container select {width: 100%;}
     
     @media(max-width:980px){
       .flex{flex-direction:column}
       header{flex-direction:column;gap:8px;align-items:flex-start} 
       .login-options {flex-direction: column;}
       .form-row {flex-direction: column;}
-      .gestao-form {
-        grid-template-columns: 1fr;
-      }
+      .classification-container {width: 100%;}
     }
     
     /* loader animation */
@@ -161,69 +153,73 @@
         <!-- GESTÃO -->
         <div class="card col" style="flex:1">
           <div class="subtitle">CADASTRO — GESTÃO</div>
-          <div class="gestao-form">
-            <!-- Primeira linha: Série/Turma -->
-            <div class="form-group">
-              <label for="turma_gestao">Série / Turma</label>
-              <select id="turma_gestao" onchange="carregarAlunosPorTurmaGestao(this.value)">
-                <option value="">-- Selecione --</option>
-                <!-- As opções serão preenchidas via JavaScript -->
-              </select>
+          <div class="col">
+            <!-- Série/Turma em primeiro lugar -->
+            <div class="form-row">
+              <div class="form-group form-group-medium">
+                <label>Série / Turma</label>
+                <select id="serie_gestao" onchange="carregarAlunosPorTurmaGestao(this.value)">
+                  <option value="">-- Selecione a turma --</option>
+                </select>
+              </div>
             </div>
             
-            <!-- Segunda linha: Aluno e RA -->
-            <div class="form-group">
-              <label for="aluno_gestao">Aluno</label>
-              <select id="aluno_gestao" onchange="preencherRAGestao(this.value)">
-                <option value="">-- Selecione a turma primeiro --</option>
-              </select>
+            <!-- Aluno e RA -->
+            <div class="form-row">
+              <div class="form-group form-group-medium">
+                <label>Aluno</label>
+                <select id="aluno_gestao" onchange="preencherRAGestao(this.value)">
+                  <option value="">-- Selecione o aluno --</option>
+                </select>
+              </div>
+              <div class="form-group form-group-small">
+                <label>RA</label>
+                <input id="ra_gestao" type="text" readonly>
+              </div>
             </div>
             
-            <div class="form-group">
-              <label for="ra_gestao">RA</label>
-              <input id="ra_gestao" type="text" readonly>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Professor</label>
+                <input id="professor_gestao" type="text">
+              </div>
+              <div class="form-group">
+                <label>Disciplina</label>
+                <input id="disciplina_gestao" type="text">
+              </div>
             </div>
             
-            <!-- Terceira linha: Professor e Disciplina -->
-            <div class="form-group">
-              <label for="professor_gestao">Professor</label>
-              <input id="professor_gestao" type="text">
+            <!-- Classificação com largura ajustada -->
+            <div class="form-row">
+              <div class="classification-container">
+                <label>Classificação</label>
+                <select id="classificacao_gestao" onchange="toggleSuspension('gestao')">
+                  <option value="">Selecione</option>
+                  <option value="OCORRÊNCIA">OCORRÊNCIA</option>
+                  <option value="SUSPENSÃO">SUSPENSÃO</option>
+                </select>
+              </div>
+              <div class="form-group" style="display:none" id="suspensionRow_gestao">
+                <label>Data de retorno</label>
+                <input id="dataRetorno_gestao" type="date">
+              </div>
             </div>
             
-            <div class="form-group">
-              <label for="disciplina_gestao">Disciplina</label>
-              <input id="disciplina_gestao" type="text">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Descrição</label>
+                <textarea id="descricao_gestao" placeholder="Descrição detalhada"></textarea>
+              </div>
             </div>
-            
-            <!-- Quarta linha: Classificação com largura adequada -->
-            <div class="form-group form-group-auto">
-              <label for="classificacao_gestao">Classificação</label>
-              <select id="classificacao_gestao" onchange="toggleSuspension('gestao')" style="width: auto; min-width: 180px;">
-                <option value="">Selecione</option>
-                <option value="OCORRÊNCIA">OCORRÊNCIA</option>
-                <option value="SUSPENSÃO">SUSPENSÃO</option>
-              </select>
-            </div>
-            
-            <div class="form-group" style="display:none" id="suspensionRow_gestao">
-              <label for="dataRetorno_gestao">Data de retorno</label>
-              <input id="dataRetorno_gestao" type="date">
-            </div>
-            
-            <!-- Quinta linha: Descrição (largura completa) -->
-            <div class="form-group full-width">
-              <label for="descricao_gestao">Descrição</label>
-              <textarea id="descricao_gestao" placeholder="Descrição detalhada"></textarea>
-            </div>
-          </div>
 
-          <div class="form-row">
-            <button class="btn-primary" onclick="cadastrarOcorrenciaGestao()">Registrar (Gestão)</button>
-            <button class="btn-success" onclick="generatePDFLocal()">Gerar PDF (local)</button>
-          </div>
+            <div class="form-row">
+              <button class="btn-primary" onclick="cadastrarOcorrenciaGestao()">Registrar (Gestão)</button>
+              <button class="btn-success" onclick="generatePDFLocal()">Gerar PDF (local)</button>
+            </div>
 
-          <div id="successGestao" style="display:none;margin-top:10px;background:linear-gradient(90deg,#4CAF50,#2E7D32);padding:10px;border-radius:8px;color:#fff;font-weight:900">
-            Ocorrência registrada com sucesso!
+            <div id="successGestao" style="display:none;margin-top:10px;background:linear-gradient(90deg,#4CAF50,#2E7D32);padding:10px;border-radius:8px;color:#fff;font-weight:900">
+              Ocorrência registrada com sucesso!
+            </div>
           </div>
         </div>
       </div>
@@ -377,7 +373,7 @@
     let professores = [];
     let turmas = [];
     let currentUserRole = null;
-    let alunosPorTurmaGestao = {}; // Para armazenar alunos por turma na área de gestão
+    let alunosComRA = []; // Para armazenar alunos com RA na área de gestão
 
     // inicial
     document.addEventListener('DOMContentLoaded', () => {
@@ -465,6 +461,89 @@
     }
 
     /*******************************
+     * Funções específicas para a área de gestão
+     *******************************/
+    
+    // Carregar turmas para a área de gestão
+    async function carregarTurmasGestao() {
+      try {
+        const r = await fetch(`${SCRIPT_URL}?endpoint=classes&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+        const j = await r.json();
+        if(j && j.status === 'success' && Array.isArray(j.classes)) {
+          turmas = j.classes;
+        } else {
+          turmas = Object.keys(_getClassRanges());
+        }
+        
+        const turmaSelect = document.getElementById('serie_gestao');
+        turmaSelect.innerHTML = '<option value="">-- Selecione a turma --</option>';
+        turmas.forEach(t => {
+          const option = document.createElement('option');
+          option.value = t;
+          option.textContent = t;
+          turmaSelect.appendChild(option);
+        });
+      } catch(err) {
+        console.error('Erro ao carregar turmas (gestão):', err);
+        turmas = Object.keys(_getClassRanges());
+        const turmaSelect = document.getElementById('serie_gestao');
+        turmaSelect.innerHTML = '<option value="">-- Selecione a turma --</option>';
+        turmas.forEach(t => {
+          const option = document.createElement('option');
+          option.value = t;
+          option.textContent = t;
+          turmaSelect.appendChild(option);
+        });
+      }
+    }
+    
+    // Carregar alunos por turma na área de gestão
+    async function carregarAlunosPorTurmaGestao(turma) {
+      if (!turma) {
+        document.getElementById('aluno_gestao').innerHTML = '<option value="">-- Selecione o aluno --</option>';
+        document.getElementById('ra_gestao').value = '';
+        return;
+      }
+      
+      try {
+        const resp = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
+        const json = await resp.json();
+        
+        // Verificar se a resposta inclui studentsList (com RA) ou apenas students (apenas nomes)
+        if (json.studentsList && Array.isArray(json.studentsList)) {
+          alunosComRA = json.studentsList;
+        } else if (json.students && Array.isArray(json.students)) {
+          // Se não tiver RA, criar array apenas com nomes
+          alunosComRA = json.students.map(nome => ({ nome, ra: '' }));
+        } else {
+          alunosComRA = [];
+        }
+        
+        const alunoSelect = document.getElementById('aluno_gestao');
+        alunoSelect.innerHTML = '<option value="">-- Selecione o aluno --</option>';
+        
+        alunosComRA.forEach(aluno => {
+          const option = document.createElement('option');
+          option.value = aluno.nome;
+          option.textContent = aluno.nome;
+          option.setAttribute('data-ra', aluno.ra || '');
+          alunoSelect.appendChild(option);
+        });
+      } catch(err) {
+        console.error('Erro ao carregar alunos (gestão):', err);
+        document.getElementById('aluno_gestao').innerHTML = '<option value="">-- Selecione o aluno --</option>';
+      }
+    }
+    
+    // Preencher RA quando selecionar um aluno na área de gestão
+    function preencherRAGestao(nomeAluno) {
+      const alunoSelect = document.getElementById('aluno_gestao');
+      const selectedOption = alunoSelect.selectedOptions[0];
+      const ra = selectedOption ? selectedOption.getAttribute('data-ra') : '';
+      document.getElementById('ra_gestao').value = ra;
+    }
+
+    /*******************************
      * GET professores & turmas (consultando BANCODEDADOSGERAL)
      *******************************/
     async function carregarProfessoresETurmas(){
@@ -503,43 +582,6 @@
     }
 
     /*******************************
-     * GET turmas para gestão
-     *******************************/
-    async function carregarTurmasGestao() {
-      try {
-        // turmas (GET do sheet geral)
-        const r = await fetch(`${SCRIPT_URL}?endpoint=classes&sheet=${encodeURIComponent(SHEET_GERAL)}`);
-        const j = await r.json();
-        if(j && j.status === 'success' && Array.isArray(j.classes)) {
-          turmas = j.classes;
-        } else {
-          turmas = Object.keys(_getClassRanges());
-        }
-
-        const turmaSel = document.getElementById('turma_gestao');
-        turmaSel.innerHTML = '<option value="">-- selecione --</option>';
-        turmas.forEach(t => { 
-          const o = document.createElement('option'); 
-          o.value = t; 
-          o.textContent = t; 
-          turmaSel.appendChild(o) 
-        });
-      } catch(err) {
-        console.error('Erro carregar turmas para gestão:', err);
-        // fallback
-        turmas = Object.keys(_getClassRanges());
-        const turmaSel = document.getElementById('turma_gestao');
-        turmaSel.innerHTML = '<option value="">-- selecione --</option>';
-        turmas.forEach(t => { 
-          const o = document.createElement('option'); 
-          o.value = t; 
-          o.textContent = t; 
-          turmaSel.appendChild(o) 
-        });
-      }
-    }
-
-    /*******************************
      * GET students by class (consultando BANCODEDADOSGERAL)
      *******************************/
     async function onTurmaChange(){
@@ -559,65 +601,6 @@
         console.error('Erro get students:', err);
         alunosDaTurmaAtual = [];
       }
-    }
-
-    /*******************************
-     * Carregar alunos por turma para gestão
-     *******************************/
-    async function carregarAlunosPorTurmaGestao(turma) {
-      if (!turma) {
-        document.getElementById('aluno_gestao').innerHTML = '<option value="">-- selecione a turma primeiro --</option>';
-        return;
-      }
-
-      // Verificar se já temos os alunos desta turma em cache
-      if (alunosPorTurmaGestao[turma]) {
-        preencherDropdownAlunos(alunosPorTurmaGestao[turma]);
-        return;
-      }
-
-      try {
-        const resp = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
-        const json = await resp.json();
-        const alunos = json.students || json.studentsList || [];
-        
-        if (!Array.isArray(alunos)) {
-          document.getElementById('aluno_gestao').innerHTML = '<option value="">-- nenhum aluno encontrado --</option>';
-          return;
-        }
-
-        // Armazenar em cache
-        alunosPorTurmaGestao[turma] = alunos;
-        preencherDropdownAlunos(alunos);
-      } catch(err) {
-        console.error('Erro ao carregar alunos para gestão:', err);
-        document.getElementById('aluno_gestao').innerHTML = '<option value="">-- erro ao carregar alunos --</option>';
-      }
-    }
-
-    function preencherDropdownAlunos(alunos) {
-      const alunoSelect = document.getElementById('aluno_gestao');
-      alunoSelect.innerHTML = '<option value="">-- selecione um aluno --</option>';
-      
-      alunos.forEach(aluno => {
-        const option = document.createElement('option');
-        option.value = aluno;
-        option.textContent = aluno;
-        alunoSelect.appendChild(option);
-      });
-    }
-
-    function preencherRAGestao(aluno) {
-      // Esta função simula o carregamento do RA com base no nome do aluno
-      // Em um sistema real, você buscaria essas informações de uma base de dados
-      if (!aluno) {
-        document.getElementById('ra_gestao').value = '';
-        return;
-      }
-      
-      // Simulação: gerar um RA fictício baseado no nome
-      const ra = Math.floor(10000 + Math.random() * 90000);
-      document.getElementById('ra_gestao').value = ra;
     }
 
     /*******************************
@@ -662,16 +645,18 @@
      * POST cadastrar ocorrência (gestão) -> grava em BANCODEALUNOS (sheet: SHEET_GESTAO)
      *******************************/
     async function cadastrarOcorrenciaGestao(){
-      const turma = document.getElementById('turma_gestao').value.trim();
-      const aluno = document.getElementById('aluno_gestao').value.trim();
-      const ra = document.getElementById('ra_gestao').value.trim();
+      const alunoSelect = document.getElementById('aluno_gestao');
+      const aluno = alunoSelect.value;
+      const turmaSelect = document.getElementById('serie_gestao');
+      const serie = turmaSelect.value;
       const professor = document.getElementById('professor_gestao').value.trim();
       const disciplina = document.getElementById('disciplina_gestao').value.trim();
       const classificacao = document.getElementById('classificacao_gestao').value;
       const descricao = document.getElementById('descricao_gestao').value.trim();
       const dataRetorno = document.getElementById('dataRetorno_gestao').value || null;
+      const ra = document.getElementById('ra_gestao').value;
 
-      if(!turma || !aluno || !professor || !disciplina || !classificacao || !descricao){ alert('Preencha todos os campos obrigatórios.'); return; }
+      if(!aluno || !serie || !professor || !disciplina || !classificacao || !descricao){ alert('Preencha todos os campos obrigatórios.'); return; }
       if(classificacao === 'SUSPENSÃO' && !dataRetorno){ alert('Informe data de retorno para suspensão.'); return; }
 
       const payload = {
@@ -679,9 +664,10 @@
         startRow: 2,                  // indica a partir de A2 (o Apps Script deve utilizar isso)
         date: new Date().toISOString().split('T')[0],
         professor: professor,
-        studentClass: turma,
+        studentClass: serie,
         student: aluno,
         ra: ra,
+        disciplina: disciplina,
         irregularities: classificacao + (dataRetorno ? (' - retorno: ' + dataRetorno) : ''),
         description: descricao
       };
@@ -697,8 +683,8 @@
           document.getElementById('successGestao').style.display = 'block';
           setTimeout(()=> document.getElementById('successGestao').style.display = 'none', 2200);
           // limpar
-          document.getElementById('turma_gestao').value = '';
-          document.getElementById('aluno_gestao').innerHTML = '<option value="">-- selecione a turma primeiro --</option>';
+          document.getElementById('serie_gestao').value = '';
+          document.getElementById('aluno_gestao').innerHTML = '<option value="">-- Selecione o aluno --</option>';
           document.getElementById('ra_gestao').value = '';
           document.getElementById('professor_gestao').value = '';
           document.getElementById('disciplina_gestao').value = '';
@@ -904,7 +890,7 @@
         doc.setFontSize(16);
         doc.text('Registro de Ocorrência', 14, 20);
         const aluno = document.getElementById('aluno_gestao').value || '';
-        const turma = document.getElementById('turma_gestao').value || '';
+        const turma = document.getElementById('serie_gestao').value || '';
         const prof = document.getElementById('professor_gestao').value || '';
         const desc = document.getElementById('descricao_gestao').value || '';
         let y = 36;
