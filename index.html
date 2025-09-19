@@ -52,19 +52,33 @@
     
     /* Novos estilos para formulários */
     .form-row {display: flex; gap: 12px; margin-bottom: 12px;}
-    .form-group {flex: 1; display: flex; flex-direction: column;}
+    .form-group {flex: 1; display: flex; flex-direction:column;}
     .form-group label {margin-bottom: 6px;}
     .form-group-small {flex: 0.5;}
     .form-group-large {flex: 2;}
+    .form-group-auto {flex: 0 1 auto; width: auto;} /* Nova classe para campos com largura automática */
     .checkbox-group {display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;}
     .checkbox-item {background: #efefef; color: #111; padding: 6px 10px; border-radius: 999px; display: inline-flex; align-items: center;}
     .checkbox-item input {margin-right: 4px;}
+    
+    /* Estilos para a nova área de gestão */
+    .gestao-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .gestao-form .full-width {
+      grid-column: 1 / -1;
+    }
     
     @media(max-width:980px){
       .flex{flex-direction:column}
       header{flex-direction:column;gap:8px;align-items:flex-start} 
       .login-options {flex-direction: column;}
       .form-row {flex-direction: column;}
+      .gestao-form {
+        grid-template-columns: 1fr;
+      }
     }
     
     /* loader animation */
@@ -147,67 +161,69 @@
         <!-- GESTÃO -->
         <div class="card col" style="flex:1">
           <div class="subtitle">CADASTRO — GESTÃO</div>
-          <div class="col">
-            <div class="form-row">
-              <div class="form-group form-group-large">
-                <label>Aluno</label>
-                <input id="aluno_gestao" type="text" placeholder="Nome do aluno (autocomplete)" oninput="autocompleteAluno(this.value)">
-                <div id="autocompleteList" style="position:relative;z-index:1000"></div>
-              </div>
+          <div class="gestao-form">
+            <!-- Primeira linha: Série/Turma -->
+            <div class="form-group">
+              <label for="turma_gestao">Série / Turma</label>
+              <select id="turma_gestao" onchange="carregarAlunosPorTurmaGestao(this.value)">
+                <option value="">-- Selecione --</option>
+                <!-- As opções serão preenchidas via JavaScript -->
+              </select>
             </div>
             
-            <div class="form-row">
-              <div class="form-group form-group-small">
-                <label>Série / Turma</label>
-                <input id="serie_gestao" type="text" readonly>
-              </div>
-              <div class="form-group form-group-small">
-                <label>RA</label>
-                <input id="ra_gestao" type="text" readonly>
-              </div>
+            <!-- Segunda linha: Aluno e RA -->
+            <div class="form-group">
+              <label for="aluno_gestao">Aluno</label>
+              <select id="aluno_gestao" onchange="preencherRAGestao(this.value)">
+                <option value="">-- Selecione a turma primeiro --</option>
+              </select>
             </div>
             
-            <div class="form-row">
-              <div class="form-group">
-                <label>Professor</label>
-                <input id="professor_gestao" type="text">
-              </div>
-              <div class="form-group">
-                <label>Disciplina</label>
-                <input id="disciplina_gestao" type="text">
-              </div>
+            <div class="form-group">
+              <label for="ra_gestao">RA</label>
+              <input id="ra_gestao" type="text" readonly>
             </div>
             
-            <div class="form-row">
-              <div class="form-group">
-                <label>Classificação</label>
-                <select id="classificacao_gestao" onchange="toggleSuspension('gestao')">
-                  <option value="">Selecione</option>
-                  <option value="OCORRÊNCIA">OCORRÊNCIA</option>
-                  <option value="SUSPENSÃO">SUSPENSÃO</option>
-                </select>
-              </div>
-              <div class="form-group" style="display:none" id="suspensionRow_gestao">
-                <label>Data de retorno</label>
-                <input id="dataRetorno_gestao" type="date">
-              </div>
+            <!-- Terceira linha: Professor e Disciplina -->
+            <div class="form-group">
+              <label for="professor_gestao">Professor</label>
+              <input id="professor_gestao" type="text">
             </div>
             
-            <div class="form-row">
-              <div class="form-group">
-                <label>Descrição</label>
-                <textarea id="descricao_gestao" placeholder="Descrição detalhada"></textarea>
-              </div>
+            <div class="form-group">
+              <label for="disciplina_gestao">Disciplina</label>
+              <input id="disciplina_gestao" type="text">
             </div>
+            
+            <!-- Quarta linha: Classificação com largura adequada -->
+            <div class="form-group form-group-auto">
+              <label for="classificacao_gestao">Classificação</label>
+              <select id="classificacao_gestao" onchange="toggleSuspension('gestao')" style="width: auto; min-width: 180px;">
+                <option value="">Selecione</option>
+                <option value="OCORRÊNCIA">OCORRÊNCIA</option>
+                <option value="SUSPENSÃO">SUSPENSÃO</option>
+              </select>
+            </div>
+            
+            <div class="form-group" style="display:none" id="suspensionRow_gestao">
+              <label for="dataRetorno_gestao">Data de retorno</label>
+              <input id="dataRetorno_gestao" type="date">
+            </div>
+            
+            <!-- Quinta linha: Descrição (largura completa) -->
+            <div class="form-group full-width">
+              <label for="descricao_gestao">Descrição</label>
+              <textarea id="descricao_gestao" placeholder="Descrição detalhada"></textarea>
+            </div>
+          </div>
 
-            <div class="form-row">
-              <button class="btn-primary" onclick="cadastrarOcorrenciaGestao()">Registrar (Gestão)</button>
-              <button class="btn-success" onclick="generatePDFLocal()">Gerar PDF (local)</button>
-            </div>
+          <div class="form-row">
+            <button class="btn-primary" onclick="cadastrarOcorrenciaGestao()">Registrar (Gestão)</button>
+            <button class="btn-success" onclick="generatePDFLocal()">Gerar PDF (local)</button>
+          </div>
 
-            <div id="successGestao" style="display:none;margin-top:10px;background:linear-gradient(90deg,#4CAF50,#2E7D32);padding:10px;border-radius:8px;color:#fff;font-weight:900">
-              Ocorrência registrada com sucesso!
-            </div>
+          <div id="successGestao" style="display:none;margin-top:10px;background:linear-gradient(90deg,#4CAF50,#2E7D32);padding:10px;border-radius:8px;color:#fff;font-weight:900">
+            Ocorrência registrada com sucesso!
           </div>
         </div>
       </div>
@@ -361,6 +377,7 @@
     let professores = [];
     let turmas = [];
     let currentUserRole = null;
+    let alunosPorTurmaGestao = {}; // Para armazenar alunos por turma na área de gestão
 
     // inicial
     document.addEventListener('DOMContentLoaded', () => {
@@ -416,7 +433,7 @@
       if (role === 'gestao') {
         document.getElementById('mainAppGestao').style.display = 'flex';
         document.getElementById('mainAppProfessor').style.display = 'none';
-        carregarTodosAlunos();
+        carregarTurmasGestao(); // Carrega as turmas para a área de gestão
         carregarHistoricoGestao();
       } else {
         document.getElementById('mainAppGestao').style.display = 'none';
@@ -486,6 +503,43 @@
     }
 
     /*******************************
+     * GET turmas para gestão
+     *******************************/
+    async function carregarTurmasGestao() {
+      try {
+        // turmas (GET do sheet geral)
+        const r = await fetch(`${SCRIPT_URL}?endpoint=classes&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+        const j = await r.json();
+        if(j && j.status === 'success' && Array.isArray(j.classes)) {
+          turmas = j.classes;
+        } else {
+          turmas = Object.keys(_getClassRanges());
+        }
+
+        const turmaSel = document.getElementById('turma_gestao');
+        turmaSel.innerHTML = '<option value="">-- selecione --</option>';
+        turmas.forEach(t => { 
+          const o = document.createElement('option'); 
+          o.value = t; 
+          o.textContent = t; 
+          turmaSel.appendChild(o) 
+        });
+      } catch(err) {
+        console.error('Erro carregar turmas para gestão:', err);
+        // fallback
+        turmas = Object.keys(_getClassRanges());
+        const turmaSel = document.getElementById('turma_gestao');
+        turmaSel.innerHTML = '<option value="">-- selecione --</option>';
+        turmas.forEach(t => { 
+          const o = document.createElement('option'); 
+          o.value = t; 
+          o.textContent = t; 
+          turmaSel.appendChild(o) 
+        });
+      }
+    }
+
+    /*******************************
      * GET students by class (consultando BANCODEDADOSGERAL)
      *******************************/
     async function onTurmaChange(){
@@ -508,36 +562,62 @@
     }
 
     /*******************************
-     * carregarTodosAlunos (autocomplete gestor) - consulta BANCODEDADOSGERAL
+     * Carregar alunos por turma para gestão
      *******************************/
-    async function carregarTodosAlunos(){
-      allAlunos = [];
-      const classList = Object.keys(_getClassRanges());
-      for(const turma of classList){
-        try{
-          const r = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
-          const j = await r.json();
-          const list = j.students || [];
-          list.forEach(nome => { if(nome && String(nome).trim()) allAlunos.push({nome:String(nome).trim(), turma}) });
-        }catch(e){}
+    async function carregarAlunosPorTurmaGestao(turma) {
+      if (!turma) {
+        document.getElementById('aluno_gestao').innerHTML = '<option value="">-- selecione a turma primeiro --</option>';
+        return;
       }
-      // dedupe
-      const seen = new Set();
-      allAlunos = allAlunos.filter(a => { if(seen.has(a.nome)) return false; seen.add(a.nome); return true; });
+
+      // Verificar se já temos os alunos desta turma em cache
+      if (alunosPorTurmaGestao[turma]) {
+        preencherDropdownAlunos(alunosPorTurmaGestao[turma]);
+        return;
+      }
+
+      try {
+        const resp = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
+        const json = await resp.json();
+        const alunos = json.students || json.studentsList || [];
+        
+        if (!Array.isArray(alunos)) {
+          document.getElementById('aluno_gestao').innerHTML = '<option value="">-- nenhum aluno encontrado --</option>';
+          return;
+        }
+
+        // Armazenar em cache
+        alunosPorTurmaGestao[turma] = alunos;
+        preencherDropdownAlunos(alunos);
+      } catch(err) {
+        console.error('Erro ao carregar alunos para gestão:', err);
+        document.getElementById('aluno_gestao').innerHTML = '<option value="">-- erro ao carregar alunos --</option>';
+      }
     }
 
-    function autocompleteAluno(value){
-      const box = document.getElementById('autocompleteList'); box.innerHTML='';
-      if(!value || value.length < 2) return;
-      const q = value.toLowerCase();
-      const matches = allAlunos.filter(a => a.nome.toLowerCase().includes(q)).slice(0,12);
-      matches.forEach(m => {
-        const div = document.createElement('div');
-        div.style.background='#fff';div.style.color='#111';div.style.padding='8px';div.style.borderRadius='6px';div.style.marginTop='6px';div.style.cursor='pointer';
-        div.textContent = `${m.nome} — ${m.turma}`;
-        div.onclick = () => { document.getElementById('aluno_gestao').value = m.nome; document.getElementById('serie_gestao').value = m.turma; box.innerHTML=''; };
-        box.appendChild(div);
+    function preencherDropdownAlunos(alunos) {
+      const alunoSelect = document.getElementById('aluno_gestao');
+      alunoSelect.innerHTML = '<option value="">-- selecione um aluno --</option>';
+      
+      alunos.forEach(aluno => {
+        const option = document.createElement('option');
+        option.value = aluno;
+        option.textContent = aluno;
+        alunoSelect.appendChild(option);
       });
+    }
+
+    function preencherRAGestao(aluno) {
+      // Esta função simula o carregamento do RA com base no nome do aluno
+      // Em um sistema real, você buscaria essas informações de uma base de dados
+      if (!aluno) {
+        document.getElementById('ra_gestao').value = '';
+        return;
+      }
+      
+      // Simulação: gerar um RA fictício baseado no nome
+      const ra = Math.floor(10000 + Math.random() * 90000);
+      document.getElementById('ra_gestao').value = ra;
     }
 
     /*******************************
@@ -582,15 +662,16 @@
      * POST cadastrar ocorrência (gestão) -> grava em BANCODEALUNOS (sheet: SHEET_GESTAO)
      *******************************/
     async function cadastrarOcorrenciaGestao(){
+      const turma = document.getElementById('turma_gestao').value.trim();
       const aluno = document.getElementById('aluno_gestao').value.trim();
-      const serie = document.getElementById('serie_gestao').value.trim();
+      const ra = document.getElementById('ra_gestao').value.trim();
       const professor = document.getElementById('professor_gestao').value.trim();
       const disciplina = document.getElementById('disciplina_gestao').value.trim();
       const classificacao = document.getElementById('classificacao_gestao').value;
       const descricao = document.getElementById('descricao_gestao').value.trim();
       const dataRetorno = document.getElementById('dataRetorno_gestao').value || null;
 
-      if(!aluno || !serie || !professor || !disciplina || !classificacao || !descricao){ alert('Preencha todos os campos obrigatórios.'); return; }
+      if(!turma || !aluno || !professor || !disciplina || !classificacao || !descricao){ alert('Preencha todos os campos obrigatórios.'); return; }
       if(classificacao === 'SUSPENSÃO' && !dataRetorno){ alert('Informe data de retorno para suspensão.'); return; }
 
       const payload = {
@@ -598,8 +679,9 @@
         startRow: 2,                  // indica a partir de A2 (o Apps Script deve utilizar isso)
         date: new Date().toISOString().split('T')[0],
         professor: professor,
-        studentClass: serie,
+        studentClass: turma,
         student: aluno,
+        ra: ra,
         irregularities: classificacao + (dataRetorno ? (' - retorno: ' + dataRetorno) : ''),
         description: descricao
       };
@@ -615,7 +697,14 @@
           document.getElementById('successGestao').style.display = 'block';
           setTimeout(()=> document.getElementById('successGestao').style.display = 'none', 2200);
           // limpar
-          document.getElementById('aluno_gestao').value=''; document.getElementById('serie_gestao').value=''; document.getElementById('ra_gestao').value=''; document.getElementById('professor_gestao').value=''; document.getElementById('disciplina_gestao').value=''; document.getElementById('classificacao_gestao').value=''; document.getElementById('descricao_gestao').value=''; document.getElementById('suspensionRow_gestao').style.display='none';
+          document.getElementById('turma_gestao').value = '';
+          document.getElementById('aluno_gestao').innerHTML = '<option value="">-- selecione a turma primeiro --</option>';
+          document.getElementById('ra_gestao').value = '';
+          document.getElementById('professor_gestao').value = '';
+          document.getElementById('disciplina_gestao').value = '';
+          document.getElementById('classificacao_gestao').value = '';
+          document.getElementById('descricao_gestao').value = '';
+          document.getElementById('suspensionRow_gestao').style.display = 'none';
           carregarHistoricoGestao();
         } else {
           alert('Erro ao registrar: ' + (j && j.message ? j.message : 'Resposta inesperada'));
@@ -815,7 +904,7 @@
         doc.setFontSize(16);
         doc.text('Registro de Ocorrência', 14, 20);
         const aluno = document.getElementById('aluno_gestao').value || '';
-        const turma = document.getElementById('serie_gestao').value || '';
+        const turma = document.getElementById('turma_gestao').value || '';
         const prof = document.getElementById('professor_gestao').value || '';
         const desc = document.getElementById('descricao_gestao').value || '';
         let y = 36;
