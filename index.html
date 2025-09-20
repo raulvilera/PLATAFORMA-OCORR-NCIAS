@@ -50,20 +50,32 @@
     .login-option.active {background: linear-gradient(90deg, rgba(0,78,120,0.8), rgba(0,120,120,0.8));}
     .access-area {display: none;}
     
-    /* Novos estilos para formulários */
+    /* Novos estilos para formulários - Área de Gestão com campos mais largos */
     .form-row {display: flex; gap: 12px; margin-bottom: 12px;}
     .form-group {flex: 1; display: flex; flex-direction:column;}
     .form-group label {margin-bottom: 6px;}
     .form-group-small {flex: 0.5;}
     .form-group-medium {flex: 1.2;}
     .form-group-large {flex: 2;}
+    .form-group-xlarge {flex: 2.5;} /* Novo tamanho para campos maiores */
+    
+    /* Ajustes específicos para a área de gestão */
+    .gestao-form .form-group {flex: 1;}
+    .gestao-form .form-row {margin-bottom: 15px;}
+    .gestao-form input, 
+    .gestao-form select, 
+    .gestao-form textarea {
+        width: 100%;
+        padding: 12px;
+        font-size: 15px;
+    }
+    
     .checkbox-group {display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;}
     .checkbox-item {background: #efefef; color: #111; padding: 6px 10px; border-radius: 999px; display: inline-flex; align-items: center;}
     .checkbox-item input {margin-right: 4px;}
     
     /* Estilo específico para o campo Classificação */
-    .classification-container {display: flex; flex-direction: column; width: auto; min-width: 200px;}
-    .classification-container select {width: 100%;}
+    .classification-container {display: flex; flex-direction: column; width: auto; min-width: 250px;} /* Aumentado */
     
     @media(max-width:980px){
       .flex{flex-direction:column}
@@ -71,6 +83,7 @@
       .login-options {flex-direction: column;}
       .form-row {flex-direction: column;}
       .classification-container {width: 100%;}
+      .gestao-form .form-row {flex-direction: column;}
     }
     
     /* loader animation */
@@ -107,11 +120,11 @@
         
         <div id="loginFormGestao" class="access-area">
           <div class="form-row">
-            <div class="form-group">
+            <div class="form-group form-group-xlarge">
               <label for="emailGestao">E-mail Gestão</label>
               <input id="emailGestao" type="email" placeholder="gestao@escola.com">
             </div>
-            <div class="form-group">
+            <div class="form-group form-group-medium">
               <label for="passwordGestao">Senha</label>
               <input id="passwordGestao" type="password" placeholder="senha">
             </div>
@@ -127,11 +140,11 @@
         
         <div id="loginFormProfessor" class="access-area">
           <div class="form-row">
-            <div class="form-group">
+            <div class="form-group form-group-xlarge">
               <label for="emailProfessor">E-mail Professor</label>
               <input id="emailProfessor" type="email" placeholder="professor@escola.com">
             </div>
-            <div class="form-group">
+            <div class="form-group form-group-medium">
               <label for="passwordProfessor">Senha</label>
               <input id="passwordProfessor" type="password" placeholder="senha">
             </div>
@@ -153,10 +166,10 @@
         <!-- GESTÃO -->
         <div class="card col" style="flex:1">
           <div class="subtitle">CADASTRO — GESTÃO</div>
-          <div class="col">
+          <div class="col gestao-form">
             <!-- Série/Turma em primeiro lugar -->
             <div class="form-row">
-              <div class="form-group form-group-medium">
+              <div class="form-group form-group-xlarge">
                 <label>Série / Turma</label>
                 <select id="serie_gestao" onchange="carregarAlunosPorTurmaGestao(this.value)">
                   <option value="">-- Selecione a turma --</option>
@@ -166,24 +179,24 @@
             
             <!-- Aluno e RA -->
             <div class="form-row">
-              <div class="form-group form-group-medium">
+              <div class="form-group form-group-xlarge">
                 <label>Aluno</label>
                 <select id="aluno_gestao" onchange="preencherRAGestao(this.value)">
                   <option value="">-- Selecione o aluno --</option>
                 </select>
               </div>
-              <div class="form-group form-group-small">
+              <div class="form-group form-group-medium">
                 <label>RA</label>
                 <input id="ra_gestao" type="text" readonly>
               </div>
             </div>
             
             <div class="form-row">
-              <div class="form-group">
+              <div class="form-group form-group-xlarge">
                 <label>Professor</label>
                 <input id="professor_gestao" type="text">
               </div>
-              <div class="form-group">
+              <div class="form-group form-group-xlarge">
                 <label>Disciplina</label>
                 <input id="disciplina_gestao" type="text">
               </div>
@@ -380,6 +393,7 @@
       document.getElementById('data_prof').value = new Date().toISOString().split('T')[0];
       // Mostrar formulário de gestão por padrão
       selectLoginOption('gestao');
+      carregarTurmasGestao(); // Carregar turmas ao iniciar
     });
 
     // Selecionar opção de login
@@ -429,7 +443,6 @@
       if (role === 'gestao') {
         document.getElementById('mainAppGestao').style.display = 'flex';
         document.getElementById('mainAppProfessor').style.display = 'none';
-        carregarTurmasGestao(); // Carrega as turmas para a área de gestão
         carregarHistoricoGestao();
       } else {
         document.getElementById('mainAppGestao').style.display = 'none';
@@ -540,7 +553,7 @@
       const alunoSelect = document.getElementById('aluno_gestao');
       const selectedOption = alunoSelect.selectedOptions[0];
       const ra = selectedOption ? selectedOption.getAttribute('data-ra') : '';
-      document.getElementById('ra_gestao').value = ra;
+      document.getElementById('ra_gestao').value = ra || '';
     }
 
     /*******************************
