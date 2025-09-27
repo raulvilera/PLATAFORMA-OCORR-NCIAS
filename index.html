@@ -173,6 +173,7 @@
                 <label>Série / Turma</label>
                 <select id="serie_gestao" onchange="carregarAlunosPorTurmaGestao(this.value)">
                   <option value="">-- Selecione a turma --</option>
+                  <!-- Turmas serão carregadas dinamicamente -->
                 </select>
               </div>
             </div>
@@ -183,6 +184,7 @@
                 <label>Aluno</label>
                 <select id="aluno_gestao" onchange="preencherRAGestao(this.value)">
                   <option value="">-- Selecione o aluno --</option>
+                  <!-- Alunos serão carregados dinamicamente -->
                 </select>
               </div>
               <div class="form-group form-group-medium">
@@ -259,11 +261,17 @@
             <div class="form-row">
               <div class="form-group">
                 <label>Professor</label>
-                <select id="professor_select"></select>
+                <select id="professor_select">
+                  <option value="">-- selecione --</option>
+                  <!-- Professores serão carregados dinamicamente -->
+                </select>
               </div>
               <div class="form-group">
                 <label>Turma</label>
-                <select id="turma_select" onchange="onTurmaChange()"></select>
+                <select id="turma_select" onchange="onTurmaChange()">
+                  <option value="">-- selecione --</option>
+                  <!-- Turmas serão carregadas dinamicamente -->
+                </select>
               </div>
             </div>
 
@@ -369,17 +377,90 @@
 
   <script>
     /*******************************
-     * CONFIGURAÇÕES
+     * CONFIGURAÇÕES E CONSTANTES
      *******************************/
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyV74CMNExr_o10IrU3dMeUFAiKS051nGQvSzaw1EZCYOQ8WydE4dTVFzf2J0pra-GX/exec';
     const SPREADSHEET_ID = '1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio';
-
-    // nomes de abas (front-end manda "sheet" para o Apps Script)
+    
+    // Nomes das abas da planilha
     const SHEET_GERAL = 'BANCODEDADOSGERAL';
-    const SHEET_PROF = 'OCORRENCIASDOSPROFESSORES'; // onde professores gravam (a partir de A2)
-    const SHEET_GESTAO = 'BANCODEALUNOS'; // onde gestão grava (a partir de A2)
+    const SHEET_PROF = 'OCORRENCIASDOSPROFESSORES';
+    const SHEET_GESTAO = 'BANCODEALUNOS';
 
-    // estado
+    // Mapeamento completo de turmas, nomes e RAs
+    const CLASS_MAPPING = {
+      "6° ANO A MANHA":   { nome: "C3:C46",  ra: "D3:D46" },
+      "6° ANO B MANHA":   { nome: "H3:H46",  ra: "I3:I46" },
+      "6° ANO C MANHA":   { nome: "M3:M46",  ra: "N3:N46" },
+      "6° ANO D MANHA":   { nome: "R3:R46",  ra: "S3:S46" },
+      "6° ANO E TARDE":   { nome: "W3:W46",  ra: "X3:X46" },
+      "6° ANO F TARDE":   { nome: "AB3:AB46", ra: "AC3:AC46" },
+      "7° ANO A TARDE":   { nome: "AG3:AG46", ra: "AH3:AH46" },
+      "7° ANO B TARDE":   { nome: "AL3:AL46", ra: "AM3:AM46" },
+      "7° ANO C TARDE":   { nome: "AQ3:AQ46", ra: "AR3:AR46" },
+      "7° ANO D TARDE":   { nome: "AV3:AV46", ra: "AW3:AW46" },
+      "7° ANO E TARDE":   { nome: "BA3:BA46", ra: "BB3:BB46" },
+      "7° ANO F TARDE":   { nome: "BF3:BF46", ra: "BG3:BG46" },
+      "8° ANO A TARDE":   { nome: "BK3:BK46", ra: "BL3:BL46" },
+      "8° ANO B TARDE":   { nome: "BP3:BP46", ra: "BQ3:BQ46" },
+      "8° ANO C TARDE":   { nome: "BU3:BU46", ra: "BV3:BV46" },
+      "8° ANO D TARDE":   { nome: "BZ3:BZ46", ra: "CA3:CA46" },
+      "9° ANO A TARDE":   { nome: "CE3:CE46", ra: "CF3:CF46" },
+      "9° ANO B TARDE":   { nome: "CJ3:CJ46", ra: "CK3:CK46" },
+      "9° ANO C TARDE":   { nome: "CO3:CO46", ra: "CP3:CP46" },
+      "9° ANO D TARDE":   { nome: "CT3:CT46", ra: "CU3:CU46" },
+      "1ª SERIE A MANHA": { nome: "CY3:CY46", ra: "CZ3:CZ46" },
+      "1ª SERIE B MANHA": { nome: "DD3:DD46", ra: "DE3:DE46" },
+      "1ª SERIE C MANHA": { nome: "DI3:DI46", ra: "DJ3:DJ46" },
+      "1ª SERIE D MANHA": { nome: "DN3:DN46", ra: "DO3:DO46" },
+      "1ª SERIE E MANHA": { nome: "DS3:DS46", ra: "DT3:DT46" },
+      "1ª SERIE F MANHA": { nome: "DX3:DX46", ra: "DY3:DY46" },
+      "1ª SERIE G TARDE": { nome: "EC3:EC46", ra: "ED3:ED46" },
+      "1ª SERIE H NOITE": { nome: "EH3:EH46", ra: "EI3:EI46" },
+      "1ª SERIE I NOITE": { nome: "EM3:EM46", ra: "EN3:EN46" },
+      "2ª SERIE A MANHA": { nome: "ER3:ER46", ra: "ES3:ES46" },
+      "2ª SERIE B MANHA": { nome: "EW3:EW46", ra: "EX3:EX46" },
+      "2ª SERIE C MANHA": { nome: "FB3:FB46", ra: "FC3:FC46" },
+      "2ª SERIE D MANHA": { nome: "FG3:FG46", ra: "FH3:FH46" },
+      "2ª SERIE E MANHA": { nome: "FL3:FL46", ra: "FM3:FM46" },
+      "2ª SERIE F NOITE": { nome: "FQ3:FQ46", ra: "FR3:FR46" },
+      "2ª SERIE G NOITE": { nome: "FV3:FV46", ra: "FW3:FW46" },
+      "2ª SERIE H NOITE": { nome: "GA3:GA46", ra: "GB3:GB46" },
+      "3ª SERIE A MANHA": { nome: "GK3:GK46", ra: "GL3:GL46" },
+      "3ª SERIE B MANHA": { nome: "GP3:GP46", ra: "GQ3:GQ46" },
+      "3ª SERIE C MANHA": { nome: "GU3:GU46", ra: "GV3:GV46" },
+      "3ª SERIE D NOITE": { nome: "GZ3:GZ46", ra: "HA3:HA46" },
+      "3ª SERIE E NOITE": { nome: "HE3:HE46", ra: "HF3:HF46" },
+      "3ª SERIE F NOITE": { nome: "HJ3:HJ46", ra: "HK3:HK46" }
+    };
+
+    // Lista de professores
+    const PROFESSORES = [
+      "ALEX LUTH PEREIRA MARANHAO","ALEXSANDRA PAULA VARELLA DE SOUZA","ALISON VASCONCELOS BESERRA","AMAURI TEODORO DE OLIVEIRA",
+      "ANA PAULA DOS SANTOS","ANDREIA DOS SANTOS FREITAS","ANDREIA MADUREIRA REIS","ANTONIO CARLOS DE OLIVEIRA",
+      "ANTONIO RAMOS DE ARAUJO","ANTONIO WILTON WANDERLEY CABRAL","AUGUSTO LINO PESSOA NETO","AUREA MARIA DE JESUS MARQUES",
+      "CAROLINA PERNOMIAN PARUSSOLOLO","CASSIA OLIVEIRA ANTONIAZI","CLAUDINEIA DE AGUIAR LIMA","DANIEL DE FREITAS ALMEIDA",
+      "DANIEL LOPES BARBOSA","DANIELA FERREIRA LIMA","DANIELLE LUCIA BATISTA DE ALMEIDA","EDIANE VIEIRA DA SILVA",
+      "EDILEUSA NUNES PEREIRA","EDUARDO HENRIQUE DA FONSECA","ELIANE SANTOS SILVA","ELIAS MONTEIRO DA SILVERA",
+      "ELISABETE APARECIDA PIRES","ELZA DE FARIA PEREIRA","EMERSON GABLER DE ALMEIDA","EUZELI ARAUJO DE OLIVEIRA",
+      "FABIANO AUGUSTO PIEDADE","FABIO CAMILO","FERNANDO JOSE DA SILVA FILHO","FLAVIA CRISTINA APARECIDA BICHLER",
+      "FLAVIO CARDOSO FLEURY","FRANCISCA EDIVANIA DE MORAIS COSTA","GABRIELA SERIGHELLI DE MELO","GELSON DE ALMEIDA BATISTA",
+      "GENILTON DE OLIVEIRA SILVA","GIANI CRISTINA DO PRADO","INGRYD CAROLINA SUGUIMOTO VIEIRA","IVANILDES DOS SANTOS OSHIKAWA",
+      "JANINA DOS PASSOS BRAGA DE ALMEIDA","JOSE APARECIDO DA SILVA","JUAREZ GOMES DE MAGALHAES FILHO","JUREMA SOLEDADE FURINI SANTOS",
+      "KATIUSCIA ALVES BOMFIM","LUANA CAROLINE ALVES LIMA","LUANA DE FREITAS SILVA","LUCIANA NOVAIS CORREIA SANTOS",
+      "LUCIANO MOREIRA DE AZEVEDO","MARCIEL DA SILVA","MARIA HELENA CUNHA MORO","MARIA QUITÉRIA FERREIRA DOS SANTOS",
+      "MARINA DA CONCEICAO FRANCISCO SILVA","MAURICIO DE BARROS SANTOS","MICHELE DE PINHO MORAES","MOISES ANTONIO DE BARROS",
+      "PAULA ARMANI VILA","PAULO ROBERTO DA SILVA ITO","PEDRO ZANOTTI FILHO","RAUL PEREIRA VILERA JUNIOR",
+      "REGIANE CURTI DE SOUZA OLIVEIRA","REGINA DA SILSA CASTRO","RICARDO AMERICO DA SILVA","ROBERTO SALGADO",
+      "RODRIGO VIEIRA","ROSANGELA CAFASSO MOREIRA","ROSIMERY DE SOUZA PESSOA","ROSMARA DA SILSA CARDOSO",
+      "SANDRA CRISTINA MACEDO MORAES","SELMA GOMES DA SILSA","SERGIO AGRIPINO VILLA NOVA","SOLANGE ALMEIDA DA SILSA",
+      "SUZINEIDE SILSA DE FREITAS","THIAGO FABIANO BRITO","TITTO AUGUSTO NASCIMENTO SILSA","VANDERSON HYPPOLITO",
+      "VANESSA IVETE GOMES DOS SANTOS","VANIA PENHA DE BARROS","VIVIANE LEAL CAMERA DE MORAES","WILSON RODRIGUES MOTA"
+    ];
+
+    /*******************************
+     * VARIÁVEIS DE ESTADO
+     *******************************/
     let allAlunos = [];
     let alunosDaTurmaAtual = [];
     let alunosSelecionados = [];
@@ -388,7 +469,9 @@
     let currentUserRole = null;
     let alunosComRA = []; // Para armazenar alunos com RA na área de gestão
 
-    // inicial
+    /*******************************
+     * INICIALIZAÇÃO
+     *******************************/
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('data_prof').value = new Date().toISOString().split('T')[0];
       // Mostrar formulário de gestão por padrão
@@ -396,6 +479,10 @@
       carregarTurmasGestao(); // Carregar turmas ao iniciar
     });
 
+    /*******************************
+     * FUNÇÕES DE AUTENTICAÇÃO
+     *******************************/
+    
     // Selecionar opção de login
     function selectLoginOption(role) {
       document.querySelectorAll('.login-option').forEach(opt => opt.classList.remove('active'));
@@ -426,6 +513,7 @@
       }
     }
     
+    // Preencher dados de demonstração
     function fillDemo(role){ 
       if (role === 'gestao') {
         document.getElementById('emailGestao').value='gestao@escola.com'; 
@@ -436,6 +524,7 @@
       }
     }
 
+    // Exibir aplicação conforme o tipo de usuário
     function showAppAs(role, email){
       currentUserRole = role;
       document.getElementById('loginScreen').style.display = 'none';
@@ -456,6 +545,7 @@
       document.getElementById('btnDownloadPdf').style.display = 'inline-block';
     }
 
+    // Logout do sistema
     function logout(){
       currentUserRole = null;
       document.getElementById('loginScreen').style.display = 'block';
@@ -464,7 +554,9 @@
       document.getElementById('userDisplay').textContent = 'Não autenticado';
       document.getElementById('btnLogout').style.display = 'none';
       document.getElementById('btnDownloadPdf').style.display = 'none';
-      alunosDaTurmaAtual = []; alunosSelecionados = []; document.getElementById('selectedPills').innerHTML='';
+      alunosDaTurmaAtual = []; 
+      alunosSelecionados = []; 
+      document.getElementById('selectedPills').innerHTML='';
       
       // Limpar formulários
       document.getElementById('emailGestao').value = '';
@@ -474,7 +566,7 @@
     }
 
     /*******************************
-     * Funções específicas para a área de gestão
+     * FUNÇÕES ESPECÍFICAS PARA A ÁREA DE GESTÃO
      *******************************/
     
     // Carregar turmas para a área de gestão
@@ -485,7 +577,7 @@
         if(j && j.status === 'success' && Array.isArray(j.classes)) {
           turmas = j.classes;
         } else {
-          turmas = Object.keys(_getClassRanges());
+          turmas = Object.keys(CLASS_MAPPING);
         }
         
         const turmaSelect = document.getElementById('serie_gestao');
@@ -498,7 +590,7 @@
         });
       } catch(err) {
         console.error('Erro ao carregar turmas (gestão):', err);
-        turmas = Object.keys(_getClassRanges());
+        turmas = Object.keys(CLASS_MAPPING);
         const turmaSelect = document.getElementById('serie_gestao');
         turmaSelect.innerHTML = '<option value="">-- Selecione a turma --</option>';
         turmas.forEach(t => {
@@ -557,7 +649,7 @@
     }
 
     /*******************************
-     * GET professores & turmas (consultando BANCODEDADOSGERAL)
+     * CARREGAR PROFESSORES E TURMAS (PROFESSOR)
      *******************************/
     async function carregarProfessoresETurmas(){
       try {
@@ -565,41 +657,65 @@
         const r1 = await fetch(`${SCRIPT_URL}?endpoint=teachers&sheet=${encodeURIComponent(SHEET_GERAL)}`);
         const j1 = await r1.json();
         if(j1 && j1.status === 'success' && Array.isArray(j1.teachers)) professores = j1.teachers;
-        else professores = getFallbackProfessores();
+        else professores = PROFESSORES;
 
         const profSel = document.getElementById('professor_select');
         profSel.innerHTML = '<option value="">-- selecione --</option>';
-        professores.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; profSel.appendChild(o) });
+        professores.forEach(p => { 
+          const o = document.createElement('option'); 
+          o.value = p; 
+          o.textContent = p; 
+          profSel.appendChild(o); 
+        });
 
         // turmas (GET do sheet geral)
         const r2 = await fetch(`${SCRIPT_URL}?endpoint=classes&sheet=${encodeURIComponent(SHEET_GERAL)}`);
         const j2 = await r2.json();
         if(j2 && j2.status === 'success' && Array.isArray(j2.classes)) turmas = j2.classes;
-        else turmas = Object.keys(_getClassRanges());
+        else turmas = Object.keys(CLASS_MAPPING);
 
         const turmaSel = document.getElementById('turma_select');
         turmaSel.innerHTML = '<option value="">-- selecione --</option>';
-        turmas.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; turmaSel.appendChild(o) });
+        turmas.forEach(t => { 
+          const o = document.createElement('option'); 
+          o.value = t; 
+          o.textContent = t; 
+          turmaSel.appendChild(o); 
+        });
       } catch(err){
         console.error('Erro carregar professores/turmas:', err);
         // fallback
-        professores = getFallbackProfessores();
+        professores = PROFESSORES;
         const profSel = document.getElementById('professor_select');
         profSel.innerHTML = '<option value="">-- selecione --</option>';
-        professores.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; profSel.appendChild(o) });
-        turmas = Object.keys(_getClassRanges());
+        professores.forEach(p => { 
+          const o = document.createElement('option'); 
+          o.value = p; 
+          o.textContent = p; 
+          profSel.appendChild(o); 
+        });
+        turmas = Object.keys(CLASS_MAPPING);
         const turmaSel = document.getElementById('turma_select');
         turmaSel.innerHTML = '<option value="">-- selecione --</option>';
-        turmas.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; turmaSel.appendChild(o) });
+        turmas.forEach(t => { 
+          const o = document.createElement('option'); 
+          o.value = t; 
+          o.textContent = t; 
+          turmaSel.appendChild(o); 
+        });
       }
     }
 
     /*******************************
-     * GET students by class (consultando BANCODEDADOSGERAL)
+     * CARREGAR ALUNOS POR TURMA (PROFESSOR)
      *******************************/
     async function onTurmaChange(){
       const turma = document.getElementById('turma_select').value;
-      if(!turma){ alunosDaTurmaAtual = []; renderStudentList([]); return; }
+      if(!turma){ 
+        alunosDaTurmaAtual = []; 
+        renderStudentList([]); 
+        return; 
+      }
       await carregarAlunosPorTurma(turma);
       renderStudentList(alunosDaTurmaAtual);
     }
@@ -617,45 +733,85 @@
     }
 
     /*******************************
-     * Modal alunos (professor)
+     * MODAL DE SELEÇÃO DE ALUNOS (PROFESSOR)
      *******************************/
     function openStudentsModal(){
-      if(!alunosDaTurmaAtual || alunosDaTurmaAtual.length === 0){ alert('Nenhum aluno encontrado para a turma selecionada.'); return; }
+      if(!alunosDaTurmaAtual || alunosDaTurmaAtual.length === 0){ 
+        alert('Nenhum aluno encontrado para a turma selecionada.'); 
+        return; 
+      }
       document.getElementById('modalRoot').style.display = 'flex';
       renderStudentList(alunosDaTurmaAtual);
       document.getElementById('studentSearch').value = '';
     }
-    function closeStudentsModal(){ document.getElementById('modalRoot').style.display = 'none'; }
+    
+    function closeStudentsModal(){ 
+      document.getElementById('modalRoot').style.display = 'none'; 
+    }
 
     function renderStudentList(list){
-      const container = document.getElementById('studentList'); container.innerHTML = '';
+      const container = document.getElementById('studentList'); 
+      container.innerHTML = '';
       list.forEach(nome => {
-        const row = document.createElement('div'); row.style.display='flex';row.style.justifyContent='space-between';row.style.alignItems='center';row.style.padding='8px';row.style.borderBottom='1px solid #eee';
-        const lbl = document.createElement('div'); lbl.textContent = nome;
-        const cb = document.createElement('input'); cb.type='checkbox'; cb.value = nome; cb.checked = alunosSelecionados.includes(nome);
-        cb.onchange = (e) => { if(e.target.checked){ if(!alunosSelecionados.includes(nome)) alunosSelecionados.push(nome); } else alunosSelecionados = alunosSelecionados.filter(x => x !== nome); };
-        row.appendChild(lbl); row.appendChild(cb); container.appendChild(row);
+        const row = document.createElement('div'); 
+        row.style.display='flex';
+        row.style.justifyContent='space-between';
+        row.style.alignItems='center';
+        row.style.padding='8px';
+        row.style.borderBottom='1px solid #eee';
+        
+        const lbl = document.createElement('div'); 
+        lbl.textContent = nome;
+        
+        const cb = document.createElement('input'); 
+        cb.type='checkbox'; 
+        cb.value = nome; 
+        cb.checked = alunosSelecionados.includes(nome);
+        cb.onchange = (e) => { 
+          if(e.target.checked){ 
+            if(!alunosSelecionados.includes(nome)) alunosSelecionados.push(nome); 
+          } else {
+            alunosSelecionados = alunosSelecionados.filter(x => x !== nome); 
+          } 
+        };
+        
+        row.appendChild(lbl); 
+        row.appendChild(cb); 
+        container.appendChild(row);
       });
     }
 
-    function filterStudentList(){ const q = document.getElementById('studentSearch').value.toLowerCase(); const filtered = alunosDaTurmaAtual.filter(s => s.toLowerCase().includes(q)); renderStudentList(filtered); }
+    function filterStudentList(){ 
+      const q = document.getElementById('studentSearch').value.toLowerCase(); 
+      const filtered = alunosDaTurmaAtual.filter(s => s.toLowerCase().includes(q)); 
+      renderStudentList(filtered); 
+    }
 
     function confirmStudents(){
       document.getElementById('alunos_selected_input').value = alunosSelecionados.join(', ');
-      const pills = document.getElementById('selectedPills'); pills.innerHTML = '';
-      alunosSelecionados.forEach(a => { const el = document.createElement('div'); el.className='pill'; el.textContent = a; pills.appendChild(el); });
+      const pills = document.getElementById('selectedPills'); 
+      pills.innerHTML = '';
+      alunosSelecionados.forEach(a => { 
+        const el = document.createElement('div'); 
+        el.className='pill'; 
+        el.textContent = a; 
+        pills.appendChild(el); 
+      });
       closeStudentsModal();
     }
 
     /*******************************
-     * Toggle suspensão (gestão)
+     * TOGGLE SUSPENSÃO (GESTÃO)
      *******************************/
     function toggleSuspension(area){
-      if(area === 'gestao'){ const val = document.getElementById('classificacao_gestao').value; document.getElementById('suspensionRow_gestao').style.display = (val === 'SUSPENSÃO') ? 'flex' : 'none'; }
+      if(area === 'gestao'){ 
+        const val = document.getElementById('classificacao_gestao').value; 
+        document.getElementById('suspensionRow_gestao').style.display = (val === 'SUSPENSÃO') ? 'flex' : 'none'; 
+      }
     }
 
     /*******************************
-     * POST cadastrar ocorrência (gestão) -> grava em BANCODEALUNOS (sheet: SHEET_GESTAO)
+     * CADASTRAR OCORRÊNCIA (GESTÃO)
      *******************************/
     async function cadastrarOcorrenciaGestao(){
       const alunoSelect = document.getElementById('aluno_gestao');
@@ -669,8 +825,14 @@
       const dataRetorno = document.getElementById('dataRetorno_gestao').value || null;
       const ra = document.getElementById('ra_gestao').value;
 
-      if(!aluno || !serie || !professor || !disciplina || !classificacao || !descricao){ alert('Preencha todos os campos obrigatórios.'); return; }
-      if(classificacao === 'SUSPENSÃO' && !dataRetorno){ alert('Informe data de retorno para suspensão.'); return; }
+      if(!aluno || !serie || !professor || !disciplina || !classificacao || !descricao){ 
+        alert('Preencha todos os campos obrigatórios.'); 
+        return; 
+      }
+      if(classificacao === 'SUSPENSÃO' && !dataRetorno){ 
+        alert('Informe data de retorno para suspensão.'); 
+        return; 
+      }
 
       const payload = {
         sheet: SHEET_GESTAO,           // grava na aba BANCODEALUNOS
@@ -715,14 +877,19 @@
     }
 
     /*******************************
-     * POST registrar ocorrência (professor) -> grava em OCORRENCIASDOSPROFESSORES (sheet: SHEET_PROF)
+     * REGISTRAR OCORRÊNCIA (PROFESSOR)
      *******************************/
     async function registrarOcorrenciaProfessor(){
       const professor = document.getElementById('professor_select').value;
       const turma = document.getElementById('turma_select').value;
       const dataOc = document.getElementById('data_prof').value;
       const descricao = document.getElementById('descricao_prof').value.trim();
-      if(!professor || !turma || !dataOc || alunosSelecionados.length === 0){ alert('Preencha todos os campos obrigatórios e selecione ao menos um aluno.'); return; }
+      
+      if(!professor || !turma || !dataOc || alunosSelecionados.length === 0){ 
+        alert('Preencha todos os campos obrigatórios e selecione ao menos um aluno.'); 
+        return; 
+      }
+      
       const irregs = Array.from(document.querySelectorAll('input[name="irreg"]:checked')).map(x=>x.value);
       const payload = { 
         sheet: SHEET_PROF,            // grava na aba OCORRENCIASDOSPROFESSORES
@@ -734,8 +901,13 @@
         irregularities: irregs.join(', '), 
         description: descricao 
       };
+      
       try {
-        const resp = await fetch(`${SCRIPT_URL}`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+        const resp = await fetch(`${SCRIPT_URL}`, { 
+          method:'POST', 
+          headers:{'Content-Type':'application/json'}, 
+          body: JSON.stringify(payload) 
+        });
         const j = await resp.json();
         if(j && j.status === 'success'){
           document.getElementById('successProfessor').style.display = 'block';
@@ -751,12 +923,20 @@
       }
     }
 
+    // Limpar formulário do professor
     function clearProfessorForm(){
-      document.getElementById('professor_select').value=''; document.getElementById('turma_select').value=''; document.getElementById('alunos_selected_input').value=''; document.getElementById('selectedPills').innerHTML=''; document.getElementById('descricao_prof').value=''; alunosSelecionados = []; Array.from(document.querySelectorAll('input[name="irreg"]')).forEach(cb => cb.checked=false); document.getElementById('data_prof').value = new Date().toISOString().split('T')[0];
+      document.getElementById('professor_select').value=''; 
+      document.getElementById('turma_select').value=''; 
+      document.getElementById('alunos_selected_input').value=''; 
+      document.getElementById('selectedPills').innerHTML=''; 
+      document.getElementById('descricao_prof').value=''; 
+      alunosSelecionados = []; 
+      Array.from(document.querySelectorAll('input[name="irreg"]')).forEach(cb => cb.checked=false); 
+      document.getElementById('data_prof').value = new Date().toISOString().split('T')[0];
     }
 
     /*******************************
-     * GET histórico (consultando BANCODEDADOSGERAL)
+     * CARREGAR HISTÓRICO
      *******************************/
     async function carregarHistoricoGestao(){
       const container = document.getElementById('historyListGestao');
@@ -767,7 +947,10 @@
         // backend pode retornar json.occurrences ou json.data
         const ocorrs = json.occurrences || json.data || [];
         container.innerHTML = '';
-        if(!ocorrs || ocorrs.length === 0){ container.innerHTML = '<div class="muted">Nenhuma ocorrência encontrada.</div>'; return; }
+        if(!ocorrs || ocorrs.length === 0){ 
+          container.innerHTML = '<div class="muted">Nenhuma ocorrência encontrada.</div>'; 
+          return; 
+        }
 
         // Exibe do mais recente para o mais antigo
         ocorrs.slice().reverse().forEach(r => {
@@ -779,31 +962,48 @@
           const irreg = r.IRREGULARIDADES || r.irregularities || r.col5 || '';
           const desc = r.DESCRICAO || r.description || r.col6 || '';
 
-          const div = document.createElement('div'); div.className='historyItem';
-          const meta = document.createElement('div'); meta.className='meta';
+          const div = document.createElement('div'); 
+          div.className='historyItem';
+          
+          const meta = document.createElement('div'); 
+          meta.className='meta';
           meta.innerHTML = `<div><strong>${date}</strong> — <span class="muted">${prof}</span></div>`;
+          
           const controls = document.createElement('div');
           // botão gerar pdf via backend
           const pdfBtn = document.createElement('button');
-          pdfBtn.className='btn-success'; pdfBtn.style.fontSize='12px'; pdfBtn.style.marginLeft='8px';
+          pdfBtn.className='btn-success'; 
+          pdfBtn.style.fontSize='12px'; 
+          pdfBtn.style.marginLeft='8px';
           pdfBtn.textContent = 'Gerar PDF (template)';
           pdfBtn.onclick = () => generatePdfFromBackend(id);
+          
           // botão excluir
           const delBtn = document.createElement('button');
-          delBtn.className='btn-danger'; delBtn.style.fontSize='12px'; delBtn.style.marginLeft='8px';
+          delBtn.className='btn-danger'; 
+          delBtn.style.fontSize='12px'; 
+          delBtn.style.marginLeft='8px';
           delBtn.textContent = 'Excluir';
           delBtn.onclick = () => deleteOccurrence(id);
 
-          controls.appendChild(pdfBtn); controls.appendChild(delBtn);
+          controls.appendChild(pdfBtn); 
+          controls.appendChild(delBtn);
           meta.appendChild(controls);
 
-          const ddesc = document.createElement('div'); ddesc.className='desc';
+          const ddesc = document.createElement('div'); 
+          ddesc.className='desc';
           ddesc.innerHTML = `<strong>Aluno(s):</strong> ${aluno || 'N/A'}<br/><strong>Turma:</strong> ${turma || 'N/A'}<br/><strong>Irregularidades:</strong> ${irreg || 'N/A'}<br/><em>${desc || ''}</em>`;
 
           // adicionar id visível (útil)
-          const idLine = document.createElement('div'); idLine.style.marginTop='8px'; idLine.style.fontSize='12px'; idLine.style.opacity='0.9'; idLine.innerHTML = `ID: <span class="qnum">${id}</span>`;
+          const idLine = document.createElement('div'); 
+          idLine.style.marginTop='8px'; 
+          idLine.style.fontSize='12px'; 
+          idLine.style.opacity='0.9'; 
+          idLine.innerHTML = `ID: <span class="qnum">${id}</span>`;
 
-          div.appendChild(meta); div.appendChild(ddesc); div.appendChild(idLine);
+          div.appendChild(meta); 
+          div.appendChild(ddesc); 
+          div.appendChild(idLine);
           container.appendChild(div);
         });
       } catch(err){
@@ -820,7 +1020,10 @@
         const json = await resp.json();
         const ocorrs = json.occurrences || json.data || [];
         container.innerHTML = '';
-        if(!ocorrs || ocorrs.length === 0){ container.innerHTML = '<div class="muted">Nenhuma ocorrência encontrada.</div>'; return; }
+        if(!ocorrs || ocorrs.length === 0){ 
+          container.innerHTML = '<div class="muted">Nenhuma ocorrência encontrada.</div>'; 
+          return; 
+        }
 
         // Exibe do mais recente para o mais antigo
         ocorrs.slice().reverse().forEach(r => {
@@ -832,17 +1035,27 @@
           const irreg = r.IRREGULARIDADES || r.irregularities || r.col5 || '';
           const desc = r.DESCRICAO || r.description || r.col6 || '';
 
-          const div = document.createElement('div'); div.className='historyItem';
-          const meta = document.createElement('div'); meta.className='meta';
+          const div = document.createElement('div'); 
+          div.className='historyItem';
+          
+          const meta = document.createElement('div'); 
+          meta.className='meta';
           meta.innerHTML = `<div><strong>${date}</strong> — <span class="muted">${prof}</span></div>`;
           
-          const ddesc = document.createElement('div'); ddesc.className='desc';
+          const ddesc = document.createElement('div'); 
+          ddesc.className='desc';
           ddesc.innerHTML = `<strong>Aluno(s):</strong> ${aluno || 'N/A'}<br/><strong>Turma:</strong> ${turma || 'N/A'}<br/><strong>Irregularidades:</strong> ${irreg || 'N/A'}<br/><em>${desc || ''}</em>`;
 
           // adicionar id visível (útil)
-          const idLine = document.createElement('div'); idLine.style.marginTop='8px'; idLine.style.fontSize='12px'; idLine.style.opacity='0.9'; idLine.innerHTML = `ID: <span class="qnum">${id}</span>`;
+          const idLine = document.createElement('div'); 
+          idLine.style.marginTop='8px'; 
+          idLine.style.fontSize='12px'; 
+          idLine.style.opacity='0.9'; 
+          idLine.innerHTML = `ID: <span class="qnum">${id}</span>`;
 
-          div.appendChild(meta); div.appendChild(ddesc); div.appendChild(idLine);
+          div.appendChild(meta); 
+          div.appendChild(ddesc); 
+          div.appendChild(idLine);
           container.appendChild(div);
         });
       } catch(err){
@@ -852,10 +1065,13 @@
     }
 
     /*******************************
-     * DELETE ocorrência (POST ?endpoint=delete-occurrence) - envia sheet para contexto
+     * EXCLUIR OCORRÊNCIA
      *******************************/
     async function deleteOccurrence(occurrenceId){
-      if(occurrenceId === null || occurrenceId === undefined){ alert('ID inválido para exclusão.'); return; }
+      if(occurrenceId === null || occurrenceId === undefined){ 
+        alert('ID inválido para exclusão.'); 
+        return; 
+      }
       if(!confirm('Confirma exclusão desta ocorrência (ID '+occurrenceId+')?')) return;
       try {
         const resp = await fetch(`${SCRIPT_URL}?endpoint=delete-occurrence`, {
@@ -864,16 +1080,25 @@
           body: JSON.stringify({ occurrenceId, sheet: SHEET_PROF })
         });
         const j = await resp.json();
-        if(j && j.status === 'success'){ alert('Ocorrência excluída.'); carregarHistoricoGestao(); }
+        if(j && j.status === 'success'){ 
+          alert('Ocorrência excluída.'); 
+          carregarHistoricoGestao(); 
+        }
         else alert('Erro ao excluir: ' + (j && j.message ? j.message : 'Resposta inesperada'));
-      } catch(err){ console.error('Erro deleteOccurrence:', err); alert('Erro ao comunicar com servidor.'); }
+      } catch(err){ 
+        console.error('Erro deleteOccurrence:', err); 
+        alert('Erro ao comunicar com servidor.'); 
+      }
     }
 
     /*******************************
-     * Geração de PDF via backend
+     * GERAÇÃO DE PDF
      *******************************/
     async function generatePdfFromBackend(occurrenceId){
-      if(!occurrenceId){ alert('ID inválido para geração de PDF.'); return; }
+      if(!occurrenceId){ 
+        alert('ID inválido para geração de PDF.'); 
+        return; 
+      }
       try {
         const resp = await fetch(`${SCRIPT_URL}?endpoint=generate-pdf`, {
           method:'POST',
@@ -893,9 +1118,7 @@
       }
     }
 
-    /*******************************
-     * fallback: gerar PDF localmente (apenas conteúdo simples)
-     *******************************/
+    // Gerar PDF localmente (apenas conteúdo simples)
     function generatePDFLocal(){
       try {
         const { jsPDF } = window.jspdf;
@@ -914,49 +1137,10 @@
         const split = doc.splitTextToSize(desc || 'Sem descrição', 180);
         doc.text(split, 14, y);
         doc.save(`ocorrencia_${Date.now()}.pdf`);
-      } catch(err){ console.error('Erro gerar PDF local:', err); alert('Erro ao gerar PDF local (ver console).'); }
-    }
-
-    /*******************************
-     * utilitários / fallbacks
-     *******************************/
-    function _getClassRanges(){ return {
-      "6° ANO A MANHA":"C3:C46","6° ANO B MANHA":"H3:H46","6° ANO C MANHA":"M3:M46","6° ANO D MANHA":"R3:R46",
-      "6° ANO E TARDE":"W3:W46","6° ANO F TARDE":"AB3:AB46","7° ANO A TARDE":"AG3:AG46","7° ANO B TARDE":"AL3:AL46",
-      "7° ANO C TARDE":"AQ3:AQ46","7° ANO D TARDE":"AV3:AV46","7° ANO E TARDE":"BA3:BA46","7° ANO F TARDE":"BF3:BF46",
-      "8° ANO A TARDE":"BK3:BK46","8° ANO B TARDE":"BP3:BP46","8° ANO C TARDE":"BU3:BU46","8° ANO D TARDE":"BZ3:B46",
-      "9° ANO A TARDE":"CE3:CE46","9° ANO B TARDE":"CJ3:CJ46","9° ANO C TARDE":"CO3:CO46","9° ANO D TARDE":"CT3:CT46",
-      "1ª SERIE A MANHA":"CY3:CY46","1ª SERIE B MANHA":"DD3:DD46","1ª SERIE C MANHA":"DI3:DI46","1ª SERIE D MANHA":"DN3:DN46",
-      "1ª SERIE E MANHA":"DS3:DS46","1ª SERIE F MANHA":"DX3:DX46","1ª SERIE G TARDE":"EC3:EC46","1ª SERIE H NOITE":"EH3:EH46",
-      "1ª SERIE I NOITE":"EM3:EM46","2ª SERIE A MANHA":"ER3:ER46","2ª SERIE B MANHA":"EW3:EW46","2ª SERIE C MANHA":"FB3:FB46",
-      "2ª SERIE D MANHA":"FG3:FG46","2ª SERIE E MANHA":"FL3:FL46","2ª SERIE F NOITE":"FQ3:FQ46","2ª SERIE G NOITE":"FV3:FV46",
-      "2ª SERIE H NOITE":"GA3:GA46","3ª SERIE A MANHA":"GK3:GK46","3ª SERIE B MANHA":"GP3:GP46","3ª SERIE C MANHA":"GU3:GU46",
-      "3ª SERIE D NOITE":"GZ3:GZ46","3ª SERIE E NOITE":"HE3:HE46","3ª SERIE F NOITE":"HJ3:HJ46"
-    };}
-
-    function getFallbackProfessores(){
-      return [
-        "ALEX LUTH PEREIRA MARANHAO","ALEXSANDRA PAULA VARELLA DE SOUZA","ALISON VASCONCELOS BESERRA","AMAURI TEODORO DE OLIVEIRA",
-        "ANA PAULA DOS SANTOS","ANDREIA DOS SANTOS FREITAS","ANDREIA MADUREIRA REIS","ANTONIO CARLOS DE OLIVEIRA",
-        "ANTONIO RAMOS DE ARAUJO","ANTONIO WILTON WANDERLEY CABRAL","AUGUSTO LINO PESSOA NETO","AUREA MARIA DE JESUS MARQUES",
-        "CAROLINA PERNOMIAN PARUSSOLOLO","CASSIA OLIVEIRA ANTONIAZI","CLAUDINEIA DE AGUIAR LIMA","DANIEL DE FREITAS ALMEIDA",
-        "DANIEL LOPES BARBOSA","DANIELA FERREIRA LIMA","DANIELLE LUCIA BATISTA DE ALMEIDA","EDIANE VIEIRA DA SILVA",
-        "EDILEUSA NUNES PEREIRA","EDUARDO HENRIQUE DA FONSECA","ELIANE SANTOS SILVA","ELIAS MONTEIRO DA SILVERA",
-        "ELISABETE APARECIDA PIRES","ELZA DE FARIA PEREIRA","EMERSON GABLER DE ALMEIDA","EUZELI ARAUJO DE OLIVEIRA",
-        "FABIANO AUGUSTO PIEDADE","FABIO CAMILO","FERNANDO JOSE DA SILVA FILHO","FLAVIA CRISTINA APARECIDA BICHLER",
-        "FLAVIO CARDOSO FLEURY","FRANCISCA EDIVANIA DE MORAIS COSTA","GABRIELA SERIGHELLI DE MELO","GELSON DE ALMEIDA BATISTA",
-        "GENILTON DE OLIVEIRA SILVA","GIANI CRISTINA DO PRADO","INGRYD CAROLINA SUGUIMOTO VIEIRA","IVANILDES DOS SANTOS OSHIKAWA",
-        "JANINA DOS PASSOS BRAGA DE ALMEIDA","JOSE APARECIDO DA SILVA","JUAREZ GOMES DE MAGALHAES FILHO","JUREMA SOLEDADE FURINI SANTOS",
-        "KATIUSCIA ALVES BOMFIM","LUANA CAROLINE ALVES LIMA","LUANA DE FREITAS SILVA","LUCIANA NOVAIS CORREIA SANTOS",
-        "LUCIANO MOREIRA DE AZEVEDO","MARCIEL DA SILVA","MARIA HELENA CUNHA MORO","MARIA QUITÉRIA FERREIRA DOS SANTOS",
-        "MARINA DA CONCEICAO FRANCISCO SILVA","MAURICIO DE BARROS SANTOS","MICHELE DE PINHO MORAES","MOISES ANTONIO DE BARROS",
-        "PAULA ARMANI VILA","PAULO ROBERTO DA SILVA ITO","PEDRO ZANOTTI FILHO","RAUL PEREIRA VILERA JUNIOR",
-        "REGIANE CURTI DE SOUZA OLIVEIRA","REGINA DA SILSA CASTRO","RICARDO AMERICO DA SILVA","ROBERTO SALGADO",
-        "RODRIGO VIEIRA","ROSANGELA CAFASSO MOREIRA","ROSIMERY DE SOUZA PESSOA","ROSMARA DA SILSA CARDOSO",
-        "SANDRA CRISTINA MACEDO MORAES","SELMA GOMES DA SILSA","SERGIO AGRIPINO VILLA NOVA","SOLANGE ALMEIDA DA SILSA",
-        "SUZINEIDE SILSA DE FREITAS","THIAGO FABIANO BRITO","TITTO AUGUSTO NASCIMENTO SILSA","VANDERSON HYPPOLITO",
-        "VANESSA IVETE GOMES DOS SANTOS","VANIA PENHA DE BARROS","VIVIANE LEAL CAMERA DE MORAES","WILSON RODRIGUES MOTA"
-      ];
+      } catch(err){ 
+        console.error('Erro gerar PDF local:', err); 
+        alert('Erro ao gerar PDF local (ver console).'); 
+      }
     }
 
   </script>
