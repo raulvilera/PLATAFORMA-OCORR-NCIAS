@@ -17,51 +17,55 @@
       background: linear-gradient(135deg,#9fe7ff 0%, #b9f7c9 60%, #baf3ff 100%);
       color:#fff; font-weight:800; padding:18px;
     }
-    .app{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+    .app{max-width:1400px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
     header{display:flex;align-items:center;justify-content:space-between;padding:18px;border-radius:14px;background:linear-gradient(90deg,rgba(0,31,63,0.95),rgba(0,78,120,0.95));box-shadow:0 8px 30px rgba(0,0,0,0.15)}
-    header h1{font-size:20px;margin:0}
+    header h1{font-size:22px;margin:0}
     .header-controls{display:flex;gap:10px;align-items:center}
     .card{background:#2f3336;padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.15)}
     .flex{display:flex;gap:18px;align-items:flex-start}
     .col{display:flex;flex-direction:column;gap:12px}
-    label{display:block;margin-bottom:6px;font-size:13px}
+    label{display:block;margin-bottom:6px;font-size:14px}
     input[type="text"],input[type="email"],input[type="password"],select,textarea,input[type="date"]{
-      width:100%;padding:10px 12px;border-radius:8px;border:none;font-weight:800;font-size:14px;color:#111
+      width:100%;padding:12px 14px;border-radius:8px;border:none;font-weight:800;font-size:15px;color:#111;
+      min-width: 0; /* Permite que os campos se redimensionem corretamente */
     }
-    textarea{min-height:110px;resize:vertical;padding-top:12px}
-    button{cursor:pointer;border:none;padding:10px 14px;border-radius:8px;font-weight:900;box-shadow:0 6px 18px rgba(0,0,0,0.15)}
+    textarea{min-height:120px;resize:vertical;padding-top:12px}
+    button{cursor:pointer;border:none;padding:12px 16px;border-radius:8px;font-weight:900;box-shadow:0 6px 18px rgba(0,0,0,0.15); font-size:15px;}
     .btn-primary{background:linear-gradient(90deg,#1e3c72,#2a5298);color:#fff}
     .btn-danger{background:linear-gradient(90deg,#e94b4b,#c62828);color:#fff}
     .btn-success{background:linear-gradient(90deg,#4CAF50,#2E7D32);color:#fff}
     .btn-secondary{background:linear-gradient(90deg,#6c757d,#5a6268);color:#fff}
-    .subtitle{font-size:14px;color:#d9f2ff;margin-bottom:6px}
+    .subtitle{font-size:16px;color:#d9f2ff;margin-bottom:8px}
     .historyList{max-height:420px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding-right:6px}
     .historyItem{background:rgba(255,255,255,0.06);border-left:5px solid rgba(255,255,255,0.06);padding:12px;border-radius:8px;color:#fff;font-weight:700}
-    .historyItem .meta{font-size:13px;color:#dbefff;font-weight:800;display:flex;justify-content:space-between;gap:8px;align-items:center}
-    .historyItem .desc{margin-top:8px;color:#e7f7ff;font-weight:600;font-size:14px}
+    .historyItem .meta{font-size:14px;color:#dbefff;font-weight:800;display:flex;justify-content:space-between;gap:8px;align-items:center}
+    .historyItem .desc{margin-top:8px;color:#e7f7ff;font-weight:600;font-size:15px}
     .modal-root{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);z-index:2000}
-    .modal{width:92%;max-width:780px;background:#fff;color:#111;border-radius:12px;padding:14px;max-height:84vh;overflow:auto}
+    .modal{width:92%;max-width:900px;background:#fff;color:#111;border-radius:12px;padding:16px;max-height:84vh;overflow:auto}
     .studentList{display:flex;flex-direction:column;gap:8px}
-    .pill{background:linear-gradient(90deg,#2a5298,#3a6bd1);color:#fff;padding:6px 10px;border-radius:999px;font-weight:800;display:inline-block}
+    .pill{background:linear-gradient(90deg,#2a5298,#3a6bd1);color:#fff;padding:8px 12px;border-radius:999px;font-weight:800;display:inline-block; font-size:14px;}
     .muted{opacity:.9;font-weight:700;color:#e7f7ff}
     .qnum{color:#ff3b3b;font-weight:900}
     .login-options {display: flex; gap: 12px; margin-bottom: 18px;}
-    .login-option {flex: 1; text-align: center; padding: 12px; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.1);}
+    .login-option {flex: 1; text-align: center; padding: 14px; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.1); font-size:15px;}
     .login-option.active {background: linear-gradient(90deg, rgba(0,78,120,0.8), rgba(0,120,120,0.8));}
     .access-area {display: none;}
     
-    /* Novos estilos para formulários - Área de Gestão com campos mais largos */
-    .form-row {display: flex; gap: 12px; margin-bottom: 12px;}
-    .form-group {flex: 1; display: flex; flex-direction:column;}
-    .form-group label {margin-bottom: 6px;}
-    .form-group-small {flex: 0.5;}
-    .form-group-medium {flex: 1.2;}
-    .form-group-large {flex: 2;}
-    .form-group-xlarge {flex: 2.5;} /* Novo tamanho para campos maiores */
+    /* Novos estilos para formulários - Campos redimensionados para conteúdo */
+    .form-row {display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start;}
+    .form-group {display: flex; flex-direction:column; flex: 1 1 auto; min-width: 0;} /* Permite redimensionamento */
+    .form-group label {margin-bottom: 8px;}
+    
+    /* Classes de tamanho baseadas no conteúdo esperado */
+    .form-group-small {flex: 0 1 120px;} /* Campos pequenos como RA */
+    .form-group-medium {flex: 0 1 200px;} /* Campos médios como senha */
+    .form-group-large {flex: 1 1 300px;} /* Campos grandes como aluno */
+    .form-group-xlarge {flex: 1 1 400px;} /* Campos extra grandes como turma */
+    .form-group-xxlarge {flex: 2 1 500px;} /* Campos muito grandes como descrição */
     
     /* Ajustes específicos para a área de gestão */
-    .gestao-form .form-group {flex: 1;}
-    .gestao-form .form-row {margin-bottom: 15px;}
+    .gestao-form .form-group {flex: 1 1 auto;}
+    .gestao-form .form-row {margin-bottom: 16px;}
     .gestao-form input, 
     .gestao-form select, 
     .gestao-form textarea {
@@ -70,25 +74,35 @@
         font-size: 15px;
     }
     
-    .checkbox-group {display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;}
-    .checkbox-item {background: #efefef; color: #111; padding: 6px 10px; border-radius: 999px; display: inline-flex; align-items: center;}
-    .checkbox-item input {margin-right: 4px;}
+    .checkbox-group {display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;}
+    .checkbox-item {background: #efefef; color: #111; padding: 8px 12px; border-radius: 999px; display: inline-flex; align-items: center; font-size:14px;}
+    .checkbox-item input {margin-right: 6px;}
     
     /* Estilo específico para o campo Classificação */
-    .classification-container {display: flex; flex-direction: column; width: auto; min-width: 250px;} /* Aumentado */
+    .classification-container {display: flex; flex-direction: column; flex: 0 1 280px;} /* Ajustado para conteúdo */
     
-    @media(max-width:980px){
+    /* Campos de seleção com largura adaptável */
+    select {width: 100%; min-width: 150px;} /* Largura mínima para legibilidade */
+    
+    @media(max-width:1080px){
       .flex{flex-direction:column}
-      header{flex-direction:column;gap:8px;align-items:flex-start} 
+      header{flex-direction:column;gap:10px;align-items:flex-start} 
       .login-options {flex-direction: column;}
       .form-row {flex-direction: column;}
-      .classification-container {width: 100%;}
+      .classification-container {width: 100%; flex: 1 1 auto;}
       .gestao-form .form-row {flex-direction: column;}
+      .form-group-small, 
+      .form-group-medium, 
+      .form-group-large, 
+      .form-group-xlarge, 
+      .form-group-xxlarge {
+        flex: 1 1 auto; /* Em telas menores, todos os campos ocupam largura total */
+      }
     }
     
     /* loader animation */
     @keyframes spin{to{transform:rotate(360deg)}}
-    .loader{width:18px;height:18px;border:3px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;display:inline-block}
+    .loader{width:20px;height:20px;border:3px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;display:inline-block}
   </style>
 </head>
 <body>
@@ -106,7 +120,7 @@
 
     <!-- LOGIN -->
     <div id="loginScreen" class="card" style="display:block">
-      <div style="max-width:480px;margin:0 auto">
+      <div style="max-width:580px;margin:0 auto">
         <div class="subtitle">Selecione o tipo de acesso</div>
         
         <div class="login-options">
@@ -129,11 +143,11 @@
               <input id="passwordGestao" type="password" placeholder="senha">
             </div>
           </div>
-          <div style="display:flex;gap:8px">
+          <div style="display:flex;gap:10px">
             <button class="btn-primary" onclick="login('gestao')">Entrar como Gestão</button>
             <button class="btn-danger" onclick="fillDemo('gestao')">Demo Gestão</button>
           </div>
-          <p class="muted" style="margin-top:10px;font-size:13px">
+          <p class="muted" style="margin-top:12px;font-size:14px">
             Use <strong>gestao@escola.com / gestao123</strong> para acesso à gestão
           </p>
         </div>
@@ -149,11 +163,11 @@
               <input id="passwordProfessor" type="password" placeholder="senha">
             </div>
           </div>
-          <div style="display:flex;gap:8px">
+          <div style="display:flex;gap:10px">
             <button class="btn-primary" onclick="login('professor')">Entrar como Professor</button>
             <button class="btn-danger" onclick="fillDemo('professor')">Demo Professor</button>
           </div>
-          <p class="muted" style="margin-top:10px;font-size:13px">
+          <p class="muted" style="margin-top:12px;font-size:14px">
             Use <strong>professor@escola.com / prof123</strong> para acesso ao professor
           </p>
         </div>
@@ -161,7 +175,7 @@
     </div>
 
     <!-- MAIN APP - GESTÃO -->
-    <div id="mainAppGestao" style="display:none;flex-direction:column;gap:14px">
+    <div id="mainAppGestao" style="display:none;flex-direction:column;gap:16px">
       <div class="flex">
         <!-- GESTÃO -->
         <div class="card col" style="flex:1">
@@ -187,18 +201,18 @@
                   <!-- Alunos serão carregados dinamicamente -->
                 </select>
               </div>
-              <div class="form-group form-group-medium">
+              <div class="form-group form-group-small">
                 <label>RA</label>
                 <input id="ra_gestao" type="text" readonly>
               </div>
             </div>
             
             <div class="form-row">
-              <div class="form-group form-group-xlarge">
+              <div class="form-group form-group-large">
                 <label>Professor</label>
                 <input id="professor_gestao" type="text">
               </div>
-              <div class="form-group form-group-xlarge">
+              <div class="form-group form-group-large">
                 <label>Disciplina</label>
                 <input id="disciplina_gestao" type="text">
               </div>
@@ -214,14 +228,14 @@
                   <option value="SUSPENSÃO">SUSPENSÃO</option>
                 </select>
               </div>
-              <div class="form-group" style="display:none" id="suspensionRow_gestao">
+              <div class="form-group form-group-medium" style="display:none" id="suspensionRow_gestao">
                 <label>Data de retorno</label>
                 <input id="dataRetorno_gestao" type="date">
               </div>
             </div>
             
             <div class="form-row">
-              <div class="form-group">
+              <div class="form-group form-group-xxlarge">
                 <label>Descrição</label>
                 <textarea id="descricao_gestao" placeholder="Descrição detalhada"></textarea>
               </div>
@@ -232,7 +246,7 @@
               <button class="btn-success" onclick="generatePDFLocal()">Gerar PDF (local)</button>
             </div>
 
-            <div id="successGestao" style="display:none;margin-top:10px;background:linear-gradient(90deg,#4CAF50,#2E7D32);padding:10px;border-radius:8px;color:#fff;font-weight:900">
+            <div id="successGestao" style="display:none;margin-top:12px;background:linear-gradient(90deg,#4CAF50,#2E7D32);padding:12px;border-radius:8px;color:#fff;font-weight:900">
               Ocorrência registrada com sucesso!
             </div>
           </div>
@@ -243,30 +257,30 @@
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div class="subtitle">HISTÓRICO DE OCORRÊNCIAS - GESTÃO</div>
-          <div style="display:flex;gap:8px;align-items:center">
+          <div style="display:flex;gap:10px;align-items:center">
             <button class="btn-primary" onclick="carregarHistoricoGestao()">Atualizar</button>
           </div>
         </div>
-        <div style="margin-top:12px" id="historyListGestao" class="historyList"></div>
+        <div style="margin-top:14px" id="historyListGestao" class="historyList"></div>
       </div>
     </div> <!-- mainAppGestao -->
 
     <!-- MAIN APP - PROFESSOR -->
-    <div id="mainAppProfessor" style="display:none;flex-direction:column;gap:14px">
+    <div id="mainAppProfessor" style="display:none;flex-direction:column;gap:16px">
       <div class="flex">
         <!-- PROFESSOR -->
         <div class="card col" style="flex:1">
           <div class="subtitle">REGISTRO — PROFESSOR</div>
           <div class="col">
             <div class="form-row">
-              <div class="form-group">
+              <div class="form-group form-group-large">
                 <label>Professor</label>
                 <select id="professor_select">
                   <option value="">-- selecione --</option>
                   <!-- Professores serão carregados dinamicamente -->
                 </select>
               </div>
-              <div class="form-group">
+              <div class="form-group form-group-large">
                 <label>Turma</label>
                 <select id="turma_select" onchange="onTurmaChange()">
                   <option value="">-- selecione --</option>
@@ -276,19 +290,19 @@
             </div>
 
             <div class="form-row">
-              <div class="form-group form-group-large">
+              <div class="form-group form-group-xxlarge">
                 <label>Alunos (clique para selecionar)</label>
                 <input id="alunos_selected_input" type="text" readonly placeholder="Clique para selecionar" onclick="openStudentsModal()">
-                <div id="selectedPills" style="margin-top:8px"></div>
+                <div id="selectedPills" style="margin-top:10px"></div>
               </div>
-              <div class="form-group form-group-small">
+              <div class="form-group form-group-medium">
                 <label>Data</label>
                 <input id="data_prof" type="date">
               </div>
             </div>
 
             <div class="form-row">
-              <div class="form-group">
+              <div class="form-group form-group-xxlarge">
                 <label>Irregularidades</label>
                 <div class="checkbox-group">
                   <label class="checkbox-item">
@@ -323,7 +337,7 @@
             </div>
 
             <div class="form-row">
-              <div class="form-group">
+              <div class="form-group form-group-xxlarge">
                 <label>Descrição</label>
                 <textarea id="descricao_prof" placeholder="Descreva a ocorrência..."></textarea>
               </div>
@@ -334,7 +348,7 @@
               <button class="btn-danger" onclick="clearProfessorForm()">Limpar</button>
             </div>
 
-            <div id="successProfessor" style="display:none;margin-top:10px;background:linear-gradient(90deg,#4CAF50,#2E7D32);padding:10px;border-radius:8px;color:#fff;font-weight:900">
+            <div id="successProfessor" style="display:none;margin-top:12px;background:linear-gradient(90deg,#4CAF50,#2E7D32);padding:12px;border-radius:8px;color:#fff;font-weight:900">
               Ocorrência registrada com sucesso!
             </div>
           </div>
@@ -345,28 +359,28 @@
       <div class="card">
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div class="subtitle">HISTÓRICO DE OCORRÊNCIAS - PROFESSOR</div>
-          <div style="display:flex;gap:8px;align-items:center">
+          <div style="display:flex;gap:10px;align-items:center">
             <button class="btn-primary" onclick="carregarHistoricoProfessor()">Atualizar</button>
           </div>
         </div>
-        <div style="margin-top:12px" id="historyListProfessor" class="historyList"></div>
+        <div style="margin-top:14px" id="historyListProfessor" class="historyList"></div>
       </div>
     </div> <!-- mainAppProfessor -->
 
     <!-- MODAL SELEÇÃO ALUNOS -->
     <div id="modalRoot" class="modal-root">
       <div class="modal">
-        <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <strong>Selecionar alunos</strong>
-          <button onclick="closeStudentsModal()" style="background:transparent;border:none;font-weight:900;cursor:pointer">✕</button>
+        <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+          <strong style="font-size:18px;">Selecionar alunos</strong>
+          <button onclick="closeStudentsModal()" style="background:transparent;border:none;font-weight:900;cursor:pointer;font-size:18px;">✕</button>
         </header>
 
         <div>
-          <input id="studentSearch" type="text" placeholder="Filtrar alunos..." style="width:100%;padding:8px;border-radius:8px;border:1px solid #ddd;margin-bottom:10px" oninput="filterStudentList()">
+          <input id="studentSearch" type="text" placeholder="Filtrar alunos..." style="width:100%;padding:10px;border-radius:8px;border:1px solid #ddd;margin-bottom:12px;font-size:15px;" oninput="filterStudentList()">
           <div id="studentList" class="studentList"></div>
         </div>
 
-        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:14px">
           <button class="btn-primary" onclick="confirmStudents()">Confirmar</button>
           <button class="btn-danger" onclick="closeStudentsModal()">Cancelar</button>
         </div>
@@ -757,16 +771,18 @@
         row.style.display='flex';
         row.style.justifyContent='space-between';
         row.style.alignItems='center';
-        row.style.padding='8px';
+        row.style.padding='10px';
         row.style.borderBottom='1px solid #eee';
         
         const lbl = document.createElement('div'); 
         lbl.textContent = nome;
+        lbl.style.fontSize = '15px';
         
         const cb = document.createElement('input'); 
         cb.type='checkbox'; 
         cb.value = nome; 
         cb.checked = alunosSelecionados.includes(nome);
+        cb.style.transform = 'scale(1.2)';
         cb.onchange = (e) => { 
           if(e.target.checked){ 
             if(!alunosSelecionados.includes(nome)) alunosSelecionados.push(nome); 
@@ -940,7 +956,7 @@
      *******************************/
     async function carregarHistoricoGestao(){
       const container = document.getElementById('historyListGestao');
-      container.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
+      container.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
       try {
         const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GERAL)}`);
         const json = await resp.json();
@@ -973,16 +989,16 @@
           // botão gerar pdf via backend
           const pdfBtn = document.createElement('button');
           pdfBtn.className='btn-success'; 
-          pdfBtn.style.fontSize='12px'; 
-          pdfBtn.style.marginLeft='8px';
+          pdfBtn.style.fontSize='13px'; 
+          pdfBtn.style.marginLeft='10px';
           pdfBtn.textContent = 'Gerar PDF (template)';
           pdfBtn.onclick = () => generatePdfFromBackend(id);
           
           // botão excluir
           const delBtn = document.createElement('button');
           delBtn.className='btn-danger'; 
-          delBtn.style.fontSize='12px'; 
-          delBtn.style.marginLeft='8px';
+          delBtn.style.fontSize='13px'; 
+          delBtn.style.marginLeft='10px';
           delBtn.textContent = 'Excluir';
           delBtn.onclick = () => deleteOccurrence(id);
 
@@ -996,8 +1012,8 @@
 
           // adicionar id visível (útil)
           const idLine = document.createElement('div'); 
-          idLine.style.marginTop='8px'; 
-          idLine.style.fontSize='12px'; 
+          idLine.style.marginTop='10px'; 
+          idLine.style.fontSize='13px'; 
           idLine.style.opacity='0.9'; 
           idLine.innerHTML = `ID: <span class="qnum">${id}</span>`;
 
@@ -1014,7 +1030,7 @@
 
     async function carregarHistoricoProfessor(){
       const container = document.getElementById('historyListProfessor');
-      container.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
+      container.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
       try {
         const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GERAL)}`);
         const json = await resp.json();
@@ -1048,8 +1064,8 @@
 
           // adicionar id visível (útil)
           const idLine = document.createElement('div'); 
-          idLine.style.marginTop='8px'; 
-          idLine.style.fontSize='12px'; 
+          idLine.style.marginTop='10px'; 
+          idLine.style.fontSize='13px'; 
           idLine.style.opacity='0.9'; 
           idLine.innerHTML = `ID: <span class="qnum">${id}</span>`;
 
