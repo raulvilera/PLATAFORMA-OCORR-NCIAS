@@ -26,8 +26,9 @@
     .col{display:flex;flex-direction:column;gap:12px}
     label{display:block;margin-bottom:6px;font-size:14px}
     input[type="text"],input[type="email"],input[type="password"],select,textarea,input[type="date"]{
-      width:100%;padding:12px 14px;border-radius:8px;border:none;font-weight:800;font-size:15px;color:#111;
+      padding:12px 14px;border-radius:8px;border:none;font-weight:800;font-size:15px;color:#111;
       min-width: 0; /* Permite que os campos se redimensionem corretamente */
+      width: 100%; /* Garante que ocupem 100% do container pai */
     }
     textarea{min-height:120px;resize:vertical;padding-top:12px}
     button{cursor:pointer;border:none;padding:12px 16px;border-radius:8px;font-weight:900;box-shadow:0 6px 18px rgba(0,0,0,0.15); font-size:15px;}
@@ -51,17 +52,17 @@
     .login-option.active {background: linear-gradient(90deg, rgba(0,78,120,0.8), rgba(0,120,120,0.8));}
     .access-area {display: none;}
     
-    /* Novos estilos para formulários - Campos redimensionados para conteúdo */
+    /* Novos estilos para formulários - Campos com largura proporcional ao conteúdo */
     .form-row {display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start;}
-    .form-group {display: flex; flex-direction:column; flex: 1 1 auto; min-width: 0;} /* Permite redimensionamento */
+    .form-group {display: flex; flex-direction:column; min-width: 0;} /* Permite redimensionamento */
     .form-group label {margin-bottom: 8px;}
     
-    /* Classes de tamanho baseadas no conteúdo esperado */
-    .form-group-small {flex: 0 1 120px;} /* Campos pequenos como RA */
-    .form-group-medium {flex: 0 1 200px;} /* Campos médios como senha */
-    .form-group-large {flex: 1 1 300px;} /* Campos grandes como aluno */
-    .form-group-xlarge {flex: 1 1 400px;} /* Campos extra grandes como turma */
-    .form-group-xxlarge {flex: 2 1 500px;} /* Campos muito grandes como descrição */
+    /* Classes de tamanho otimizadas para o conteúdo */
+    .form-group-small {flex: 0 0 120px;} /* Campos pequenos como RA */
+    .form-group-medium {flex: 0 0 180px;} /* Campos médios como data */
+    .form-group-large {flex: 1 0 250px;} /* Campos grandes como aluno/professor */
+    .form-group-xlarge {flex: 1 0 300px;} /* Campos extra grandes como turma */
+    .form-group-xxlarge {flex: 2 1 400px;} /* Campos muito grandes como descrição */
     
     /* Ajustes específicos para a área de gestão */
     .gestao-form .form-group {flex: 1 1 auto;}
@@ -79,7 +80,7 @@
     .checkbox-item input {margin-right: 6px;}
     
     /* Estilo específico para o campo Classificação */
-    .classification-container {display: flex; flex-direction: column; flex: 0 1 280px;} /* Ajustado para conteúdo */
+    .classification-container {display: flex; flex-direction: column; flex: 0 0 200px;} /* Ajustado para conteúdo */
     
     /* Campos de seleção com largura adaptável */
     select {width: 100%; min-width: 150px;} /* Largura mínima para legibilidade */
@@ -97,6 +98,7 @@
       .form-group-xlarge, 
       .form-group-xxlarge {
         flex: 1 1 auto; /* Em telas menores, todos os campos ocupam largura total */
+        width: 100%;
       }
     }
     
@@ -194,7 +196,7 @@
             
             <!-- Aluno e RA -->
             <div class="form-row">
-              <div class="form-group form-group-xlarge">
+              <div class="form-group form-group-large">
                 <label>Aluno</label>
                 <select id="aluno_gestao" onchange="preencherRAGestao(this.value)">
                   <option value="">-- Selecione o aluno --</option>
@@ -401,7 +403,7 @@
     const SHEET_PROF = 'OCORRENCIASDOSPROFESSORES';
     const SHEET_GESTAO = 'BANCODEALUNOS';
 
-    // Mapeamento completo de turmas, nomes e RAs
+    // Mapeamento completo de turmas, nomes e RAs - CORRIGIDO COM 8º ANO E
     const CLASS_MAPPING = {
       "6° ANO A MANHA":   { nome: "C3:C46",  ra: "D3:D46" },
       "6° ANO B MANHA":   { nome: "H3:H46",  ra: "I3:I46" },
@@ -419,33 +421,35 @@
       "8° ANO B TARDE":   { nome: "BP3:BP46", ra: "BQ3:BQ46" },
       "8° ANO C TARDE":   { nome: "BU3:BU46", ra: "BV3:BV46" },
       "8° ANO D TARDE":   { nome: "BZ3:BZ46", ra: "CA3:CA46" },
-      "9° ANO A TARDE":   { nome: "CE3:CE46", ra: "CF3:CF46" },
-      "9° ANO B TARDE":   { nome: "CJ3:CJ46", ra: "CK3:CK46" },
-      "9° ANO C TARDE":   { nome: "CO3:CO46", ra: "CP3:CP46" },
-      "9° ANO D TARDE":   { nome: "CT3:CT46", ra: "CU3:CU46" },
-      "1ª SERIE A MANHA": { nome: "CY3:CY46", ra: "CZ3:CZ46" },
-      "1ª SERIE B MANHA": { nome: "DD3:DD46", ra: "DE3:DE46" },
-      "1ª SERIE C MANHA": { nome: "DI3:DI46", ra: "DJ3:DJ46" },
-      "1ª SERIE D MANHA": { nome: "DN3:DN46", ra: "DO3:DO46" },
-      "1ª SERIE E MANHA": { nome: "DS3:DS46", ra: "DT3:DT46" },
-      "1ª SERIE F MANHA": { nome: "DX3:DX46", ra: "DY3:DY46" },
-      "1ª SERIE G TARDE": { nome: "EC3:EC46", ra: "ED3:ED46" },
-      "1ª SERIE H NOITE": { nome: "EH3:EH46", ra: "EI3:EI46" },
-      "1ª SERIE I NOITE": { nome: "EM3:EM46", ra: "EN3:EN46" },
-      "2ª SERIE A MANHA": { nome: "ER3:ER46", ra: "ES3:ES46" },
-      "2ª SERIE B MANHA": { nome: "EW3:EW46", ra: "EX3:EX46" },
-      "2ª SERIE C MANHA": { nome: "FB3:FB46", ra: "FC3:FC46" },
-      "2ª SERIE D MANHA": { nome: "FG3:FG46", ra: "FH3:FH46" },
-      "2ª SERIE E MANHA": { nome: "FL3:FL46", ra: "FM3:FM46" },
-      "2ª SERIE F NOITE": { nome: "FQ3:FQ46", ra: "FR3:FR46" },
-      "2ª SERIE G NOITE": { nome: "FV3:FV46", ra: "FW3:FW46" },
-      "2ª SERIE H NOITE": { nome: "GA3:GA46", ra: "GB3:GB46" },
-      "3ª SERIE A MANHA": { nome: "GK3:GK46", ra: "GL3:GL46" },
-      "3ª SERIE B MANHA": { nome: "GP3:GP46", ra: "GQ3:GQ46" },
-      "3ª SERIE C MANHA": { nome: "GU3:GU46", ra: "GV3:GV46" },
-      "3ª SERIE D NOITE": { nome: "GZ3:GZ46", ra: "HA3:HA46" },
-      "3ª SERIE E NOITE": { nome: "HE3:HE46", ra: "HF3:HF46" },
-      "3ª SERIE F NOITE": { nome: "HJ3:HJ46", ra: "HK3:HK46" }
+      "8° ANO E TARDE":   { nome: "CE3:CE46", ra: "CF3:CF46" }, // CORRIGIDO: Adicionado 8° ANO E TARDE
+      "9° ANO A TARDE":   { nome: "CJ3:CJ46", ra: "CK3:CK46" },
+      "9° ANO B TARDE":   { nome: "CO3:CO46", ra: "CP3:CP46" },
+      "9° ANO C TARDE":   { nome: "CT3:CT46", ra: "CU3:CU46" },
+      "9° ANO D TARDE":   { nome: "CY3:CY46", ra: "CZ3:CZ46" },
+      "1ª SERIE A MANHA": { nome: "DD3:DD46", ra: "DE3:DE46" },
+      "1ª SERIE B MANHA": { nome: "DI3:DI46", ra: "DJ3:DJ46" },
+      "1ª SERIE C MANHA": { nome: "DN3:DN46", ra: "DO3:DO46" },
+      "1ª SERIE D MANHA": { nome: "DS3:DS46", ra: "DT3:DT46" },
+      "1ª SERIE E MANHA": { nome: "DX3:DX46", ra: "DY3:DY46" },
+      "1ª SERIE F MANHA": { nome: "EC3:EC46", ra: "ED3:ED46" },
+      "1ª SERIE G TARDE": { nome: "EH3:EH46", ra: "EI3:EI46" },
+      "1ª SERIE H NOITE": { nome: "EM3:EM46", ra: "EN3:EN46" },
+      "1ª SERIE I NOITE": { nome: "ER3:ER46", ra: "ES3:ES46" },
+      "2ª SERIE A MANHA": { nome: "EW3:EW46", ra: "EX3:EX46" },
+      "2ª SERIE B MANHA": { nome: "FB3:FB46", ra: "FC3:FC46" },
+      "2ª SERIE C MANHA": { nome: "FG3:FG46", ra: "FH3:FH46" },
+      "2ª SERIE D MANHA": { nome: "FL3:FL46", ra: "FM3:FM46" },
+      "2ª SERIE E MANHA": { nome: "FQ3:FQ46", ra: "FR3:FR46" },
+      "2ª SERIE F NOITE": { nome: "FV3:FV46", ra: "FW3:FW46" },
+      "2ª SERIE G NOITE": { nome: "GA3:GA46", ra: "GB3:GB46" },
+      "2ª SERIE H NOITE": { nome: "GK3:GK46", ra: "GL3:GL46" },
+      "3ª SERIE A MANHA": { nome: "GP3:GP46", ra: "GQ3:GQ46" },
+      "3ª SERIE B MANHA": { nome: "GU3:GU46", ra: "GV3:GV46" },
+      "3ª SERIE C MANHA": { nome: "GZ3:GZ46", ra: "HA3:HA46" },
+      "3ª SERIE D NOITE": { nome: "HE3:HE46", ra: "HF3:HF46" },
+      "3ª SERIE E NOITE": { nome: "HJ3:HJ46", ra: "HK3:HK46" },
+      "3ª SERIE F NOITE": { nome: "HO3:HO46", ra: "HP3:HP46" },
+      "3ª SERIE G NOITE": { nome: "HT3:HT46", ra: "HU3:HU46" }
     };
 
     // Lista de professores
@@ -827,7 +831,7 @@
     }
 
     /*******************************
-     * CADASTRAR OCORRÊNCIA (GESTÃO)
+     * CADASTRAR OCORRÊNCIA (GESTÃO) - CORRIGIDO
      *******************************/
     async function cadastrarOcorrenciaGestao(){
       const alunoSelect = document.getElementById('aluno_gestao');
@@ -850,17 +854,20 @@
         return; 
       }
 
+      // CORREÇÃO: Payload corrigido para corresponder ao esperado pelo Google Apps Script
       const payload = {
-        sheet: SHEET_GESTAO,           // grava na aba BANCODEALUNOS
-        startRow: 2,                  // indica a partir de A2 (o Apps Script deve utilizar isso)
-        date: new Date().toISOString().split('T')[0],
-        professor: professor,
-        studentClass: serie,
-        student: aluno,
-        ra: ra,
-        disciplina: disciplina,
-        irregularities: classificacao + (dataRetorno ? (' - retorno: ' + dataRetorno) : ''),
-        description: descricao
+        action: 'addOccurrence', // Ação específica para o Apps Script
+        sheet: SHEET_GESTAO,
+        data: {
+          date: new Date().toISOString().split('T')[0],
+          professor: professor,
+          studentClass: serie,
+          student: aluno,
+          ra: ra,
+          disciplina: disciplina,
+          irregularities: classificacao + (dataRetorno ? (' - retorno: ' + dataRetorno) : ''),
+          description: descricao
+        }
       };
 
       try {
@@ -893,7 +900,7 @@
     }
 
     /*******************************
-     * REGISTRAR OCORRÊNCIA (PROFESSOR)
+     * REGISTRAR OCORRÊNCIA (PROFESSOR) - CORRIGIDO
      *******************************/
     async function registrarOcorrenciaProfessor(){
       const professor = document.getElementById('professor_select').value;
@@ -907,15 +914,19 @@
       }
       
       const irregs = Array.from(document.querySelectorAll('input[name="irreg"]:checked')).map(x=>x.value);
+      
+      // CORREÇÃO: Payload corrigido para corresponder ao esperado pelo Google Apps Script
       const payload = { 
-        sheet: SHEET_PROF,            // grava na aba OCORRENCIASDOSPROFESSORES
-        startRow: 2,                  // gravar a partir de A2 (Apps Script deve respeitar)
-        date: dataOc, 
-        professor: professor, 
-        studentClass: turma, 
-        student: alunosSelecionados.join(', '), 
-        irregularities: irregs.join(', '), 
-        description: descricao 
+        action: 'addOccurrence', // Ação específica para o Apps Script
+        sheet: SHEET_PROF,
+        data: {
+          date: dataOc, 
+          professor: professor, 
+          studentClass: turma, 
+          student: alunosSelecionados.join(', '), 
+          irregularities: irregs.join(', '), 
+          description: descricao 
+        }
       };
       
       try {
@@ -1157,6 +1168,11 @@
         console.error('Erro gerar PDF local:', err); 
         alert('Erro ao gerar PDF local (ver console).'); 
       }
+    }
+
+    // Função para download de template (placeholder)
+    function downloadDocument() {
+      alert('Funcionalidade de download de template será implementada em breve.');
     }
 
   </script>
