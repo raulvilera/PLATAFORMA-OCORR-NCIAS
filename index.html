@@ -391,260 +391,312 @@
 
   </div>
 
-  <script>
-    /*******************************
-     * CONFIGURAÇÕES E CONSTANTES
-     *******************************/
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyV74CMNExr_o10IrU3dMeUFAiKS051nGQvSzaw1EZCYOQ8WydE4dTVFzf2J0pra-GX/exec';
-    const SPREADSHEET_ID = '1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio';
-    
-    // Nomes das abas da planilha
-    const SHEET_GERAL = 'BANCODEDADOSGERAL';
-    const SHEET_PROF = 'OCORRENCIASDOSPROFESSORES';
-    const SHEET_GESTAO = 'BANCODEALUNOS';
+ <script>
+  /*******************************
+   * CONFIGURAÇÕES E CONSTANTES
+   *******************************/
+  const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyV74CMNExr_o10IrU3dMeUFAiKS051nGQvSzaw1EZCYOQ8WydE4dTVFzf2J0pra-GX/exec';
+  const SPREADSHEET_ID = '1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio';
 
-    // Mapeamento completo de turmas, nomes e RAs - CORRIGIDO COM 8º ANO E
-    const CLASS_MAPPING = {
-      "6° ANO A MANHA":   { nome: "C3:C46",  ra: "D3:D46" },
-      "6° ANO B MANHA":   { nome: "H3:H46",  ra: "I3:I46" },
-      "6° ANO C MANHA":   { nome: "M3:M46",  ra: "N3:N46" },
-      "6° ANO D MANHA":   { nome: "R3:R46",  ra: "S3:S46" },
-      "6° ANO E TARDE":   { nome: "W3:W46",  ra: "X3:X46" },
-      "6° ANO F TARDE":   { nome: "AB3:AB46", ra: "AC3:AC46" },
-      "7° ANO A TARDE":   { nome: "AG3:AG46", ra: "AH3:AH46" },
-      "7° ANO B TARDE":   { nome: "AL3:AL46", ra: "AM3:AM46" },
-      "7° ANO C TARDE":   { nome: "AQ3:AQ46", ra: "AR3:AR46" },
-      "7° ANO D TARDE":   { nome: "AV3:AV46", ra: "AW3:AW46" },
-      "7° ANO E TARDE":   { nome: "BA3:BA46", ra: "BB3:BB46" },
-      "7° ANO F TARDE":   { nome: "BF3:BF46", ra: "BG3:BG46" },
-      "8° ANO A TARDE":   { nome: "BK3:BK46", ra: "BL3:BL46" },
-      "8° ANO B TARDE":   { nome: "BP3:BP46", ra: "BQ3:BQ46" },
-      "8° ANO C TARDE":   { nome: "BU3:BU46", ra: "BV3:BV46" },
-      "8° ANO D TARDE":   { nome: "BZ3:BZ46", ra: "CA3:CA46" },
-      "8° ANO E TARDE":   { nome: "CE3:CE46", ra: "CF3:CF46" }, // CORRIGIDO: Adicionado 8° ANO E TARDE
-      "9° ANO A TARDE":   { nome: "CJ3:CJ46", ra: "CK3:CK46" },
-      "9° ANO B TARDE":   { nome: "CO3:CO46", ra: "CP3:CP46" },
-      "9° ANO C TARDE":   { nome: "CT3:CT46", ra: "CU3:CU46" },
-      "9° ANO D TARDE":   { nome: "CY3:CY46", ra: "CZ3:CZ46" },
-      "1ª SERIE A MANHA": { nome: "DD3:DD46", ra: "DE3:DE46" },
-      "1ª SERIE B MANHA": { nome: "DI3:DI46", ra: "DJ3:DJ46" },
-      "1ª SERIE C MANHA": { nome: "DN3:DN46", ra: "DO3:DO46" },
-      "1ª SERIE D MANHA": { nome: "DS3:DS46", ra: "DT3:DT46" },
-      "1ª SERIE E MANHA": { nome: "DX3:DX46", ra: "DY3:DY46" },
-      "1ª SERIE F MANHA": { nome: "EC3:EC46", ra: "ED3:ED46" },
-      "1ª SERIE G TARDE": { nome: "EH3:EH46", ra: "EI3:EI46" },
-      "1ª SERIE H NOITE": { nome: "EM3:EM46", ra: "EN3:EN46" },
-      "1ª SERIE I NOITE": { nome: "ER3:ER46", ra: "ES3:ES46" },
-      "2ª SERIE A MANHA": { nome: "EW3:EW46", ra: "EX3:EX46" },
-      "2ª SERIE B MANHA": { nome: "FB3:FB46", ra: "FC3:FC46" },
-      "2ª SERIE C MANHA": { nome: "FG3:FG46", ra: "FH3:FH46" },
-      "2ª SERIE D MANHA": { nome: "FL3:FL46", ra: "FM3:FM46" },
-      "2ª SERIE E MANHA": { nome: "FQ3:FQ46", ra: "FR3:FR46" },
-      "2ª SERIE F NOITE": { nome: "FV3:FV46", ra: "FW3:FW46" },
-      "2ª SERIE G NOITE": { nome: "GA3:GA46", ra: "GB3:GB46" },
-      "2ª SERIE H NOITE": { nome: "GK3:GK46", ra: "GL3:GL46" },
-      "3ª SERIE A MANHA": { nome: "GP3:GP46", ra: "GQ3:GQ46" },
-      "3ª SERIE B MANHA": { nome: "GU3:GU46", ra: "GV3:GV46" },
-      "3ª SERIE C MANHA": { nome: "GZ3:GZ46", ra: "HA3:HA46" },
-      "3ª SERIE D NOITE": { nome: "HE3:HE46", ra: "HF3:HF46" },
-      "3ª SERIE E NOITE": { nome: "HJ3:HJ46", ra: "HK3:HK46" },
-      "3ª SERIE F NOITE": { nome: "HO3:HO46", ra: "HP3:HP46" },
-      "3ª SERIE G NOITE": { nome: "HT3:HT46", ra: "HU3:HU46" }
-    };
+  // Nomes das abas da planilha
+  const SHEET_GERAL = 'BANCODEDADOSGERAL';
+  const SHEET_PROF = 'OCORRENCIASDOSPROFESSORES';
+  const SHEET_GESTAO = 'BANCODEALUNOS';
 
-    // Lista de professores
-    const PROFESSORES = [
-      "ALEX LUTH PEREIRA MARANHAO","ALEXSANDRA PAULA VARELLA DE SOUZA","ALISON VASCONCELOS BESERRA","AMAURI TEODORO DE OLIVEIRA",
-      "ANA PAULA DOS SANTOS","ANDREIA DOS SANTOS FREITAS","ANDREIA MADUREIRA REIS","ANTONIO CARLOS DE OLIVEIRA",
-      "ANTONIO RAMOS DE ARAUJO","ANTONIO WILTON WANDERLEY CABRAL","AUGUSTO LINO PESSOA NETO","AUREA MARIA DE JESUS MARQUES",
-      "CAROLINA PERNOMIAN PARUSSOLOLO","CASSIA OLIVEIRA ANTONIAZI","CLAUDINEIA DE AGUIAR LIMA","DANIEL DE FREITAS ALMEIDA",
-      "DANIEL LOPES BARBOSA","DANIELA FERREIRA LIMA","DANIELLE LUCIA BATISTA DE ALMEIDA","EDIANE VIEIRA DA SILVA",
-      "EDILEUSA NUNES PEREIRA","EDUARDO HENRIQUE DA FONSECA","ELIANE SANTOS SILVA","ELIAS MONTEIRO DA SILVERA",
-      "ELISABETE APARECIDA PIRES","ELZA DE FARIA PEREIRA","EMERSON GABLER DE ALMEIDA","EUZELI ARAUJO DE OLIVEIRA",
-      "FABIANO AUGUSTO PIEDADE","FABIO CAMILO","FERNANDO JOSE DA SILVA FILHO","FLAVIA CRISTINA APARECIDA BICHLER",
-      "FLAVIO CARDOSO FLEURY","FRANCISCA EDIVANIA DE MORAIS COSTA","GABRIELA SERIGHELLI DE MELO","GELSON DE ALMEIDA BATISTA",
-      "GENILTON DE OLIVEIRA SILVA","GIANI CRISTINA DO PRADO","INGRYD CAROLINA SUGUIMOTO VIEIRA","IVANILDES DOS SANTOS OSHIKAWA",
-      "JANINA DOS PASSOS BRAGA DE ALMEIDA","JOSE APARECIDO DA SILVA","JUAREZ GOMES DE MAGALHAES FILHO","JUREMA SOLEDADE FURINI SANTOS",
-      "KATIUSCIA ALVES BOMFIM","LUANA CAROLINE ALVES LIMA","LUANA DE FREITAS SILVA","LUCIANA NOVAIS CORREIA SANTOS",
-      "LUCIANO MOREIRA DE AZEVEDO","MARCIEL DA SILVA","MARIA HELENA CUNHA MORO","MARIA QUITÉRIA FERREIRA DOS SANTOS",
-      "MARINA DA CONCEICAO FRANCISCO SILVA","MAURICIO DE BARROS SANTOS","MICHELE DE PINHO MORAES","MOISES ANTONIO DE BARROS",
-      "PAULA ARMANI VILA","PAULO ROBERTO DA SILVA ITO","PEDRO ZANOTTI FILHO","RAUL PEREIRA VILERA JUNIOR",
-      "REGIANE CURTI DE SOUZA OLIVEIRA","REGINA DA SILSA CASTRO","RICARDO AMERICO DA SILVA","ROBERTO SALGADO",
-      "RODRIGO VIEIRA","ROSANGELA CAFASSO MOREIRA","ROSIMERY DE SOUZA PESSOA","ROSMARA DA SILSA CARDOSO",
-      "SANDRA CRISTINA MACEDO MORAES","SELMA GOMES DA SILSA","SERGIO AGRIPINO VILLA NOVA","SOLANGE ALMEIDA DA SILSA",
-      "SUZINEIDE SILSA DE FREITAS","THIAGO FABIANO BRITO","TITTO AUGUSTO NASCIMENTO SILSA","VANDERSON HYPPOLITO",
-      "VANESSA IVETE GOMES DOS SANTOS","VANIA PENHA DE BARROS","VIVIANE LEAL CAMERA DE MORAES","WILSON RODRIGUES MOTA"
-    ];
+  // Mapeamento completo de turmas, nomes e RAs
+  const CLASS_MAPPING = {
+    "6° ANO A MANHA":   { nome: "C3:C46",  ra: "D3:D46" },
+    "6° ANO B MANHA":   { nome: "H3:H46",  ra: "I3:I46" },
+    "6° ANO C MANHA":   { nome: "M3:M46",  ra: "N3:N46" },
+    "6° ANO D MANHA":   { nome: "R3:R46",  ra: "S3:S46" },
+    "6° ANO E TARDE":   { nome: "W3:W46",  ra: "X3:X46" },
+    "6° ANO F TARDE":   { nome: "AB3:AB46", ra: "AC3:AC46" },
+    "7° ANO A TARDE":   { nome: "AG3:AG46", ra: "AH3:AH46" },
+    "7° ANO B TARDE":   { nome: "AL3:AL46", ra: "AM3:AM46" },
+    "7° ANO C TARDE":   { nome: "AQ3:AQ46", ra: "AR3:AR46" },
+    "7° ANO D TARDE":   { nome: "AV3:AV46", ra: "AW3:AW46" },
+    "7° ANO E TARDE":   { nome: "BA3:BA46", ra: "BB3:BB46" },
+    "7° ANO F TARDE":   { nome: "BF3:BF46", ra: "BG3:BG46" },
+    "8° ANO A TARDE":   { nome: "BK3:BK46", ra: "BL3:BL46" },
+    "8° ANO B TARDE":   { nome: "BP3:BP46", ra: "BQ3:BQ46" },
+    "8° ANO C TARDE":   { nome: "BU3:BU46", ra: "BV3:BV46" },
+    "8° ANO D TARDE":   { nome: "BZ3:BZ46", ra: "CA3:CA46" },
+    "8° ANO E TARDE":   { nome: "CE3:CE46", ra: "CF3:CF46" },
+    "9° ANO A TARDE":   { nome: "CJ3:CJ46", ra: "CK3:CK46" },
+    "9° ANO B TARDE":   { nome: "CO3:CO46", ra: "CP3:CP46" },
+    "9° ANO C TARDE":   { nome: "CT3:CT46", ra: "CU3:CU46" },
+    "9° ANO D TARDE":   { nome: "CY3:CY46", ra: "CZ3:CZ46" },
+    "1ª SERIE A MANHA": { nome: "DD3:DD46", ra: "DE3:DE46" },
+    "1ª SERIE B MANHA": { nome: "DI3:DI46", ra: "DJ3:DJ46" },
+    "1ª SERIE C MANHA": { nome: "DN3:DN46", ra: "DO3:DO46" },
+    "1ª SERIE D MANHA": { nome: "DS3:DS46", ra: "DT3:DT46" },
+    "1ª SERIE E MANHA": { nome: "DX3:DX46", ra: "DY3:DY46" },
+    "1ª SERIE F MANHA": { nome: "EC3:EC46", ra: "ED3:ED46" },
+    "1ª SERIE G TARDE": { nome: "EH3:EH46", ra: "EI3:EI46" },
+    "1ª SERIE H NOITE": { nome: "EM3:EM46", ra: "EN3:EN46" },
+    "1ª SERIE I NOITE": { nome: "ER3:ER46", ra: "ES3:ES46" },
+    "2ª SERIE A MANHA": { nome: "EW3:EW46", ra: "EX3:EX46" },
+    "2ª SERIE B MANHA": { nome: "FB3:FB46", ra: "FC3:FC46" },
+    "2ª SERIE C MANHA": { nome: "FG3:FG46", ra: "FH3:FH46" },
+    "2ª SERIE D MANHA": { nome: "FL3:FL46", ra: "FM3:FM46" },
+    "2ª SERIE E MANHA": { nome: "FQ3:FQ46", ra: "FR3:FR46" },
+    "2ª SERIE F NOITE": { nome: "FV3:FV46", ra: "FW3:FW46" },
+    "2ª SERIE G NOITE": { nome: "GA3:GA46", ra: "GB3:GB46" },
+    "2ª SERIE H NOITE": { nome: "GK3:GK46", ra: "GL3:GL46" },
+    "3ª SERIE A MANHA": { nome: "GP3:GP46", ra: "GQ3:GQ46" },
+    "3ª SERIE B MANHA": { nome: "GU3:GU46", ra: "GV3:GV46" },
+    "3ª SERIE C MANHA": { nome: "GZ3:GZ46", ra: "HA3:HA46" },
+    "3ª SERIE D NOITE": { nome: "HE3:HE46", ra: "HF3:HF46" },
+    "3ª SERIE E NOITE": { nome: "HJ3:HJ46", ra: "HK3:HK46" },
+    "3ª SERIE F NOITE": { nome: "HO3:HO46", ra: "HP3:HP46" },
+    "3ª SERIE G NOITE": { nome: "HT3:HT46", ra: "HU3:HU46" }
+  };
 
-    /*******************************
-     * VARIÁVEIS DE ESTADO
-     *******************************/
-    let allAlunos = [];
-    let alunosDaTurmaAtual = [];
-    let alunosSelecionados = [];
-    let professores = [];
-    let turmas = [];
-    let currentUserRole = null;
-    let alunosComRA = []; // Para armazenar alunos com RA na área de gestão
+  // Lista de professores (fixa)
+  const PROFESSORES = [
+    "ALEX LUTH PEREIRA MARANHAO","ALEXSANDRA PAULA VARELLA DE SOUZA","ALISON VASCONCELOS BESERRA","AMAURI TEODORO DE OLIVEIRA",
+    "ANA PAULA DOS SANTOS","ANDREIA DOS SANTOS FREITAS","ANDREIA MADUREIRA REIS","ANTONIO CARLOS DE OLIVEIRA",
+    "ANTONIO RAMOS DE ARAUJO","ANTONIO WILTON WANDERLEY CABRAL","AUGUSTO LINO PESSOA NETO","AUREA MARIA DE JESUS MARQUES",
+    "CAROLINA PERNOMIAN PARUSSOLOLO","CASSIA OLIVEIRA ANTONIAZI","CLAUDINEIA DE AGUIAR LIMA","DANIEL DE FREITAS ALMEIDA",
+    "DANIEL LOPES BARBOSA","DANIELA FERREIRA LIMA","DANIELLE LUCIA BATISTA DE ALMEIDA","EDIANE VIEIRA DA SILVA",
+    "EDILEUSA NUNES PEREIRA","EDUARDO HENRIQUE DA FONSECA","ELIANE SANTOS SILVA","ELIAS MONTEIRO DA SILVERA",
+    "ELISABETE APARECIDA PIRES","ELZA DE FARIA PEREIRA","EMERSON GABLER DE ALMEIDA","EUZELI ARAUJO DE OLIVEIRA",
+    "FABIANO AUGUSTO PIEDADE","FABIO CAMILO","FERNANDO JOSE DA SILVA FILHO","FLAVIA CRISTINA APARECIDA BICHLER",
+    "FLAVIO CARDOSO FLEURY","FRANCISCA EDIVANIA DE MORAIS COSTA","GABRIELA SERIGHELLI DE MELO","GELSON DE ALMEIDA BATISTA",
+    "GENILTON DE OLIVEIRA SILVA","GIANI CRISTINA DO PRADO","INGRYD CAROLINA SUGUIMOTO VIEIRA","IVANILDES DOS SANTOS OSHIKAWA",
+    "JANINA DOS PASSOS BRAGA DE ALMEIDA","JOSE APARECIDO DA SILVA","JUAREZ GOMES DE MAGALHAES FILHO","JUREMA SOLEDADE FURINI SANTOS",
+    "KATIUSCIA ALVES BOMFIM","LUANA CAROLINE ALVES LIMA","LUANA DE FREITAS SILVA","LUCIANA NOVAIS CORREIA SANTOS",
+    "LUCIANO MOREIRA DE AZEVEDO","MARCIEL DA SILVA","MARIA HELENA CUNHA MORO","MARIA QUITÉRIA FERREIRA DOS SANTOS",
+    "MARINA DA CONCEICAO FRANCISCO SILVA","MAURICIO DE BARROS SANTOS","MICHELE DE PINHO MORAES","MOISES ANTONIO DE BARROS",
+    "PAULA ARMANI VILA","PAULO ROBERTO DA SILVA ITO","PEDRO ZANOTTI FILHO","RAUL PEREIRA VILERA JUNIOR",
+    "REGIANE CURTI DE SOUZA OLIVEIRA","REGINA DA SILSA CASTRO","RICARDO AMERICO DA SILVA","ROBERTO SALGADO",
+    "RODRIGO VIEIRA","ROSANGELA CAFASSO MOREIRA","ROSIMERY DE SOUZA PESSOA","ROSMARA DA SILSA CARDOSO",
+    "SANDRA CRISTINA MACEDO MORAES","SELMA GOMES DA SILSA","SERGIO AGRIPINO VILLA NOVA","SOLANGE ALMEIDA DA SILSA",
+    "SUZINEIDE SILSA DE FREITAS","THIAGO FABIANO BRITO","TITTO AUGUSTO NASCIMENTO SILSA","VANDERSON HYPPOLITO",
+    "VANESSA IVETE GOMES DOS SANTOS","VANIA PENHA DE BARROS","VIVIANE LEAL CAMERA DE MORAES","WILSON RODRIGUES MOTA"
+  ];
 
-    /*******************************
-     * INICIALIZAÇÃO
-     *******************************/
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('data_prof').value = new Date().toISOString().split('T')[0];
-      // Mostrar formulário de gestão por padrão
-      selectLoginOption('gestao');
-      carregarTurmasGestao(); // Carregar turmas ao iniciar
-    });
+  // Disciplinas (exemplo)
+  const DISCIPLINAS = [
+    'Língua Portuguesa','Matemática','Ciências','História','Geografia','Inglês','Educação Física','Arte','Ensino Religioso'
+  ];
 
-    /*******************************
-     * FUNÇÕES DE AUTENTICAÇÃO
-     *******************************/
-    
-    // Selecionar opção de login
-    function selectLoginOption(role) {
-      document.querySelectorAll('.login-option').forEach(opt => opt.classList.remove('active'));
-      document.getElementById(`option${role.charAt(0).toUpperCase() + role.slice(1)}`).classList.add('active');
-      
-      document.querySelectorAll('.access-area').forEach(area => area.style.display = 'none');
-      document.getElementById(`loginForm${role.charAt(0).toUpperCase() + role.slice(1)}`).style.display = 'block';
+  // Classificações fixas
+  const CLASSIFICACOES = ['ADVERTÊNCIA','SUSPENSÃO','CONVERSA COM RESPONSÁVEL','ORIENTAÇÃO'];
+
+  /*******************************
+   * VARIÁVEIS DE ESTADO
+   *******************************/
+  let allAlunos = [];
+  let alunosDaTurmaAtual = [];
+  let alunosSelecionados = [];
+  let professores = [];
+  let turmas = [];
+  let currentUserRole = null;
+  let alunosComRA = [];
+
+  /*******************************
+   * INICIALIZAÇÃO
+   *******************************/
+  document.addEventListener('DOMContentLoaded', () => {
+    // assume que existe input#data_prof no HTML
+    const dataProf = document.getElementById('data_prof');
+    if (dataProf) dataProf.value = new Date().toISOString().split('T')[0];
+
+    selectLoginOption('gestao');
+    popularSelectsFixos();
+    carregarTurmasGestao();
+  });
+
+  function popularSelectsFixos(){
+    // preencher professores fixos nos selects (se existirem)
+    const profSel = document.getElementById('professor_select');
+    const profGest = document.getElementById('professor_gestao');
+    if (profSel) {
+      profSel.innerHTML = '<option value="">-- selecione --</option>';
+      PROFESSORES.forEach(p => {
+        const o = document.createElement('option'); o.value = p; o.textContent = p; profSel.appendChild(o);
+      });
+    }
+    if (profGest) {
+      profGest.innerHTML = '<option value="">-- selecione --</option>';
+      PROFESSORES.forEach(p => {
+        const o = document.createElement('option'); o.value = p; o.textContent = p; profGest.appendChild(o);
+      });
     }
 
-    // login por tipo de usuário
-    function login(role){
-      let email, password;
-      
-      if (role === 'gestao') {
-        email = document.getElementById('emailGestao').value.trim();
-        password = document.getElementById('passwordGestao').value.trim();
+    // disciplinas
+    const discSel = document.getElementById('disciplina_gestao');
+    if (discSel) {
+      discSel.innerHTML = '<option value="">-- selecione --</option>';
+      DISCIPLINAS.forEach(d => { const o = document.createElement('option'); o.value=d; o.textContent=d; discSel.appendChild(o); });
+    }
+
+    // classificações
+    const classSel = document.getElementById('classificacao_gestao');
+    if (classSel) {
+      classSel.innerHTML = '<option value="">-- selecione --</option>';
+      CLASSIFICACOES.forEach(c => { const o = document.createElement('option'); o.value=c; o.textContent=c; classSel.appendChild(o); });
+    }
+  }
+
+  /*******************************
+   * FUNÇÕES DE AUTENTICAÇÃO
+   *******************************/
+  function selectLoginOption(role) {
+    document.querySelectorAll('.login-option').forEach(opt => opt.classList.remove('active'));
+    const id = `option${role.charAt(0).toUpperCase() + role.slice(1)}`;
+    const optionEl = document.getElementById(id);
+    if (optionEl) optionEl.classList.add('active');
+
+    document.querySelectorAll('.access-area').forEach(area => area.style.display = 'none');
+    const formId = `loginForm${role.charAt(0).toUpperCase() + role.slice(1)}`;
+    const formEl = document.getElementById(formId);
+    if (formEl) formEl.style.display = 'block';
+  }
+
+  function login(role){
+    let email, password;
+
+    if (role === 'gestao') {
+      email = (document.getElementById('emailGestao') || {}).value || '';
+      password = (document.getElementById('passwordGestao') || {}).value || '';
+    } else {
+      email = (document.getElementById('emailProfessor') || {}).value || '';
+      password = (document.getElementById('passwordProfessor') || {}).value || '';
+    }
+
+    if(role === 'gestao' && email === 'gestao@escola.com' && password === 'gestao123'){
+      showAppAs(role, email);
+    } else if(role === 'professor' && email === 'professor@escola.com' && password === 'prof123'){
+      showAppAs(role, email);
+    } else {
+      alert('E-mail ou senha incorretos.');
+    }
+  }
+
+  function fillDemo(role){
+    if (role === 'gestao') {
+      const e = document.getElementById('emailGestao'); const p = document.getElementById('passwordGestao');
+      if (e) e.value='gestao@escola.com';
+      if (p) p.value='gestao123';
+    } else {
+      const e = document.getElementById('emailProfessor'); const p = document.getElementById('passwordProfessor');
+      if (e) e.value='professor@escola.com';
+      if (p) p.value='prof123';
+    }
+  }
+
+  function showAppAs(role, email){
+    currentUserRole = role;
+    const loginScreen = document.getElementById('loginScreen');
+    if (loginScreen) loginScreen.style.display = 'none';
+
+    const mainGest = document.getElementById('mainAppGestao');
+    const mainProf = document.getElementById('mainAppProfessor');
+    if (role === 'gestao') {
+      if (mainGest) mainGest.style.display = 'flex';
+      if (mainProf) mainProf.style.display = 'none';
+      carregarHistoricoGestao();
+    } else {
+      if (mainGest) mainGest.style.display = 'none';
+      if (mainProf) mainProf.style.display = 'flex';
+      carregarProfessoresETurmas();
+      carregarHistoricoProfessor();
+    }
+
+    const userDisplay = document.getElementById('userDisplay');
+    if (userDisplay) userDisplay.textContent = email + (role==='gestao'?' (Gestão)':' (Professor)');
+    const btnLogout = document.getElementById('btnLogout');
+    if (btnLogout) btnLogout.style.display = 'inline-block';
+    const btnDownloadPdf = document.getElementById('btnDownloadPdf');
+    if (btnDownloadPdf) btnDownloadPdf.style.display = 'inline-block';
+  }
+
+  function logout(){
+    currentUserRole = null;
+    const loginScreen = document.getElementById('loginScreen');
+    if (loginScreen) loginScreen.style.display = 'block';
+    const mainGest = document.getElementById('mainAppGestao');
+    const mainProf = document.getElementById('mainAppProfessor');
+    if (mainGest) mainGest.style.display = 'none';
+    if (mainProf) mainProf.style.display = 'none';
+    const userDisplay = document.getElementById('userDisplay');
+    if (userDisplay) userDisplay.textContent = 'Não autenticado';
+    const btnLogout = document.getElementById('btnLogout');
+    if (btnLogout) btnLogout.style.display = 'none';
+    const btnDownloadPdf = document.getElementById('btnDownloadPdf');
+    if (btnDownloadPdf) btnDownloadPdf.style.display = 'none';
+
+    alunosDaTurmaAtual = []; alunosSelecionados = [];
+    const pills = document.getElementById('selectedPills');
+    if (pills) pills.innerHTML='';
+
+    const eg = document.getElementById('emailGestao'); const pg = document.getElementById('passwordGestao');
+    const ep = document.getElementById('emailProfessor'); const pp = document.getElementById('passwordProfessor');
+    if (eg) eg.value=''; if(pg) pg.value=''; if(ep) ep.value=''; if(pp) pp.value='';
+  }
+
+  /*******************************
+   * FUNÇÕES ESPECÍFICAS PARA A ÁREA DE GESTÃO
+   *******************************/
+  async function carregarTurmasGestao() {
+    try {
+      const r = await fetch(`${SCRIPT_URL}?endpoint=classes&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+      const j = await r.json();
+      if(j && j.status === 'success' && Array.isArray(j.classes)) {
+        turmas = j.classes;
       } else {
-        email = document.getElementById('emailProfessor').value.trim();
-        password = document.getElementById('passwordProfessor').value.trim();
-      }
-      
-      if(role === 'gestao' && email === 'gestao@escola.com' && password === 'gestao123'){
-        showAppAs(role, email);
-      } else if(role === 'professor' && email === 'professor@escola.com' && password === 'prof123'){
-        showAppAs(role, email);
-      } else {
-        alert('E-mail ou senha incorretos.');
-      }
-    }
-    
-    // Preencher dados de demonstração
-    function fillDemo(role){ 
-      if (role === 'gestao') {
-        document.getElementById('emailGestao').value='gestao@escola.com'; 
-        document.getElementById('passwordGestao').value='gestao123'; 
-      } else {
-        document.getElementById('emailProfessor').value='professor@escola.com'; 
-        document.getElementById('passwordProfessor').value='prof123'; 
-      }
-    }
-
-    // Exibir aplicação conforme o tipo de usuário
-    function showAppAs(role, email){
-      currentUserRole = role;
-      document.getElementById('loginScreen').style.display = 'none';
-      
-      if (role === 'gestao') {
-        document.getElementById('mainAppGestao').style.display = 'flex';
-        document.getElementById('mainAppProfessor').style.display = 'none';
-        carregarHistoricoGestao();
-      } else {
-        document.getElementById('mainAppGestao').style.display = 'none';
-        document.getElementById('mainAppProfessor').style.display = 'flex';
-        carregarProfessoresETurmas();
-        carregarHistoricoProfessor();
-      }
-      
-      document.getElementById('userDisplay').textContent = email + (role==='gestao'?' (Gestão)':' (Professor)');
-      document.getElementById('btnLogout').style.display = 'inline-block';
-      document.getElementById('btnDownloadPdf').style.display = 'inline-block';
-    }
-
-    // Logout do sistema
-    function logout(){
-      currentUserRole = null;
-      document.getElementById('loginScreen').style.display = 'block';
-      document.getElementById('mainAppGestao').style.display = 'none';
-      document.getElementById('mainAppProfessor').style.display = 'none';
-      document.getElementById('userDisplay').textContent = 'Não autenticado';
-      document.getElementById('btnLogout').style.display = 'none';
-      document.getElementById('btnDownloadPdf').style.display = 'none';
-      alunosDaTurmaAtual = []; 
-      alunosSelecionados = []; 
-      document.getElementById('selectedPills').innerHTML='';
-      
-      // Limpar formulários
-      document.getElementById('emailGestao').value = '';
-      document.getElementById('passwordGestao').value = '';
-      document.getElementById('emailProfessor').value = '';
-      document.getElementById('passwordProfessor').value = '';
-    }
-
-    /*******************************
-     * FUNÇÕES ESPECÍFICAS PARA A ÁREA DE GESTÃO
-     *******************************/
-    
-    // Carregar turmas para a área de gestão
-    async function carregarTurmasGestao() {
-      try {
-        const r = await fetch(`${SCRIPT_URL}?endpoint=classes&sheet=${encodeURIComponent(SHEET_GERAL)}`);
-        const j = await r.json();
-        if(j && j.status === 'success' && Array.isArray(j.classes)) {
-          turmas = j.classes;
-        } else {
-          turmas = Object.keys(CLASS_MAPPING);
-        }
-        
-        const turmaSelect = document.getElementById('serie_gestao');
-        turmaSelect.innerHTML = '<option value="">-- Selecione a turma --</option>';
-        turmas.forEach(t => {
-          const option = document.createElement('option');
-          option.value = t;
-          option.textContent = t;
-          turmaSelect.appendChild(option);
-        });
-      } catch(err) {
-        console.error('Erro ao carregar turmas (gestão):', err);
         turmas = Object.keys(CLASS_MAPPING);
-        const turmaSelect = document.getElementById('serie_gestao');
-        turmaSelect.innerHTML = '<option value="">-- Selecione a turma --</option>';
-        turmas.forEach(t => {
-          const option = document.createElement('option');
-          option.value = t;
-          option.textContent = t;
-          turmaSelect.appendChild(option);
-        });
       }
+    } catch(err) {
+      console.error('Erro ao carregar turmas (gestão):', err);
+      turmas = Object.keys(CLASS_MAPPING);
     }
-    
-    // Carregar alunos por turma na área de gestão
-    async function carregarAlunosPorTurmaGestao(turma) {
-      if (!turma) {
-        document.getElementById('aluno_gestao').innerHTML = '<option value="">-- Selecione o aluno --</option>';
-        document.getElementById('ra_gestao').value = '';
-        return;
+
+    const turmaSelect = document.getElementById('serie_gestao');
+    if (turmaSelect) {
+      turmaSelect.innerHTML = '<option value="">-- Selecione a turma --</option>';
+      turmas.forEach(t => {
+        const option = document.createElement('option');
+        option.value = t;
+        option.textContent = t;
+        turmaSelect.appendChild(option);
+      });
+    }
+
+    // também preencher turma_select do professor, se existir
+    const turmaSelProf = document.getElementById('turma_select');
+    if (turmaSelProf) {
+      turmaSelProf.innerHTML = '<option value="">-- selecione --</option>';
+      turmas.forEach(t => { const o = document.createElement('option'); o.value=t; o.textContent=t; turmaSelProf.appendChild(o); });
+    }
+  }
+
+  async function carregarAlunosPorTurmaGestao(turma) {
+    if (!turma) {
+      const alunoSelect = document.getElementById('aluno_gestao');
+      if (alunoSelect) alunoSelect.innerHTML = '<option value="">-- Selecione o aluno --</option>';
+      const raInput = document.getElementById('ra_gestao');
+      if (raInput) raInput.value = '';
+      return;
+    }
+
+    try {
+      const resp = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
+      const json = await resp.json();
+
+      if (json.studentsList && Array.isArray(json.studentsList)) {
+        alunosComRA = json.studentsList;
+      } else if (json.students && Array.isArray(json.students)) {
+        alunosComRA = json.students.map(nome => ({ nome: (typeof nome === 'string'? nome : (nome.nome||'')), ra: nome.ra || '' }));
+      } else {
+        alunosComRA = [];
       }
-      
-      try {
-        const resp = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
-        const json = await resp.json();
-        
-        // Verificar se a resposta inclui studentsList (com RA) ou apenas students (apenas nomes)
-        if (json.studentsList && Array.isArray(json.studentsList)) {
-          alunosComRA = json.studentsList;
-        } else if (json.students && Array.isArray(json.students)) {
-          // Se não tiver RA, criar array apenas com nomes
-          alunosComRA = json.students.map(nome => ({ nome, ra: '' }));
-        } else {
-          alunosComRA = [];
-        }
-        
-        const alunoSelect = document.getElementById('aluno_gestao');
+
+      const alunoSelect = document.getElementById('aluno_gestao');
+      if (alunoSelect) {
         alunoSelect.innerHTML = '<option value="">-- Selecione o aluno --</option>';
-        
         alunosComRA.forEach(aluno => {
           const option = document.createElement('option');
           option.value = aluno.nome;
@@ -652,529 +704,546 @@
           option.setAttribute('data-ra', aluno.ra || '');
           alunoSelect.appendChild(option);
         });
-      } catch(err) {
-        console.error('Erro ao carregar alunos (gestão):', err);
-        document.getElementById('aluno_gestao').innerHTML = '<option value="">-- Selecione o aluno --</option>';
       }
-    }
-    
-    // Preencher RA quando selecionar um aluno na área de gestão
-    function preencherRAGestao(nomeAluno) {
+    } catch(err) {
+      console.error('Erro ao carregar alunos (gestão):', err);
       const alunoSelect = document.getElementById('aluno_gestao');
-      const selectedOption = alunoSelect.selectedOptions[0];
-      const ra = selectedOption ? selectedOption.getAttribute('data-ra') : '';
-      document.getElementById('ra_gestao').value = ra || '';
+      if (alunoSelect) alunoSelect.innerHTML = '<option value="">-- Selecione o aluno --</option>';
+    }
+  }
+
+  function preencherRAGestao() {
+    const alunoSelect = document.getElementById('aluno_gestao');
+    if (!alunoSelect) return;
+    const selectedOption = alunoSelect.selectedOptions[0];
+    const ra = selectedOption ? selectedOption.getAttribute('data-ra') : '';
+    const raInput = document.getElementById('ra_gestao');
+    if (raInput) raInput.value = ra || '';
+  }
+
+  function toggleSuspension(area){
+    if(area === 'gestao'){
+      const val = (document.getElementById('classificacao_gestao') || {}).value || '';
+      const row = document.getElementById('suspensionRow_gestao');
+      if (row) row.style.display = (val === 'SUSPENSÃO') ? 'flex' : 'none';
+    }
+  }
+
+  async function cadastrarOcorrenciaGestao(){
+    const alunoSelect = document.getElementById('aluno_gestao');
+    const aluno = alunoSelect ? alunoSelect.value : '';
+    const turmaSelect = document.getElementById('serie_gestao');
+    const serie = turmaSelect ? turmaSelect.value : '';
+    const professor = (document.getElementById('professor_gestao') || {}).value.trim() || '';
+    const disciplina = (document.getElementById('disciplina_gestao') || {}).value.trim() || '';
+    const classificacao = (document.getElementById('classificacao_gestao') || {}).value || '';
+    const descricao = (document.getElementById('descricao_gestao') || {}).value.trim() || '';
+    const dataRetorno = (document.getElementById('dataRetorno_gestao') || {}).value || '';
+    const ra = (document.getElementById('ra_gestao') || {}).value || '';
+
+    if(!aluno || !serie || !professor || !disciplina || !classificacao || !descricao){
+      alert('Preencha todos os campos obrigatórios.');
+      return;
+    }
+    if(classificacao === 'SUSPENSÃO' && !dataRetorno){
+      alert('Informe data de retorno para suspensão.');
+      return;
     }
 
-    /*******************************
-     * CARREGAR PROFESSORES E TURMAS (PROFESSOR)
-     *******************************/
-    async function carregarProfessoresETurmas(){
-      try {
-        // professores (GET do sheet geral)
-        const r1 = await fetch(`${SCRIPT_URL}?endpoint=teachers&sheet=${encodeURIComponent(SHEET_GERAL)}`);
-        const j1 = await r1.json();
-        if(j1 && j1.status === 'success' && Array.isArray(j1.teachers)) professores = j1.teachers;
-        else professores = PROFESSORES;
+    const payload = {
+      action: 'addOccurrence',
+      sheet: SHEET_GESTAO,
+      data: {
+        date: new Date().toISOString().split('T')[0],
+        professor: professor,
+        studentClass: serie,
+        student: aluno,
+        ra: ra,
+        disciplina: disciplina,
+        irregularities: classificacao + (dataRetorno ? (' - retorno: ' + dataRetorno) : ''),
+        description: descricao,
+        dataRetorno: dataRetorno || ''
+      }
+    };
 
-        const profSel = document.getElementById('professor_select');
+    try {
+      const resp = await fetch(`${SCRIPT_URL}`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const j = await resp.json();
+      if(j && j.status === 'success'){
+        // show success
+        notify('success','Ocorrência registrada (Gestão).');
+        // limpar
+        const serieEl = document.getElementById('serie_gestao');
+        if (serieEl) serieEl.value = '';
+        const alunoSelect = document.getElementById('aluno_gestao');
+        if (alunoSelect) alunoSelect.innerHTML = '<option value="">-- Selecione o aluno --</option>';
+        const raInput = document.getElementById('ra_gestao'); if (raInput) raInput.value = '';
+        const profG = document.getElementById('professor_gestao'); if (profG) profG.value = '';
+        const discG = document.getElementById('disciplina_gestao'); if (discG) discG.value = '';
+        const classG = document.getElementById('classificacao_gestao'); if (classG) classG.value = '';
+        const descG = document.getElementById('descricao_gestao'); if (descG) descG.value = '';
+        const suspRow = document.getElementById('suspensionRow_gestao'); if (suspRow) suspRow.style.display = 'none';
+        carregarHistoricoGestao();
+      } else {
+        alert('Erro ao registrar: ' + (j && j.message ? j.message : JSON.stringify(j)));
+      }
+    } catch(err){
+      console.error('Erro POST ocorrencia (gestao):', err);
+      alert('Erro ao comunicar com o servidor (ver console).');
+    }
+  }
+
+  /*******************************
+   * CARREGAR PROFESSORES E TURMAS (PROFESSOR)
+   *******************************/
+  async function carregarProfessoresETurmas(){
+    try {
+      // professores (GET do sheet geral)
+      const r1 = await fetch(`${SCRIPT_URL}?endpoint=teachers&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+      const j1 = await r1.json();
+      if(j1 && j1.status === 'success' && Array.isArray(j1.teachers)) professores = j1.teachers;
+      else professores = PROFESSORES;
+
+      const profSel = document.getElementById('professor_select');
+      if (profSel) {
         profSel.innerHTML = '<option value="">-- selecione --</option>';
-        professores.forEach(p => { 
-          const o = document.createElement('option'); 
-          o.value = p; 
-          o.textContent = p; 
-          profSel.appendChild(o); 
-        });
-
-        // turmas (GET do sheet geral)
-        const r2 = await fetch(`${SCRIPT_URL}?endpoint=classes&sheet=${encodeURIComponent(SHEET_GERAL)}`);
-        const j2 = await r2.json();
-        if(j2 && j2.status === 'success' && Array.isArray(j2.classes)) turmas = j2.classes;
-        else turmas = Object.keys(CLASS_MAPPING);
-
-        const turmaSel = document.getElementById('turma_select');
-        turmaSel.innerHTML = '<option value="">-- selecione --</option>';
-        turmas.forEach(t => { 
-          const o = document.createElement('option'); 
-          o.value = t; 
-          o.textContent = t; 
-          turmaSel.appendChild(o); 
-        });
-      } catch(err){
-        console.error('Erro carregar professores/turmas:', err);
-        // fallback
-        professores = PROFESSORES;
-        const profSel = document.getElementById('professor_select');
-        profSel.innerHTML = '<option value="">-- selecione --</option>';
-        professores.forEach(p => { 
-          const o = document.createElement('option'); 
-          o.value = p; 
-          o.textContent = p; 
-          profSel.appendChild(o); 
-        });
-        turmas = Object.keys(CLASS_MAPPING);
-        const turmaSel = document.getElementById('turma_select');
-        turmaSel.innerHTML = '<option value="">-- selecione --</option>';
-        turmas.forEach(t => { 
-          const o = document.createElement('option'); 
-          o.value = t; 
-          o.textContent = t; 
-          turmaSel.appendChild(o); 
+        professores.forEach(p => {
+          const o = document.createElement('option'); o.value = p; o.textContent = p; profSel.appendChild(o);
         });
       }
-    }
 
-    /*******************************
-     * CARREGAR ALUNOS POR TURMA (PROFESSOR)
-     *******************************/
-    async function onTurmaChange(){
-      const turma = document.getElementById('turma_select').value;
-      if(!turma){ 
-        alunosDaTurmaAtual = []; 
-        renderStudentList([]); 
-        return; 
+      // turmas (GET do sheet geral)
+      const r2 = await fetch(`${SCRIPT_URL}?endpoint=classes&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+      const j2 = await r2.json();
+      if(j2 && j2.status === 'success' && Array.isArray(j2.classes)) turmas = j2.classes;
+      else turmas = Object.keys(CLASS_MAPPING);
+
+      const turmaSel = document.getElementById('turma_select');
+      if (turmaSel) {
+        turmaSel.innerHTML = '<option value="">-- selecione --</option>';
+        turmas.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; turmaSel.appendChild(o); });
       }
-      await carregarAlunosPorTurma(turma);
-      renderStudentList(alunosDaTurmaAtual);
+    } catch(err){
+      console.error('Erro carregar professores/turmas:', err);
+      // fallback
+      professores = PROFESSORES;
+      const profSel = document.getElementById('professor_select');
+      if (profSel) {
+        profSel.innerHTML = '<option value="">-- selecione --</option>';
+        professores.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; profSel.appendChild(o); });
+      }
+      turmas = Object.keys(CLASS_MAPPING);
+      const turmaSel = document.getElementById('turma_select');
+      if (turmaSel) {
+        turmaSel.innerHTML = '<option value="">-- selecione --</option>';
+        turmas.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; turmaSel.appendChild(o); });
+      }
     }
+  }
 
-    async function carregarAlunosPorTurma(turma){
-      try {
-        const resp = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
-        const json = await resp.json();
-        alunosDaTurmaAtual = json.students || json.studentsList || [];
-        if(!Array.isArray(alunosDaTurmaAtual)) alunosDaTurmaAtual = [];
-      } catch(err){
-        console.error('Erro get students:', err);
+  /*******************************
+   * CARREGAR ALUNOS POR TURMA (PROFESSOR)
+   *******************************/
+  async function onTurmaChange(){
+    const turma = (document.getElementById('turma_select') || {}).value || '';
+    if(!turma){
+      alunosDaTurmaAtual = [];
+      renderStudentList([]);
+      return;
+    }
+    await carregarAlunosPorTurma(turma);
+    renderStudentList(alunosDaTurmaAtual.map(a => (typeof a === 'object' ? (a.nome || '') : a)));
+  }
+
+  async function carregarAlunosPorTurma(turma){
+    try {
+      const resp = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
+      const json = await resp.json();
+      if(json.studentsList && Array.isArray(json.studentsList)){
+        alunosDaTurmaAtual = json.studentsList.map(x => x.nome || '');
+        alunosComRA = json.studentsList.map(x => ({ nome: x.nome || '', ra: x.ra || '' }));
+      } else if (json.students && Array.isArray(json.students)){
+        alunosDaTurmaAtual = json.students.map(s => (typeof s === 'string' ? s : (s.nome || '')));
+        alunosComRA = (json.students || []).map(s => (typeof s === 'string' ? { nome: s, ra: '' } : { nome: s.nome || '', ra: s.ra || '' }));
+      } else {
         alunosDaTurmaAtual = [];
+        alunosComRA = [];
       }
+    } catch(err){
+      console.error('Erro get students:', err);
+      alunosDaTurmaAtual = [];
+      alunosComRA = [];
     }
+  }
 
-    /*******************************
-     * MODAL DE SELEÇÃO DE ALUNOS (PROFESSOR)
-     *******************************/
-    function openStudentsModal(){
-      if(!alunosDaTurmaAtual || alunosDaTurmaAtual.length === 0){ 
-        alert('Nenhum aluno encontrado para a turma selecionada.'); 
-        return; 
-      }
-      document.getElementById('modalRoot').style.display = 'flex';
-      renderStudentList(alunosDaTurmaAtual);
-      document.getElementById('studentSearch').value = '';
+  /*******************************
+   * MODAL DE SELEÇÃO DE ALUNOS (PROFESSOR)
+   *******************************/
+  function openStudentsModal(){
+    if(!alunosDaTurmaAtual || alunosDaTurmaAtual.length === 0){
+      alert('Nenhum aluno encontrado para a turma selecionada.');
+      return;
     }
-    
-    function closeStudentsModal(){ 
-      document.getElementById('modalRoot').style.display = 'none'; 
-    }
+    const modal = document.getElementById('modalRoot');
+    if (modal) modal.style.display = 'flex';
+    const search = document.getElementById('studentSearch');
+    if (search) search.value = '';
+    renderStudentList(alunosDaTurmaAtual);
+  }
 
-    function renderStudentList(list){
-      const container = document.getElementById('studentList'); 
-      container.innerHTML = '';
-      list.forEach(nome => {
-        const row = document.createElement('div'); 
-        row.style.display='flex';
-        row.style.justifyContent='space-between';
-        row.style.alignItems='center';
-        row.style.padding='10px';
-        row.style.borderBottom='1px solid #eee';
-        
-        const lbl = document.createElement('div'); 
-        lbl.textContent = nome;
-        lbl.style.fontSize = '15px';
-        
-        const cb = document.createElement('input'); 
-        cb.type='checkbox'; 
-        cb.value = nome; 
-        cb.checked = alunosSelecionados.includes(nome);
-        cb.style.transform = 'scale(1.2)';
-        cb.onchange = (e) => { 
-          if(e.target.checked){ 
-            if(!alunosSelecionados.includes(nome)) alunosSelecionados.push(nome); 
-          } else {
-            alunosSelecionados = alunosSelecionados.filter(x => x !== nome); 
-          } 
-        };
-        
-        row.appendChild(lbl); 
-        row.appendChild(cb); 
-        container.appendChild(row);
-      });
-    }
+  function closeStudentsModal(){
+    const modal = document.getElementById('modalRoot');
+    if (modal) modal.style.display = 'none';
+  }
 
-    function filterStudentList(){ 
-      const q = document.getElementById('studentSearch').value.toLowerCase(); 
-      const filtered = alunosDaTurmaAtual.filter(s => s.toLowerCase().includes(q)); 
-      renderStudentList(filtered); 
-    }
+  function renderStudentList(list){
+    const container = document.getElementById('studentList');
+    if (!container) return;
+    container.innerHTML = '';
+    list.forEach(nome => {
+      const row = document.createElement('div');
+      row.style.display='flex';
+      row.style.justifyContent='space-between';
+      row.style.alignItems='center';
+      row.style.padding='10px';
+      row.style.borderBottom='1px solid #eee';
 
-    function confirmStudents(){
-      document.getElementById('alunos_selected_input').value = alunosSelecionados.join(', ');
-      const pills = document.getElementById('selectedPills'); 
+      const lbl = document.createElement('div');
+      lbl.textContent = nome;
+      lbl.style.fontSize = '15px';
+
+      const cb = document.createElement('input');
+      cb.type='checkbox';
+      cb.value = nome;
+      cb.checked = alunosSelecionados.includes(nome);
+      cb.style.transform = 'scale(1.2)';
+      cb.onchange = (e) => {
+        if(e.target.checked){
+          if(!alunosSelecionados.includes(nome)) alunosSelecionados.push(nome);
+        } else {
+          alunosSelecionados = alunosSelecionados.filter(x => x !== nome);
+        }
+      };
+
+      row.appendChild(lbl);
+      row.appendChild(cb);
+      container.appendChild(row);
+    });
+  }
+
+  function filterStudentList(){
+    const q = (document.getElementById('studentSearch') || {}).value || '';
+    const filtered = alunosDaTurmaAtual.filter(s => (s || '').toLowerCase().includes(q.toLowerCase()));
+    renderStudentList(filtered);
+  }
+
+  function confirmStudents(){
+    const input = document.getElementById('alunos_selected_input');
+    if (input) input.value = alunosSelecionados.join(', ');
+    const pills = document.getElementById('selectedPills');
+    if (pills) {
       pills.innerHTML = '';
-      alunosSelecionados.forEach(a => { 
-        const el = document.createElement('div'); 
-        el.className='pill'; 
-        el.textContent = a; 
-        pills.appendChild(el); 
+      alunosSelecionados.forEach(a => {
+        const el = document.createElement('div');
+        el.className='pill';
+        el.textContent = a;
+        pills.appendChild(el);
       });
-      closeStudentsModal();
+    }
+    closeStudentsModal();
+  }
+
+  /*******************************
+   * TOGGLE SUSPENSÃO (GESTÃO)
+   *******************************/
+  // função toggleSuspension já declarada acima
+
+  /*******************************
+   * CADASTRAR OCORRÊNCIA (PROFESSOR)
+   *******************************/
+  async function registrarOcorrenciaProfessor(){
+    const professor = (document.getElementById('professor_select') || {}).value || '';
+    const turma = (document.getElementById('turma_select') || {}).value || '';
+    const dataOc = (document.getElementById('data_prof') || {}).value || '';
+    const descricao = (document.getElementById('descricao_prof') || {}).value.trim() || '';
+
+    if(!professor || !turma || !dataOc || alunosSelecionados.length === 0){
+      alert('Preencha todos os campos obrigatórios e selecione ao menos um aluno.');
+      return;
     }
 
-    /*******************************
-     * TOGGLE SUSPENSÃO (GESTÃO)
-     *******************************/
-    function toggleSuspension(area){
-      if(area === 'gestao'){ 
-        const val = document.getElementById('classificacao_gestao').value; 
-        document.getElementById('suspensionRow_gestao').style.display = (val === 'SUSPENSÃO') ? 'flex' : 'none'; 
+    const irregs = Array.from(document.querySelectorAll('input[name="irreg"]:checked')).map(x => x.value);
+
+    const payload = {
+      action: 'addOccurrence',
+      sheet: SHEET_PROF,
+      data: {
+        date: dataOc,
+        professor: professor,
+        studentClass: turma,
+        student: alunosSelecionados.join(', '),
+        irregularities: irregs.join(', '),
+        description: descricao
       }
+    };
+
+    try {
+      const resp = await fetch(`${SCRIPT_URL}`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      });
+      const j = await resp.json();
+      if(j && j.status === 'success'){
+        notify('success','Ocorrência registrada com sucesso (Professor).');
+        clearProfessorForm();
+        carregarHistoricoProfessor();
+      } else {
+        alert('Erro ao registrar: ' + (j && j.message ? j.message : JSON.stringify(j)));
+      }
+    } catch(err){
+      console.error('Erro POST ocorrencia (professor):', err);
+      alert('Erro ao comunicar com o servidor (ver console).');
     }
+  }
 
-    /*******************************
-     * CADASTRAR OCORRÊNCIA (GESTÃO) - CORRIGIDO
-     *******************************/
-    async function cadastrarOcorrenciaGestao(){
-      const alunoSelect = document.getElementById('aluno_gestao');
-      const aluno = alunoSelect.value;
-      const turmaSelect = document.getElementById('serie_gestao');
-      const serie = turmaSelect.value;
-      const professor = document.getElementById('professor_gestao').value.trim();
-      const disciplina = document.getElementById('disciplina_gestao').value.trim();
-      const classificacao = document.getElementById('classificacao_gestao').value;
-      const descricao = document.getElementById('descricao_gestao').value.trim();
-      const dataRetorno = document.getElementById('dataRetorno_gestao').value || null;
-      const ra = document.getElementById('ra_gestao').value;
+  function clearProfessorForm(){
+    const ps = document.getElementById('professor_select'); if (ps) ps.value='';
+    const ts = document.getElementById('turma_select'); if (ts) ts.value='';
+    const asi = document.getElementById('alunos_selected_input'); if (asi) asi.value='';
+    const pills = document.getElementById('selectedPills'); if (pills) pills.innerHTML='';
+    const desc = document.getElementById('descricao_prof'); if (desc) desc.value='';
+    alunosSelecionados = [];
+    Array.from(document.querySelectorAll('input[name="irreg"]')).forEach(cb => cb.checked=false);
+    const dataProf = document.getElementById('data_prof'); if (dataProf) dataProf.value = new Date().toISOString().split('T')[0];
+  }
 
-      if(!aluno || !serie || !professor || !disciplina || !classificacao || !descricao){ 
-        alert('Preencha todos os campos obrigatórios.'); 
-        return; 
+  /*******************************
+   * CARREGAR HISTÓRICO
+   *******************************/
+  async function carregarHistoricoGestao(){
+    const container = document.getElementById('historyListGestao');
+    if (container) container.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
+    try {
+      const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+      const json = await resp.json();
+      const ocorrs = json.occurrences || json.data || [];
+      if (!container) return;
+      container.innerHTML = '';
+      if(!ocorrs || ocorrs.length === 0){
+        container.innerHTML = '<div class="muted">Nenhuma ocorrência encontrada.</div>';
+        return;
       }
-      if(classificacao === 'SUSPENSÃO' && !dataRetorno){ 
-        alert('Informe data de retorno para suspensão.'); 
-        return; 
-      }
 
-      // CORREÇÃO: Payload corrigido para corresponder ao esperado pelo Google Apps Script
-      const payload = {
-        action: 'addOccurrence', // Ação específica para o Apps Script
-        sheet: SHEET_GESTAO,
-        data: {
-          date: new Date().toISOString().split('T')[0],
-          professor: professor,
-          studentClass: serie,
-          student: aluno,
-          ra: ra,
-          disciplina: disciplina,
-          irregularities: classificacao + (dataRetorno ? (' - retorno: ' + dataRetorno) : ''),
-          description: descricao
-        }
-      };
+      ocorrs.slice().reverse().forEach(r => {
+        const id = r.id || r.ID || r.Id || '';
+        const date = r.DATA || r.date || r.col1 || '';
+        const prof = r.PROFESSOR || r.professor || r.col2 || '';
+        const turma = r.TURMA || r.studentClass || r.col3 || '';
+        const aluno = r.ALUNO || r.student || r.col4 || '';
+        const irreg = r.IRREGULARIDADES || r.irregularities || r.col5 || '';
+        const desc = r.DESCRICAO || r.description || r.col6 || '';
 
-      try {
-        const resp = await fetch(`${SCRIPT_URL}`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify(payload)
-        });
-        const j = await resp.json();
-        if(j && j.status === 'success'){
-          document.getElementById('successGestao').style.display = 'block';
-          setTimeout(()=> document.getElementById('successGestao').style.display = 'none', 2200);
-          // limpar
-          document.getElementById('serie_gestao').value = '';
-          document.getElementById('aluno_gestao').innerHTML = '<option value="">-- Selecione o aluno --</option>';
-          document.getElementById('ra_gestao').value = '';
-          document.getElementById('professor_gestao').value = '';
-          document.getElementById('disciplina_gestao').value = '';
-          document.getElementById('classificacao_gestao').value = '';
-          document.getElementById('descricao_gestao').value = '';
-          document.getElementById('suspensionRow_gestao').style.display = 'none';
-          carregarHistoricoGestao();
-        } else {
-          alert('Erro ao registrar: ' + (j && j.message ? j.message : 'Resposta inesperada'));
-        }
-      } catch(err){
-        console.error('Erro POST ocorrencia (gestao):', err);
-        alert('Erro ao comunicar com o servidor (ver console).');
-      }
+        const div = document.createElement('div');
+        div.className = 'historyItem';
+
+        const meta = document.createElement('div');
+        meta.className = 'meta';
+        meta.innerHTML = `<div><strong>${date}</strong> — <span class="muted">${prof}</span></div>`;
+
+        const controls = document.createElement('div');
+
+        const pdfBtn = document.createElement('button');
+        pdfBtn.className = 'btn-success';
+        pdfBtn.style.fontSize='13px';
+        pdfBtn.style.marginLeft='10px';
+        pdfBtn.textContent = 'Gerar PDF (template)';
+        pdfBtn.onclick = () => generatePdfFromBackend(id);
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn-danger';
+        delBtn.style.fontSize='13px';
+        delBtn.style.marginLeft='10px';
+        delBtn.textContent = 'Excluir';
+        delBtn.onclick = () => deleteOccurrence(id);
+
+        controls.appendChild(pdfBtn);
+        controls.appendChild(delBtn);
+        meta.appendChild(controls);
+
+        const ddesc = document.createElement('div');
+        ddesc.className = 'desc';
+        ddesc.innerHTML = `<strong>Aluno(s):</strong> ${aluno || 'N/A'}<br/><strong>Turma:</strong> ${turma || 'N/A'}<br/><strong>Irregularidades:</strong> ${irreg || 'N/A'}<br/><em>${desc || ''}</em>`;
+
+        const idLine = document.createElement('div');
+        idLine.style.marginTop='10px';
+        idLine.style.fontSize='13px';
+        idLine.style.opacity='0.9';
+        idLine.innerHTML = `ID: <span class="qnum">${id}</span>`;
+
+        div.appendChild(meta);
+        div.appendChild(ddesc);
+        div.appendChild(idLine);
+        container.appendChild(div);
+      });
+    } catch(err){
+      console.error('Erro carregarHistorico:', err);
+      if (document.getElementById('historyListGestao')) document.getElementById('historyListGestao').innerHTML = '<div class="muted">Erro ao carregar histórico (ver console).</div>';
     }
+  }
 
-    /*******************************
-     * REGISTRAR OCORRÊNCIA (PROFESSOR) - CORRIGIDO
-     *******************************/
-    async function registrarOcorrenciaProfessor(){
-      const professor = document.getElementById('professor_select').value;
-      const turma = document.getElementById('turma_select').value;
-      const dataOc = document.getElementById('data_prof').value;
-      const descricao = document.getElementById('descricao_prof').value.trim();
-      
-      if(!professor || !turma || !dataOc || alunosSelecionados.length === 0){ 
-        alert('Preencha todos os campos obrigatórios e selecione ao menos um aluno.'); 
-        return; 
+  async function carregarHistoricoProfessor(){
+    const container = document.getElementById('historyListProfessor');
+    if (container) container.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
+    try {
+      const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+      const json = await resp.json();
+      const ocorrs = json.occurrences || json.data || [];
+      if (!container) return;
+      container.innerHTML = '';
+      if(!ocorrs || ocorrs.length === 0){
+        container.innerHTML = '<div class="muted">Nenhuma ocorrência encontrada.</div>';
+        return;
       }
-      
-      const irregs = Array.from(document.querySelectorAll('input[name="irreg"]:checked')).map(x=>x.value);
-      
-      // CORREÇÃO: Payload corrigido para corresponder ao esperado pelo Google Apps Script
-      const payload = { 
-        action: 'addOccurrence', // Ação específica para o Apps Script
-        sheet: SHEET_PROF,
-        data: {
-          date: dataOc, 
-          professor: professor, 
-          studentClass: turma, 
-          student: alunosSelecionados.join(', '), 
-          irregularities: irregs.join(', '), 
-          description: descricao 
-        }
-      };
-      
-      try {
-        const resp = await fetch(`${SCRIPT_URL}`, { 
-          method:'POST', 
-          headers:{'Content-Type':'application/json'}, 
-          body: JSON.stringify(payload) 
-        });
-        const j = await resp.json();
-        if(j && j.status === 'success'){
-          document.getElementById('successProfessor').style.display = 'block';
-          setTimeout(()=> document.getElementById('successProfessor').style.display = 'none', 2200);
-          clearProfessorForm();
-          carregarHistoricoProfessor();
-        } else {
-          alert('Erro ao registrar: ' + (j && j.message ? j.message : 'Resposta inesperada'));
-        }
-      } catch(err){
-        console.error('Erro POST ocorrencia (professor):', err);
-        alert('Erro ao comunicar com o servidor (ver console).');
-      }
+
+      ocorrs.slice().reverse().forEach(r => {
+        const id = r.id || r.ID || r.Id || '';
+        const date = r.DATA || r.date || r.col1 || '';
+        const prof = r.PROFESSOR || r.professor || r.col2 || '';
+        const turma = r.TURMA || r.studentClass || r.col3 || '';
+        const aluno = r.ALUNO || r.student || r.col4 || '';
+        const irreg = r.IRREGULARIDADES || r.irregularities || r.col5 || '';
+        const desc = r.DESCRICAO || r.description || r.col6 || '';
+
+        const div = document.createElement('div');
+        div.className = 'historyItem';
+        div.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><div><strong>${date}</strong> — <span class="muted">${prof}</span></div></div><div style="margin-top:8px"><strong>Aluno(s):</strong> ${aluno || 'N/A'}<br/><strong>Turma:</strong> ${turma || 'N/A'}<br/><strong>Irregularidades:</strong> ${irreg || 'N/A'}<br/><em>${desc || ''}</em><div style="margin-top:6px;font-size:12px;color:#6b7280">ID: ${id}</div></div>`;
+        container.appendChild(div);
+      });
+    } catch(err){
+      console.error('Erro carregarHistorico:', err);
+      if (document.getElementById('historyListProfessor')) document.getElementById('historyListProfessor').innerHTML = '<div class="muted">Erro ao carregar histórico (ver console).</div>';
     }
+  }
 
-    // Limpar formulário do professor
-    function clearProfessorForm(){
-      document.getElementById('professor_select').value=''; 
-      document.getElementById('turma_select').value=''; 
-      document.getElementById('alunos_selected_input').value=''; 
-      document.getElementById('selectedPills').innerHTML=''; 
-      document.getElementById('descricao_prof').value=''; 
-      alunosSelecionados = []; 
-      Array.from(document.querySelectorAll('input[name="irreg"]')).forEach(cb => cb.checked=false); 
-      document.getElementById('data_prof').value = new Date().toISOString().split('T')[0];
+  /*******************************
+   * EXCLUIR OCORRÊNCIA
+   *******************************/
+  async function deleteOccurrence(occurrenceId){
+    if(occurrenceId === null || occurrenceId === undefined){
+      alert('ID inválido para exclusão.');
+      return;
     }
-
-    /*******************************
-     * CARREGAR HISTÓRICO
-     *******************************/
-    async function carregarHistoricoGestao(){
-      const container = document.getElementById('historyListGestao');
-      container.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
-      try {
-        const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GERAL)}`);
-        const json = await resp.json();
-        // backend pode retornar json.occurrences ou json.data
-        const ocorrs = json.occurrences || json.data || [];
-        container.innerHTML = '';
-        if(!ocorrs || ocorrs.length === 0){ 
-          container.innerHTML = '<div class="muted">Nenhuma ocorrência encontrada.</div>'; 
-          return; 
-        }
-
-        // Exibe do mais recente para o mais antigo
-        ocorrs.slice().reverse().forEach(r => {
-          const id = r.id || r.ID || r.Id || null;
-          const date = r.DATA || r.date || r.col1 || '';
-          const prof = r.PROFESSOR || r.professor || r.col2 || '';
-          const turma = r.TURMA || r.studentClass || r.col3 || '';
-          const aluno = r.ALUNO || r.student || r.col4 || '';
-          const irreg = r.IRREGULARIDADES || r.irregularities || r.col5 || '';
-          const desc = r.DESCRICAO || r.description || r.col6 || '';
-
-          const div = document.createElement('div'); 
-          div.className='historyItem';
-          
-          const meta = document.createElement('div'); 
-          meta.className='meta';
-          meta.innerHTML = `<div><strong>${date}</strong> — <span class="muted">${prof}</span></div>`;
-          
-          const controls = document.createElement('div');
-          // botão gerar pdf via backend
-          const pdfBtn = document.createElement('button');
-          pdfBtn.className='btn-success'; 
-          pdfBtn.style.fontSize='13px'; 
-          pdfBtn.style.marginLeft='10px';
-          pdfBtn.textContent = 'Gerar PDF (template)';
-          pdfBtn.onclick = () => generatePdfFromBackend(id);
-          
-          // botão excluir
-          const delBtn = document.createElement('button');
-          delBtn.className='btn-danger'; 
-          delBtn.style.fontSize='13px'; 
-          delBtn.style.marginLeft='10px';
-          delBtn.textContent = 'Excluir';
-          delBtn.onclick = () => deleteOccurrence(id);
-
-          controls.appendChild(pdfBtn); 
-          controls.appendChild(delBtn);
-          meta.appendChild(controls);
-
-          const ddesc = document.createElement('div'); 
-          ddesc.className='desc';
-          ddesc.innerHTML = `<strong>Aluno(s):</strong> ${aluno || 'N/A'}<br/><strong>Turma:</strong> ${turma || 'N/A'}<br/><strong>Irregularidades:</strong> ${irreg || 'N/A'}<br/><em>${desc || ''}</em>`;
-
-          // adicionar id visível (útil)
-          const idLine = document.createElement('div'); 
-          idLine.style.marginTop='10px'; 
-          idLine.style.fontSize='13px'; 
-          idLine.style.opacity='0.9'; 
-          idLine.innerHTML = `ID: <span class="qnum">${id}</span>`;
-
-          div.appendChild(meta); 
-          div.appendChild(ddesc); 
-          div.appendChild(idLine);
-          container.appendChild(div);
-        });
-      } catch(err){
-        console.error('Erro carregarHistorico:', err);
-        document.getElementById('historyListGestao').innerHTML = '<div class="muted">Erro ao carregar histórico (ver console).</div>';
-      }
+    if(!confirm('Confirma exclusão desta ocorrência (ID '+occurrenceId+')?')) return;
+    try {
+      const resp = await fetch(`${SCRIPT_URL}?endpoint=delete-occurrence`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ occurrenceId, sheet: SHEET_PROF })
+      });
+      const j = await resp.json();
+      if(j && j.status === 'success'){
+        alert('Ocorrência excluída.');
+        carregarHistoricoGestao();
+        carregarHistoricoProfessor();
+      } else alert('Erro ao excluir: ' + (j && j.message ? j.message : 'Resposta inesperada'));
+    } catch(err){
+      console.error('Erro deleteOccurrence:', err);
+      alert('Erro ao comunicar com servidor.');
     }
+  }
 
-    async function carregarHistoricoProfessor(){
-      const container = document.getElementById('historyListProfessor');
-      container.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
-      try {
-        const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GERAL)}`);
-        const json = await resp.json();
-        const ocorrs = json.occurrences || json.data || [];
-        container.innerHTML = '';
-        if(!ocorrs || ocorrs.length === 0){ 
-          container.innerHTML = '<div class="muted">Nenhuma ocorrência encontrada.</div>'; 
-          return; 
-        }
-
-        // Exibe do mais recente para o mais antigo
-        ocorrs.slice().reverse().forEach(r => {
-          const id = r.id || r.ID || r.Id || null;
-          const date = r.DATA || r.date || r.col1 || '';
-          const prof = r.PROFESSOR || r.professor || r.col2 || '';
-          const turma = r.TURMA || r.studentClass || r.col3 || '';
-          const aluno = r.ALUNO || r.student || r.col4 || '';
-          const irreg = r.IRREGULARIDADES || r.irregularities || r.col5 || '';
-          const desc = r.DESCRICAO || r.description || r.col6 || '';
-
-          const div = document.createElement('div'); 
-          div.className='historyItem';
-          
-          const meta = document.createElement('div'); 
-          meta.className='meta';
-          meta.innerHTML = `<div><strong>${date}</strong> — <span class="muted">${prof}</span></div>`;
-          
-          const ddesc = document.createElement('div'); 
-          ddesc.className='desc';
-          ddesc.innerHTML = `<strong>Aluno(s):</strong> ${aluno || 'N/A'}<br/><strong>Turma:</strong> ${turma || 'N/A'}<br/><strong>Irregularidades:</strong> ${irreg || 'N/A'}<br/><em>${desc || ''}</em>`;
-
-          // adicionar id visível (útil)
-          const idLine = document.createElement('div'); 
-          idLine.style.marginTop='10px'; 
-          idLine.style.fontSize='13px'; 
-          idLine.style.opacity='0.9'; 
-          idLine.innerHTML = `ID: <span class="qnum">${id}</span>`;
-
-          div.appendChild(meta); 
-          div.appendChild(ddesc); 
-          div.appendChild(idLine);
-          container.appendChild(div);
-        });
-      } catch(err){
-        console.error('Erro carregarHistorico:', err);
-        document.getElementById('historyListProfessor').innerHTML = '<div class="muted">Erro ao carregar histórico (ver console).</div>';
-      }
+  /*******************************
+   * GERAÇÃO DE PDF
+   *******************************/
+  async function generatePdfFromBackend(occurrenceId){
+    if(!occurrenceId){
+      alert('ID inválido para geração de PDF.');
+      return;
     }
-
-    /*******************************
-     * EXCLUIR OCORRÊNCIA
-     *******************************/
-    async function deleteOccurrence(occurrenceId){
-      if(occurrenceId === null || occurrenceId === undefined){ 
-        alert('ID inválido para exclusão.'); 
-        return; 
+    try {
+      const resp = await fetch(`${SCRIPT_URL}?endpoint=generate-pdf`, {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ occurrenceId, sheet: SHEET_PROF })
+      });
+      const j = await resp.json();
+      if(j && j.status === 'success' && j.pdfUrl){
+        window.open(j.pdfUrl, '_blank');
+      } else {
+        alert('Servidor não retornou URL do PDF. Resposta: ' + JSON.stringify(j));
       }
-      if(!confirm('Confirma exclusão desta ocorrência (ID '+occurrenceId+')?')) return;
-      try {
-        const resp = await fetch(`${SCRIPT_URL}?endpoint=delete-occurrence`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ occurrenceId, sheet: SHEET_PROF })
-        });
-        const j = await resp.json();
-        if(j && j.status === 'success'){ 
-          alert('Ocorrência excluída.'); 
-          carregarHistoricoGestao(); 
-        }
-        else alert('Erro ao excluir: ' + (j && j.message ? j.message : 'Resposta inesperada'));
-      } catch(err){ 
-        console.error('Erro deleteOccurrence:', err); 
-        alert('Erro ao comunicar com servidor.'); 
-      }
+    } catch(err){
+      console.error('Erro generatePdfFromBackend:', err);
+      alert('Erro ao pedir geração de PDF. Verifique se o endpoint generate-pdf existe no Apps Script.');
     }
+  }
 
-    /*******************************
-     * GERAÇÃO DE PDF
-     *******************************/
-    async function generatePdfFromBackend(occurrenceId){
-      if(!occurrenceId){ 
-        alert('ID inválido para geração de PDF.'); 
-        return; 
-      }
-      try {
-        const resp = await fetch(`${SCRIPT_URL}?endpoint=generate-pdf`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ occurrenceId, sheet: SHEET_PROF })
-        });
-        const j = await resp.json();
-        if(j && j.status === 'success' && j.pdfUrl){
-          // abrir link em nova aba
-          window.open(j.pdfUrl, '_blank');
-        } else {
-          alert('Servidor não retornou URL do PDF. Resposta: ' + JSON.stringify(j));
-        }
-      } catch(err){
-        console.error('Erro generatePdfFromBackend:', err);
-        alert('Erro ao pedir geração de PDF. Verifique se o endpoint generate-pdf existe no Apps Script.');
-      }
+  // Gerar PDF localmente (apenas conteúdo simples)
+  function generatePDFLocal(){
+    try {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      doc.setFontSize(16);
+      doc.text('Registro de Ocorrência', 14, 20);
+      const aluno = (document.getElementById('aluno_gestao') || {}).value || '';
+      const turma = (document.getElementById('serie_gestao') || {}).value || '';
+      const prof = (document.getElementById('professor_gestao') || {}).value || '';
+      const desc = (document.getElementById('descricao_gestao') || {}).value || '';
+      let y = 36;
+      if(aluno){ doc.text(`Aluno: ${aluno}`, 14, y); y+=8; }
+      if(turma){ doc.text(`Turma: ${turma}`, 14, y); y+=8; }
+      if(prof){ doc.text(`Professor: ${prof}`, 14, y); y+=8; }
+      doc.text('Descrição:', 14, y); y+=8;
+      const split = doc.splitTextToSize(desc || 'Sem descrição', 180);
+      doc.text(split, 14, y);
+      doc.save(`ocorrencia_${Date.now()}.pdf`);
+    } catch(err){
+      console.error('Erro gerar PDF local:', err);
+      alert('Erro ao gerar PDF local (ver console).');
     }
+  }
 
-    // Gerar PDF localmente (apenas conteúdo simples)
-    function generatePDFLocal(){
-      try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFontSize(16);
-        doc.text('Registro de Ocorrência', 14, 20);
-        const aluno = document.getElementById('aluno_gestao').value || '';
-        const turma = document.getElementById('serie_gestao').value || '';
-        const prof = document.getElementById('professor_gestao').value || '';
-        const desc = document.getElementById('descricao_gestao').value || '';
-        let y = 36;
-        if(aluno){ doc.text(`Aluno: ${aluno}`, 14, y); y+=8; }
-        if(turma){ doc.text(`Turma: ${turma}`, 14, y); y+=8; }
-        if(prof){ doc.text(`Professor: ${prof}`, 14, y); y+=8; }
-        doc.text('Descrição:', 14, y); y+=8;
-        const split = doc.splitTextToSize(desc || 'Sem descrição', 180);
-        doc.text(split, 14, y);
-        doc.save(`ocorrencia_${Date.now()}.pdf`);
-      } catch(err){ 
-        console.error('Erro gerar PDF local:', err); 
-        alert('Erro ao gerar PDF local (ver console).'); 
-      }
-    }
+  // Função para download de template (placeholder)
+  function downloadDocument() {
+    alert('Funcionalidade de download de template será implementada em breve.');
+  }
 
-    // Função para download de template (placeholder)
-    function downloadDocument() {
-      alert('Funcionalidade de download de template será implementada em breve.');
-    }
+  /*******************************
+   * UTILIDADES
+   *******************************/
+  function notify(type,message){
+    const n = document.getElementById('notification');
+    if(!n) return;
+    n.style.background = type === 'success' ? '#16a34a' : (type === 'error' ? '#dc2626' : '#0ea5e9');
+    n.textContent = message; n.style.display = 'block';
+    setTimeout(()=>{ n.style.display = 'none'; },4000);
+  }
 
-  </script>
+  // Export helpers (por conveniência: expõe funções no window para testes)
+  window.app = {
+    carregarTurmasGestao,
+    carregarAlunosPorTurmaGestao,
+    preencherRAGestao,
+    cadastrarOcorrenciaGestao,
+    carregarProfessoresETurmas,
+    onTurmaChange,
+    carregarAlunosPorTurma,
+    openStudentsModal,
+    closeStudentsModal,
+    confirmStudents,
+    registrarOcorrenciaProfessor,
+    carregarHistoricoGestao,
+    carregarHistoricoProfessor,
+    deleteOccurrence,
+    generatePdfFromBackend,
+    generatePDFLocal
+  };
+</script>
+
 </body>
 </html>
