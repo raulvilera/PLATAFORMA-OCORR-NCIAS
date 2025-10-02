@@ -27,8 +27,8 @@
     label{display:block;margin-bottom:6px;font-size:14px}
     input[type="text"],input[type="email"],input[type="password"],select,textarea,input[type="date"]{
       padding:12px 14px;border-radius:8px;border:none;font-weight:800;font-size:15px;color:#111;
-      min-width: 0; /* Permite que os campos se redimensionem corretamente */
-      width: 100%; /* Garante que ocupem 100% do container pai */
+      min-width: 0;
+      width: 100%;
     }
     textarea{min-height:120px;resize:vertical;padding-top:12px}
     button{cursor:pointer;border:none;padding:12px 16px;border-radius:8px;font-weight:900;box-shadow:0 6px 18px rgba(0,0,0,0.15); font-size:15px;}
@@ -52,19 +52,18 @@
     .login-option.active {background: linear-gradient(90deg, rgba(0,78,120,0.8), rgba(0,120,120,0.8));}
     .access-area {display: none;}
     
-    /* Novos estilos para formulários - Campos com largura proporcional ao conteúdo */
+    /* Campos com largura otimizada */
     .form-row {display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start;}
-    .form-group {display: flex; flex-direction:column; min-width: 0;} /* Permite redimensionamento */
-    .form-group label {margin-bottom: 8px;}
+    .form-group {display: flex; flex-direction:column; min-width: 0;}
     
-    /* Classes de tamanho otimizadas para o conteúdo */
-    .form-group-small {flex: 0 0 120px;} /* Campos pequenos como RA */
-    .form-group-medium {flex: 0 0 180px;} /* Campos médios como data */
-    .form-group-large {flex: 1 0 250px;} /* Campos grandes como aluno/professor */
-    .form-group-xlarge {flex: 1 0 300px;} /* Campos extra grandes como turma */
-    .form-group-xxlarge {flex: 2 1 400px;} /* Campos muito grandes como descrição */
+    /* Classes de tamanho otimizadas */
+    .form-group-small {flex: 0 0 120px;}
+    .form-group-medium {flex: 0 0 180px;}
+    .form-group-large {flex: 1 0 200px;}
+    .form-group-xlarge {flex: 1 0 250px;}
+    .form-group-xxlarge {flex: 2 1 350px;}
     
-    /* Ajustes específicos para a área de gestão */
+    /* Área de gestão */
     .gestao-form .form-group {flex: 1 1 auto;}
     .gestao-form .form-row {margin-bottom: 16px;}
     .gestao-form input, 
@@ -79,11 +78,20 @@
     .checkbox-item {background: #efefef; color: #111; padding: 8px 12px; border-radius: 999px; display: inline-flex; align-items: center; font-size:14px;}
     .checkbox-item input {margin-right: 6px;}
     
-    /* Estilo específico para o campo Classificação */
-    .classification-container {display: flex; flex-direction: column; flex: 0 0 200px;} /* Ajustado para conteúdo */
+    /* Classificação */
+    .classification-container {display: flex; flex-direction: column; flex: 0 0 200px;}
     
-    /* Campos de seleção com largura adaptável */
-    select {width: 100%; min-width: 150px;} /* Largura mínima para legibilidade */
+    select {width: 100%; min-width: 150px;}
+    
+    /* Notificações */
+    .notification {
+      display: none;
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      font-weight: 700;
+      text-align: center;
+    }
     
     @media(max-width:1080px){
       .flex{flex-direction:column}
@@ -97,7 +105,7 @@
       .form-group-large, 
       .form-group-xlarge, 
       .form-group-xxlarge {
-        flex: 1 1 auto; /* Em telas menores, todos os campos ocupam largura total */
+        flex: 1 1 auto;
         width: 100%;
       }
     }
@@ -119,6 +127,9 @@
         <button id="btnDownloadPdf" class="btn-success" style="display:none" onclick="downloadDocument()">Baixar Template</button>
       </div>
     </header>
+
+    <!-- NOTIFICATION -->
+    <div id="notification" class="notification"></div>
 
     <!-- LOGIN -->
     <div id="loginScreen" class="card" style="display:block">
@@ -183,13 +194,12 @@
         <div class="card col" style="flex:1">
           <div class="subtitle">CADASTRO — GESTÃO</div>
           <div class="col gestao-form">
-            <!-- Série/Turma em primeiro lugar -->
+            <!-- Série/Turma -->
             <div class="form-row">
               <div class="form-group form-group-xlarge">
                 <label>Série / Turma</label>
                 <select id="serie_gestao" onchange="carregarAlunosPorTurmaGestao(this.value)">
                   <option value="">-- Selecione a turma --</option>
-                  <!-- Turmas serão carregadas dinamicamente -->
                 </select>
               </div>
             </div>
@@ -198,9 +208,8 @@
             <div class="form-row">
               <div class="form-group form-group-large">
                 <label>Aluno</label>
-                <select id="aluno_gestao" onchange="preencherRAGestao(this.value)">
+                <select id="aluno_gestao" onchange="preencherRAGestao()">
                   <option value="">-- Selecione o aluno --</option>
-                  <!-- Alunos serão carregados dinamicamente -->
                 </select>
               </div>
               <div class="form-group form-group-small">
@@ -212,22 +221,28 @@
             <div class="form-row">
               <div class="form-group form-group-large">
                 <label>Professor</label>
-                <input id="professor_gestao" type="text">
+                <select id="professor_gestao">
+                  <option value="">-- Selecione o professor --</option>
+                </select>
               </div>
               <div class="form-group form-group-large">
                 <label>Disciplina</label>
-                <input id="disciplina_gestao" type="text">
+                <select id="disciplina_gestao">
+                  <option value="">-- Selecione a disciplina --</option>
+                </select>
               </div>
             </div>
             
-            <!-- Classificação com largura ajustada -->
+            <!-- Classificação -->
             <div class="form-row">
               <div class="classification-container">
                 <label>Classificação</label>
                 <select id="classificacao_gestao" onchange="toggleSuspension('gestao')">
                   <option value="">Selecione</option>
-                  <option value="OCORRÊNCIA">OCORRÊNCIA</option>
+                  <option value="ADVERTÊNCIA">ADVERTÊNCIA</option>
                   <option value="SUSPENSÃO">SUSPENSÃO</option>
+                  <option value="CONVERSA COM RESPONSÁVEL">CONVERSA COM RESPONSÁVEL</option>
+                  <option value="ORIENTAÇÃO">ORIENTAÇÃO</option>
                 </select>
               </div>
               <div class="form-group form-group-medium" style="display:none" id="suspensionRow_gestao">
@@ -265,7 +280,7 @@
         </div>
         <div style="margin-top:14px" id="historyListGestao" class="historyList"></div>
       </div>
-    </div> <!-- mainAppGestao -->
+    </div>
 
     <!-- MAIN APP - PROFESSOR -->
     <div id="mainAppProfessor" style="display:none;flex-direction:column;gap:16px">
@@ -279,14 +294,12 @@
                 <label>Professor</label>
                 <select id="professor_select">
                   <option value="">-- selecione --</option>
-                  <!-- Professores serão carregados dinamicamente -->
                 </select>
               </div>
               <div class="form-group form-group-large">
                 <label>Turma</label>
                 <select id="turma_select" onchange="onTurmaChange()">
                   <option value="">-- selecione --</option>
-                  <!-- Turmas serão carregadas dinamicamente -->
                 </select>
               </div>
             </div>
@@ -367,7 +380,7 @@
         </div>
         <div style="margin-top:14px" id="historyListProfessor" class="historyList"></div>
       </div>
-    </div> <!-- mainAppProfessor -->
+    </div>
 
     <!-- MODAL SELEÇÃO ALUNOS -->
     <div id="modalRoot" class="modal-root">
@@ -452,7 +465,7 @@
     "3ª SERIE G NOITE": { nome: "HT3:HT46", ra: "HU3:HU46" }
   };
 
-  // Lista de professores (fixa)
+  // Lista de professores
   const PROFESSORES = [
     "ALEX LUTH PEREIRA MARANHAO","ALEXSANDRA PAULA VARELLA DE SOUZA","ALISON VASCONCELOS BESERRA","AMAURI TEODORO DE OLIVEIRA",
     "ANA PAULA DOS SANTOS","ANDREIA DOS SANTOS FREITAS","ANDREIA MADUREIRA REIS","ANTONIO CARLOS DE OLIVEIRA",
@@ -476,13 +489,10 @@
     "VANESSA IVETE GOMES DOS SANTOS","VANIA PENHA DE BARROS","VIVIANE LEAL CAMERA DE MORAES","WILSON RODRIGUES MOTA"
   ];
 
-  // Disciplinas (exemplo)
+  // Disciplinas
   const DISCIPLINAS = [
     'Língua Portuguesa','Matemática','Ciências','História','Geografia','Inglês','Educação Física','Arte','Ensino Religioso'
   ];
-
-  // Classificações fixas
-  const CLASSIFICACOES = ['ADVERTÊNCIA','SUSPENSÃO','CONVERSA COM RESPONSÁVEL','ORIENTAÇÃO'];
 
   /*******************************
    * VARIÁVEIS DE ESTADO
@@ -499,7 +509,6 @@
    * INICIALIZAÇÃO
    *******************************/
   document.addEventListener('DOMContentLoaded', () => {
-    // assume que existe input#data_prof no HTML
     const dataProf = document.getElementById('data_prof');
     if (dataProf) dataProf.value = new Date().toISOString().split('T')[0];
 
@@ -509,34 +518,38 @@
   });
 
   function popularSelectsFixos(){
-    // preencher professores fixos nos selects (se existirem)
+    // Preencher professores
     const profSel = document.getElementById('professor_select');
     const profGest = document.getElementById('professor_gestao');
     if (profSel) {
       profSel.innerHTML = '<option value="">-- selecione --</option>';
       PROFESSORES.forEach(p => {
-        const o = document.createElement('option'); o.value = p; o.textContent = p; profSel.appendChild(o);
+        const o = document.createElement('option'); 
+        o.value = p; 
+        o.textContent = p; 
+        profSel.appendChild(o);
       });
     }
     if (profGest) {
       profGest.innerHTML = '<option value="">-- selecione --</option>';
       PROFESSORES.forEach(p => {
-        const o = document.createElement('option'); o.value = p; o.textContent = p; profGest.appendChild(o);
+        const o = document.createElement('option'); 
+        o.value = p; 
+        o.textContent = p; 
+        profGest.appendChild(o);
       });
     }
 
-    // disciplinas
+    // Preencher disciplinas
     const discSel = document.getElementById('disciplina_gestao');
     if (discSel) {
       discSel.innerHTML = '<option value="">-- selecione --</option>';
-      DISCIPLINAS.forEach(d => { const o = document.createElement('option'); o.value=d; o.textContent=d; discSel.appendChild(o); });
-    }
-
-    // classificações
-    const classSel = document.getElementById('classificacao_gestao');
-    if (classSel) {
-      classSel.innerHTML = '<option value="">-- selecione --</option>';
-      CLASSIFICACOES.forEach(c => { const o = document.createElement('option'); o.value=c; o.textContent=c; classSel.appendChild(o); });
+      DISCIPLINAS.forEach(d => { 
+        const o = document.createElement('option'); 
+        o.value=d; 
+        o.textContent=d; 
+        discSel.appendChild(o); 
+      });
     }
   }
 
@@ -577,11 +590,13 @@
 
   function fillDemo(role){
     if (role === 'gestao') {
-      const e = document.getElementById('emailGestao'); const p = document.getElementById('passwordGestao');
+      const e = document.getElementById('emailGestao'); 
+      const p = document.getElementById('passwordGestao');
       if (e) e.value='gestao@escola.com';
       if (p) p.value='gestao123';
     } else {
-      const e = document.getElementById('emailProfessor'); const p = document.getElementById('passwordProfessor');
+      const e = document.getElementById('emailProfessor'); 
+      const p = document.getElementById('passwordProfessor');
       if (e) e.value='professor@escola.com';
       if (p) p.value='prof123';
     }
@@ -628,13 +643,19 @@
     const btnDownloadPdf = document.getElementById('btnDownloadPdf');
     if (btnDownloadPdf) btnDownloadPdf.style.display = 'none';
 
-    alunosDaTurmaAtual = []; alunosSelecionados = [];
+    alunosDaTurmaAtual = []; 
+    alunosSelecionados = [];
     const pills = document.getElementById('selectedPills');
     if (pills) pills.innerHTML='';
 
-    const eg = document.getElementById('emailGestao'); const pg = document.getElementById('passwordGestao');
-    const ep = document.getElementById('emailProfessor'); const pp = document.getElementById('passwordProfessor');
-    if (eg) eg.value=''; if(pg) pg.value=''; if(ep) ep.value=''; if(pp) pp.value='';
+    const eg = document.getElementById('emailGestao'); 
+    const pg = document.getElementById('passwordGestao');
+    const ep = document.getElementById('emailProfessor'); 
+    const pp = document.getElementById('passwordProfessor');
+    if (eg) eg.value=''; 
+    if(pg) pg.value=''; 
+    if(ep) ep.value=''; 
+    if(pp) pp.value='';
   }
 
   /*******************************
@@ -665,11 +686,16 @@
       });
     }
 
-    // também preencher turma_select do professor, se existir
+    // Preencher turma_select do professor também
     const turmaSelProf = document.getElementById('turma_select');
     if (turmaSelProf) {
       turmaSelProf.innerHTML = '<option value="">-- selecione --</option>';
-      turmas.forEach(t => { const o = document.createElement('option'); o.value=t; o.textContent=t; turmaSelProf.appendChild(o); });
+      turmas.forEach(t => { 
+        const o = document.createElement('option'); 
+        o.value=t; 
+        o.textContent=t; 
+        turmaSelProf.appendChild(o); 
+      });
     }
   }
 
@@ -689,7 +715,10 @@
       if (json.studentsList && Array.isArray(json.studentsList)) {
         alunosComRA = json.studentsList;
       } else if (json.students && Array.isArray(json.students)) {
-        alunosComRA = json.students.map(nome => ({ nome: (typeof nome === 'string'? nome : (nome.nome||'')), ra: nome.ra || '' }));
+        alunosComRA = json.students.map(nome => ({ 
+          nome: (typeof nome === 'string'? nome : (nome.nome||'')), 
+          ra: nome.ra || '' 
+        }));
       } else {
         alunosComRA = [];
       }
@@ -767,42 +796,53 @@
     };
 
     try {
-      const resp = await fetch(`${SCRIPT_URL}`, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
+      const resp = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(payload)
       });
+      
+      if (!resp.ok) {
+        throw new Error(`HTTP error! status: ${resp.status}`);
+      }
+      
       const j = await resp.json();
       if(j && j.status === 'success'){
-        // show success
-        notify('success','Ocorrência registrada (Gestão).');
-        // limpar
+        notify('success','Ocorrência registrada com sucesso (Gestão).');
+        
+        // Limpar formulário
         const serieEl = document.getElementById('serie_gestao');
         if (serieEl) serieEl.value = '';
         const alunoSelect = document.getElementById('aluno_gestao');
         if (alunoSelect) alunoSelect.innerHTML = '<option value="">-- Selecione o aluno --</option>';
-        const raInput = document.getElementById('ra_gestao'); if (raInput) raInput.value = '';
-        const profG = document.getElementById('professor_gestao'); if (profG) profG.value = '';
-        const discG = document.getElementById('disciplina_gestao'); if (discG) discG.value = '';
-        const classG = document.getElementById('classificacao_gestao'); if (classG) classG.value = '';
-        const descG = document.getElementById('descricao_gestao'); if (descG) descG.value = '';
-        const suspRow = document.getElementById('suspensionRow_gestao'); if (suspRow) suspRow.style.display = 'none';
+        const raInput = document.getElementById('ra_gestao'); 
+        if (raInput) raInput.value = '';
+        const profG = document.getElementById('professor_gestao'); 
+        if (profG) profG.value = '';
+        const discG = document.getElementById('disciplina_gestao'); 
+        if (discG) discG.value = '';
+        const classG = document.getElementById('classificacao_gestao'); 
+        if (classG) classG.value = '';
+        const descG = document.getElementById('descricao_gestao'); 
+        if (descG) descG.value = '';
+        const suspRow = document.getElementById('suspensionRow_gestao'); 
+        if (suspRow) suspRow.style.display = 'none';
+        
         carregarHistoricoGestao();
       } else {
         alert('Erro ao registrar: ' + (j && j.message ? j.message : JSON.stringify(j)));
       }
     } catch(err){
       console.error('Erro POST ocorrencia (gestao):', err);
-      alert('Erro ao comunicar com o servidor (ver console).');
+      alert('Erro ao comunicar com o servidor. Verifique o console para mais detalhes.');
     }
   }
 
   /*******************************
-   * CARREGAR PROFESSORES E TURMAS (PROFESSOR)
+   * FUNÇÕES PARA PROFESSOR
    *******************************/
   async function carregarProfessoresETurmas(){
     try {
-      // professores (GET do sheet geral)
       const r1 = await fetch(`${SCRIPT_URL}?endpoint=teachers&sheet=${encodeURIComponent(SHEET_GERAL)}`);
       const j1 = await r1.json();
       if(j1 && j1.status === 'success' && Array.isArray(j1.teachers)) professores = j1.teachers;
@@ -812,11 +852,13 @@
       if (profSel) {
         profSel.innerHTML = '<option value="">-- selecione --</option>';
         professores.forEach(p => {
-          const o = document.createElement('option'); o.value = p; o.textContent = p; profSel.appendChild(o);
+          const o = document.createElement('option'); 
+          o.value = p; 
+          o.textContent = p; 
+          profSel.appendChild(o);
         });
       }
 
-      // turmas (GET do sheet geral)
       const r2 = await fetch(`${SCRIPT_URL}?endpoint=classes&sheet=${encodeURIComponent(SHEET_GERAL)}`);
       const j2 = await r2.json();
       if(j2 && j2.status === 'success' && Array.isArray(j2.classes)) turmas = j2.classes;
@@ -825,29 +867,40 @@
       const turmaSel = document.getElementById('turma_select');
       if (turmaSel) {
         turmaSel.innerHTML = '<option value="">-- selecione --</option>';
-        turmas.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; turmaSel.appendChild(o); });
+        turmas.forEach(t => { 
+          const o = document.createElement('option'); 
+          o.value = t; 
+          o.textContent = t; 
+          turmaSel.appendChild(o); 
+        });
       }
     } catch(err){
       console.error('Erro carregar professores/turmas:', err);
-      // fallback
       professores = PROFESSORES;
       const profSel = document.getElementById('professor_select');
       if (profSel) {
         profSel.innerHTML = '<option value="">-- selecione --</option>';
-        professores.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; profSel.appendChild(o); });
+        professores.forEach(p => { 
+          const o = document.createElement('option'); 
+          o.value = p; 
+          o.textContent = p; 
+          profSel.appendChild(o); 
+        });
       }
       turmas = Object.keys(CLASS_MAPPING);
       const turmaSel = document.getElementById('turma_select');
       if (turmaSel) {
         turmaSel.innerHTML = '<option value="">-- selecione --</option>';
-        turmas.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; turmaSel.appendChild(o); });
+        turmas.forEach(t => { 
+          const o = document.createElement('option'); 
+          o.value = t; 
+          o.textContent = t; 
+          turmaSel.appendChild(o); 
+        });
       }
     }
   }
 
-  /*******************************
-   * CARREGAR ALUNOS POR TURMA (PROFESSOR)
-   *******************************/
   async function onTurmaChange(){
     const turma = (document.getElementById('turma_select') || {}).value || '';
     if(!turma){
@@ -880,9 +933,6 @@
     }
   }
 
-  /*******************************
-   * MODAL DE SELEÇÃO DE ALUNOS (PROFESSOR)
-   *******************************/
   function openStudentsModal(){
     if(!alunosDaTurmaAtual || alunosDaTurmaAtual.length === 0){
       alert('Nenhum aluno encontrado para a turma selecionada.');
@@ -957,14 +1007,6 @@
     closeStudentsModal();
   }
 
-  /*******************************
-   * TOGGLE SUSPENSÃO (GESTÃO)
-   *******************************/
-  // função toggleSuspension já declarada acima
-
-  /*******************************
-   * CADASTRAR OCORRÊNCIA (PROFESSOR)
-   *******************************/
   async function registrarOcorrenciaProfessor(){
     const professor = (document.getElementById('professor_select') || {}).value || '';
     const turma = (document.getElementById('turma_select') || {}).value || '';
@@ -992,11 +1034,16 @@
     };
 
     try {
-      const resp = await fetch(`${SCRIPT_URL}`, {
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
+      const resp = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(payload)
       });
+      
+      if (!resp.ok) {
+        throw new Error(`HTTP error! status: ${resp.status}`);
+      }
+      
       const j = await resp.json();
       if(j && j.status === 'success'){
         notify('success','Ocorrência registrada com sucesso (Professor).');
@@ -1007,19 +1054,25 @@
       }
     } catch(err){
       console.error('Erro POST ocorrencia (professor):', err);
-      alert('Erro ao comunicar com o servidor (ver console).');
+      alert('Erro ao comunicar com o servidor. Verifique o console para mais detalhes.');
     }
   }
 
   function clearProfessorForm(){
-    const ps = document.getElementById('professor_select'); if (ps) ps.value='';
-    const ts = document.getElementById('turma_select'); if (ts) ts.value='';
-    const asi = document.getElementById('alunos_selected_input'); if (asi) asi.value='';
-    const pills = document.getElementById('selectedPills'); if (pills) pills.innerHTML='';
-    const desc = document.getElementById('descricao_prof'); if (desc) desc.value='';
+    const ps = document.getElementById('professor_select'); 
+    if (ps) ps.value='';
+    const ts = document.getElementById('turma_select'); 
+    if (ts) ts.value='';
+    const asi = document.getElementById('alunos_selected_input'); 
+    if (asi) asi.value='';
+    const pills = document.getElementById('selectedPills'); 
+    if (pills) pills.innerHTML='';
+    const desc = document.getElementById('descricao_prof'); 
+    if (desc) desc.value='';
     alunosSelecionados = [];
     Array.from(document.querySelectorAll('input[name="irreg"]')).forEach(cb => cb.checked=false);
-    const dataProf = document.getElementById('data_prof'); if (dataProf) dataProf.value = new Date().toISOString().split('T')[0];
+    const dataProf = document.getElementById('data_prof'); 
+    if (dataProf) dataProf.value = new Date().toISOString().split('T')[0];
   }
 
   /*******************************
@@ -1029,7 +1082,7 @@
     const container = document.getElementById('historyListGestao');
     if (container) container.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
     try {
-      const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+      const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GESTAO)}`);
       const json = await resp.json();
       const ocorrs = json.occurrences || json.data || [];
       if (!container) return;
@@ -1069,7 +1122,7 @@
         delBtn.style.fontSize='13px';
         delBtn.style.marginLeft='10px';
         delBtn.textContent = 'Excluir';
-        delBtn.onclick = () => deleteOccurrence(id);
+        delBtn.onclick = () => deleteOccurrence(id, SHEET_GESTAO);
 
         controls.appendChild(pdfBtn);
         controls.appendChild(delBtn);
@@ -1091,8 +1144,8 @@
         container.appendChild(div);
       });
     } catch(err){
-      console.error('Erro carregarHistorico:', err);
-      if (document.getElementById('historyListGestao')) document.getElementById('historyListGestao').innerHTML = '<div class="muted">Erro ao carregar histórico (ver console).</div>';
+      console.error('Erro carregarHistoricoGestao:', err);
+      if (container) container.innerHTML = '<div class="muted">Erro ao carregar histórico (ver console).</div>';
     }
   }
 
@@ -1100,7 +1153,7 @@
     const container = document.getElementById('historyListProfessor');
     if (container) container.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
     try {
-      const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+      const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_PROF)}`);
       const json = await resp.json();
       const ocorrs = json.occurrences || json.data || [];
       if (!container) return;
@@ -1125,16 +1178,16 @@
         container.appendChild(div);
       });
     } catch(err){
-      console.error('Erro carregarHistorico:', err);
-      if (document.getElementById('historyListProfessor')) document.getElementById('historyListProfessor').innerHTML = '<div class="muted">Erro ao carregar histórico (ver console).</div>';
+      console.error('Erro carregarHistoricoProfessor:', err);
+      if (container) container.innerHTML = '<div class="muted">Erro ao carregar histórico (ver console).</div>';
     }
   }
 
   /*******************************
    * EXCLUIR OCORRÊNCIA
    *******************************/
-  async function deleteOccurrence(occurrenceId){
-    if(occurrenceId === null || occurrenceId === undefined){
+  async function deleteOccurrence(occurrenceId, sheet){
+    if(!occurrenceId){
       alert('ID inválido para exclusão.');
       return;
     }
@@ -1143,13 +1196,13 @@
       const resp = await fetch(`${SCRIPT_URL}?endpoint=delete-occurrence`, {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ occurrenceId, sheet: SHEET_PROF })
+        body: JSON.stringify({ occurrenceId, sheet })
       });
       const j = await resp.json();
       if(j && j.status === 'success'){
-        alert('Ocorrência excluída.');
-        carregarHistoricoGestao();
-        carregarHistoricoProfessor();
+        notify('success','Ocorrência excluída com sucesso.');
+        if(currentUserRole === 'gestao') carregarHistoricoGestao();
+        else carregarHistoricoProfessor();
       } else alert('Erro ao excluir: ' + (j && j.message ? j.message : 'Resposta inesperada'));
     } catch(err){
       console.error('Erro deleteOccurrence:', err);
@@ -1183,7 +1236,6 @@
     }
   }
 
-  // Gerar PDF localmente (apenas conteúdo simples)
   function generatePDFLocal(){
     try {
       const { jsPDF } = window.jspdf;
@@ -1208,7 +1260,6 @@
     }
   }
 
-  // Função para download de template (placeholder)
   function downloadDocument() {
     alert('Funcionalidade de download de template será implementada em breve.');
   }
@@ -1216,15 +1267,22 @@
   /*******************************
    * UTILIDADES
    *******************************/
-  function notify(type,message){
-    const n = document.getElementById('notification');
-    if(!n) return;
-    n.style.background = type === 'success' ? '#16a34a' : (type === 'error' ? '#dc2626' : '#0ea5e9');
-    n.textContent = message; n.style.display = 'block';
-    setTimeout(()=>{ n.style.display = 'none'; },4000);
+  function notify(type, message){
+    const notification = document.getElementById('notification');
+    if(!notification) return;
+    
+    notification.style.background = type === 'success' ? 
+      'linear-gradient(90deg,#4CAF50,#2E7D32)' : 
+      'linear-gradient(90deg,#e94b4b,#c62828)';
+    notification.textContent = message; 
+    notification.style.display = 'block';
+    
+    setTimeout(() => { 
+      notification.style.display = 'none'; 
+    }, 4000);
   }
 
-  // Export helpers (por conveniência: expõe funções no window para testes)
+  // Export para testes
   window.app = {
     carregarTurmasGestao,
     carregarAlunosPorTurmaGestao,
