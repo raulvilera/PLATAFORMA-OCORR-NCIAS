@@ -411,60 +411,6 @@
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzeP-v1g_ApphUMsoDBaTrQQb4UdRQ2X4ME8fLm2jgnTBUhr4lxNazPI7vabh46bRVv/exec';
   const SPREADSHEET_ID = '1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio';
 
-  // Nomes das abas da planilha
-  const SHEET_GERAL = 'BANCODEDADOSGERAL';
-  const SHEET_PROF = 'OCORRENCIASDOSPROFESSORES';
-  const SHEET_GESTAO = 'BANCODEALUNOS';
-
-  // Mapeamento completo de turmas, nomes e RAs
-  const CLASS_MAPPING = {
-    "6° ANO A MANHA":   { nome: "C3:C46",  ra: "D3:D46" },
-    "6° ANO B MANHA":   { nome: "H3:H46",  ra: "I3:I46" },
-    "6° ANO C MANHA":   { nome: "M3:M46",  ra: "N3:N46" },
-    "6° ANO D MANHA":   { nome: "R3:R46",  ra: "S3:S46" },
-    "6° ANO E TARDE":   { nome: "W3:W46",  ra: "X3:X46" },
-    "6° ANO F TARDE":   { nome: "AB3:AB46", ra: "AC3:AC46" },
-    "7° ANO A TARDE":   { nome: "AG3:AG46", ra: "AH3:AH46" },
-    "7° ANO B TARDE":   { nome: "AL3:AL46", ra: "AM3:AM46" },
-    "7° ANO C TARDE":   { nome: "AQ3:AQ46", ra: "AR3:AR46" },
-    "7° ANO D TARDE":   { nome: "AV3:AV46", ra: "AW3:AW46" },
-    "7° ANO E TARDE":   { nome: "BA3:BA46", ra: "BB3:BB46" },
-    "7° ANO F TARDE":   { nome: "BF3:BF46", ra: "BG3:BG46" },
-    "8° ANO A TARDE":   { nome: "BK3:BK46", ra: "BL3:BL46" },
-    "8° ANO B TARDE":   { nome: "BP3:BP46", ra: "BQ3:BQ46" },
-    "8° ANO C TARDE":   { nome: "BU3:BU46", ra: "BV3:BV46" },
-    "8° ANO D TARDE":   { nome: "BZ3:BZ46", ra: "CA3:CA46" },
-    "8° ANO E TARDE":   { nome: "CE3:CE46", ra: "CF3:CF46" },
-    "9° ANO A TARDE":   { nome: "CJ3:CJ46", ra: "CK3:CK46" },
-    "9° ANO B TARDE":   { nome: "CO3:CO46", ra: "CP3:CP46" },
-    "9° ANO C TARDE":   { nome: "CT3:CT46", ra: "CU3:CU46" },
-    "9° ANO D TARDE":   { nome: "CY3:CY46", ra: "CZ3:CZ46" },
-    "1ª SERIE A MANHA": { nome: "DD3:DD46", ra: "DE3:DE46" },
-    "1ª SERIE B MANHA": { nome: "DI3:DI46", ra: "DJ3:DJ46" },
-    "1ª SERIE C MANHA": { nome: "DN3:DN46", ra: "DO3:DO46" },
-    "1ª SERIE D MANHA": { nome: "DS3:DS46", ra: "DT3:DT46" },
-    "1ª SERIE E MANHA": { nome: "DX3:DX46", ra: "DY3:DY46" },
-    "1ª SERIE F MANHA": { nome: "EC3:EC46", ra: "ED3:ED46" },
-    "1ª SERIE G TARDE": { nome: "EH3:EH46", ra: "EI3:EI46" },
-    "1ª SERIE H NOITE": { nome: "EM3:EM46", ra: "EN3:EN46" },
-    "1ª SERIE I NOITE": { nome: "ER3:ER46", ra: "ES3:ES46" },
-    "2ª SERIE A MANHA": { nome: "EW3:EW46", ra: "EX3:EX46" },
-    "2ª SERIE B MANHA": { nome: "FB3:FB46", ra: "FC3:FC46" },
-    "2ª SERIE C MANHA": { nome: "FG3:FG46", ra: "FH3:FH46" },
-    "2ª SERIE D MANHA": { nome: "FL3:FL46", ra: "FM3:FM46" },
-    "2ª SERIE E MANHA": { nome: "FQ3:FQ46", ra: "FR3:FR46" },
-    "2ª SERIE F NOITE": { nome: "FV3:FV46", ra: "FW3:FW46" },
-    "2ª SERIE G NOITE": { nome: "GA3:GA46", ra: "GB3:GB46" },
-    "2ª SERIE H NOITE": { nome: "GK3:GK46", ra: "GL3:GL46" },
-    "3ª SERIE A MANHA": { nome: "GP3:GP46", ra: "GQ3:GQ46" },
-    "3ª SERIE B MANHA": { nome: "GU3:GU46", ra: "GV3:GV46" },
-    "3ª SERIE C MANHA": { nome: "GZ3:GZ46", ra: "HA3:HA46" },
-    "3ª SERIE D NOITE": { nome: "HE3:HE46", ra: "HF3:HF46" },
-    "3ª SERIE E NOITE": { nome: "HJ3:HJ46", ra: "HK3:HK46" },
-    "3ª SERIE F NOITE": { nome: "HO3:HO46", ra: "HP3:HP46" },
-    "3ª SERIE G NOITE": { nome: "HT3:HT46", ra: "HU3:HU46" }
-  };
-
   // Lista de professores
   const PROFESSORES = [
     "ALEX LUTH PEREIRA MARANHAO","ALEXSANDRA PAULA VARELLA DE SOUZA","ALISON VASCONCELOS BESERRA","AMAURI TEODORO DE OLIVEIRA",
@@ -472,7 +418,7 @@
     "ANTONIO RAMOS DE ARAUJO","ANTONIO WILTON WANDERLEY CABRAL","AUGUSTO LINO PESSOA NETO","AUREA MARIA DE JESUS MARQUES",
     "CAROLINA PERNOMIAN PARUSSOLOLO","CASSIA OLIVEIRA ANTONIAZI","CLAUDINEIA DE AGUIAR LIMA","DANIEL DE FREITAS ALMEIDA",
     "DANIEL LOPES BARBOSA","DANIELA FERREIRA LIMA","DANIELLE LUCIA BATISTA DE ALMEIDA","EDIANE VIEIRA DA SILVA",
-    "EDILEUSA NUNES PEREIRA","EDUARDO HENRIQUE DA FONSECA","ELIANE SANTOS SILVA","ELIAS MONTEIRO DA SILVERA",
+    "EDILEUSA NUNES PEREIRA","EDUARDO HENRIQUE DA FONSECA","ELIANE SANTOS SILVA","ELIAS MONTEIRO DA SILVA",
     "ELISABETE APARECIDA PIRES","ELZA DE FARIA PEREIRA","EMERSON GABLER DE ALMEIDA","EUZELI ARAUJO DE OLIVEIRA",
     "FABIANO AUGUSTO PIEDADE","FABIO CAMILO","FERNANDO JOSE DA SILVA FILHO","FLAVIA CRISTINA APARECIDA BICHLER",
     "FLAVIO CARDOSO FLEURY","FRANCISCA EDIVANIA DE MORAIS COSTA","GABRIELA SERIGHELLI DE MELO","GELSON DE ALMEIDA BATISTA",
@@ -663,16 +609,34 @@
    *******************************/
   async function carregarTurmasGestao() {
     try {
-      const r = await fetch(`${SCRIPT_URL}?endpoint=classes&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+      const r = await fetch(`${SCRIPT_URL}?endpoint=classes`);
       const j = await r.json();
       if(j && j.status === 'success' && Array.isArray(j.classes)) {
         turmas = j.classes;
       } else {
-        turmas = Object.keys(CLASS_MAPPING);
+        // Fallback para turmas padrão caso a API não retorne
+        turmas = [
+          "6° ANO A MANHA", "6° ANO B MANHA", "6° ANO C MANHA", "6° ANO D MANHA", 
+          "6° ANO E TARDE", "6° ANO F TARDE", "7° ANO A TARDE", "7° ANO B TARDE", 
+          "7° ANO C TARDE", "7° ANO D TARDE", "7° ANO E TARDE", "7° ANO F TARDE",
+          "8° ANO A TARDE", "8° ANO B TARDE", "8° ANO C TARDE", "8° ANO D TARDE",
+          "8° ANO E TARDE", "9° ANO A TARDE", "9° ANO B TARDE", "9° ANO C TARDE",
+          "9° ANO D TARDE", "1ª SERIE A MANHA", "1ª SERIE B MANHA", "1ª SERIE C MANHA",
+          "1ª SERIE D MANHA", "1ª SERIE E MANHA", "1ª SERIE F MANHA", "1ª SERIE G TARDE",
+          "1ª SERIE H NOITE", "1ª SERIE I NOITE", "2ª SERIE A MANHA", "2ª SERIE B MANHA",
+          "2ª SERIE C MANHA", "2ª SERIE D MANHA", "2ª SERIE E MANHA", "2ª SERIE F NOITE",
+          "2ª SERIE G NOITE", "2ª SERIE H NOITE", "3ª SERIE A MANHA", "3ª SERIE B MANHA",
+          "3ª SERIE C MANHA", "3ª SERIE D NOITE", "3ª SERIE E NOITE", "3ª SERIE F NOITE",
+          "3ª SERIE G NOITE"
+        ];
       }
     } catch(err) {
       console.error('Erro ao carregar turmas (gestão):', err);
-      turmas = Object.keys(CLASS_MAPPING);
+      // Fallback em caso de erro
+      turmas = [
+        "6° ANO A MANHA", "6° ANO B MANHA", "6° ANO C MANHA", "6° ANO D MANHA", 
+        "6° ANO E TARDE", "6° ANO F TARDE", "7° ANO A TARDE", "7° ANO B TARDE"
+      ];
     }
 
     const turmaSelect = document.getElementById('serie_gestao');
@@ -709,18 +673,16 @@
     }
 
     try {
-      const resp = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
+      const resp = await fetch(`${SCRIPT_URL}?endpoint=students&turma=${encodeURIComponent(turma)}`);
       const json = await resp.json();
 
-      if (json.studentsList && Array.isArray(json.studentsList)) {
-        alunosComRA = json.studentsList;
-      } else if (json.students && Array.isArray(json.students)) {
-        alunosComRA = json.students.map(nome => ({ 
-          nome: (typeof nome === 'string'? nome : (nome.nome||'')), 
-          ra: nome.ra || '' 
-        }));
+      console.log('Resposta da API alunos:', json); // Para debug
+
+      if (json.status === 'success' && Array.isArray(json.students)) {
+        alunosComRA = json.students;
       } else {
         alunosComRA = [];
+        console.warn('Estrutura de resposta inesperada:', json);
       }
 
       const alunoSelect = document.getElementById('aluno_gestao');
@@ -733,11 +695,23 @@
           option.setAttribute('data-ra', aluno.ra || '');
           alunoSelect.appendChild(option);
         });
+        
+        if (alunosComRA.length === 0) {
+          console.warn('Nenhum aluno encontrado para a turma:', turma);
+        }
       }
     } catch(err) {
       console.error('Erro ao carregar alunos (gestão):', err);
       const alunoSelect = document.getElementById('aluno_gestao');
-      if (alunoSelect) alunoSelect.innerHTML = '<option value="">-- Selecione o aluno --</option>';
+      if (alunoSelect) {
+        alunoSelect.innerHTML = '<option value="">-- Selecione o aluno --</option>';
+        // Adiciona opção de erro
+        const option = document.createElement('option');
+        option.value = '';
+        option.textContent = 'Erro ao carregar alunos';
+        option.disabled = true;
+        alunoSelect.appendChild(option);
+      }
     }
   }
 
@@ -780,19 +754,16 @@
     }
 
     const payload = {
-      action: 'addOccurrence',
-      sheet: SHEET_GESTAO,
-      data: {
-        date: new Date().toISOString().split('T')[0],
-        professor: professor,
-        studentClass: serie,
-        student: aluno,
-        ra: ra,
-        disciplina: disciplina,
-        irregularities: classificacao + (dataRetorno ? (' - retorno: ' + dataRetorno) : ''),
-        description: descricao,
-        dataRetorno: dataRetorno || ''
-      }
+      endpoint: 'occurrences',
+      date: new Date().toISOString().split('T')[0],
+      professor: professor,
+      studentClass: serie,
+      student: aluno,
+      ra: ra,
+      disciplina: disciplina,
+      irregularities: classificacao + (dataRetorno ? (' - retorno: ' + dataRetorno) : ''),
+      description: descricao,
+      dataRetorno: dataRetorno || ''
     };
 
     try {
@@ -843,7 +814,7 @@
    *******************************/
   async function carregarProfessoresETurmas(){
     try {
-      const r1 = await fetch(`${SCRIPT_URL}?endpoint=teachers&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+      const r1 = await fetch(`${SCRIPT_URL}?endpoint=teachers`);
       const j1 = await r1.json();
       if(j1 && j1.status === 'success' && Array.isArray(j1.teachers)) professores = j1.teachers;
       else professores = PROFESSORES;
@@ -859,10 +830,15 @@
         });
       }
 
-      const r2 = await fetch(`${SCRIPT_URL}?endpoint=classes&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+      const r2 = await fetch(`${SCRIPT_URL}?endpoint=classes`);
       const j2 = await r2.json();
       if(j2 && j2.status === 'success' && Array.isArray(j2.classes)) turmas = j2.classes;
-      else turmas = Object.keys(CLASS_MAPPING);
+      else {
+        turmas = [
+          "6° ANO A MANHA", "6° ANO B MANHA", "6° ANO C MANHA", "6° ANO D MANHA", 
+          "6° ANO E TARDE", "6° ANO F TARDE", "7° ANO A TARDE", "7° ANO B TARDE"
+        ];
+      }
 
       const turmaSel = document.getElementById('turma_select');
       if (turmaSel) {
@@ -887,7 +863,10 @@
           profSel.appendChild(o); 
         });
       }
-      turmas = Object.keys(CLASS_MAPPING);
+      turmas = [
+        "6° ANO A MANHA", "6° ANO B MANHA", "6° ANO C MANHA", "6° ANO D MANHA", 
+        "6° ANO E TARDE", "6° ANO F TARDE", "7° ANO A TARDE", "7° ANO B TARDE"
+      ];
       const turmaSel = document.getElementById('turma_select');
       if (turmaSel) {
         turmaSel.innerHTML = '<option value="">-- selecione --</option>';
@@ -909,22 +888,23 @@
       return;
     }
     await carregarAlunosPorTurma(turma);
-    renderStudentList(alunosDaTurmaAtual.map(a => (typeof a === 'object' ? (a.nome || '') : a)));
+    renderStudentList(alunosDaTurmaAtual);
   }
 
   async function carregarAlunosPorTurma(turma){
     try {
-      const resp = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
+      const resp = await fetch(`${SCRIPT_URL}?endpoint=students&turma=${encodeURIComponent(turma)}`);
       const json = await resp.json();
-      if(json.studentsList && Array.isArray(json.studentsList)){
-        alunosDaTurmaAtual = json.studentsList.map(x => x.nome || '');
-        alunosComRA = json.studentsList.map(x => ({ nome: x.nome || '', ra: x.ra || '' }));
-      } else if (json.students && Array.isArray(json.students)){
-        alunosDaTurmaAtual = json.students.map(s => (typeof s === 'string' ? s : (s.nome || '')));
-        alunosComRA = (json.students || []).map(s => (typeof s === 'string' ? { nome: s, ra: '' } : { nome: s.nome || '', ra: s.ra || '' }));
+      
+      console.log('Resposta alunos professor:', json); // Para debug
+      
+      if (json.status === 'success' && Array.isArray(json.students)) {
+        alunosDaTurmaAtual = json.students.map(s => s.nome || '');
+        alunosComRA = json.students;
       } else {
         alunosDaTurmaAtual = [];
         alunosComRA = [];
+        console.warn('Estrutura de resposta inesperada:', json);
       }
     } catch(err){
       console.error('Erro get students:', err);
@@ -1021,16 +1001,13 @@
     const irregs = Array.from(document.querySelectorAll('input[name="irreg"]:checked')).map(x => x.value);
 
     const payload = {
-      action: 'addOccurrence',
-      sheet: SHEET_PROF,
-      data: {
-        date: dataOc,
-        professor: professor,
-        studentClass: turma,
-        student: alunosSelecionados.join(', '),
-        irregularities: irregs.join(', '),
-        description: descricao
-      }
+      endpoint: 'occurrences',
+      date: dataOc,
+      professor: professor,
+      studentClass: turma,
+      student: alunosSelecionados.join(', '),
+      irregularities: irregs.join(', '),
+      description: descricao
     };
 
     try {
@@ -1082,9 +1059,9 @@
     const container = document.getElementById('historyListGestao');
     if (container) container.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
     try {
-      const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GESTAO)}`);
+      const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences`);
       const json = await resp.json();
-      const ocorrs = json.occurrences || json.data || [];
+      const ocorrs = json.occurrences || [];
       if (!container) return;
       container.innerHTML = '';
       if(!ocorrs || ocorrs.length === 0){
@@ -1122,7 +1099,7 @@
         delBtn.style.fontSize='13px';
         delBtn.style.marginLeft='10px';
         delBtn.textContent = 'Excluir';
-        delBtn.onclick = () => deleteOccurrence(id, SHEET_GESTAO);
+        delBtn.onclick = () => deleteOccurrence(id);
 
         controls.appendChild(pdfBtn);
         controls.appendChild(delBtn);
@@ -1153,9 +1130,9 @@
     const container = document.getElementById('historyListProfessor');
     if (container) container.innerHTML = `<div style="display:flex;align-items:center;gap:10px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
     try {
-      const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_PROF)}`);
+      const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences`);
       const json = await resp.json();
-      const ocorrs = json.occurrences || json.data || [];
+      const ocorrs = json.occurrences || [];
       if (!container) return;
       container.innerHTML = '';
       if(!ocorrs || ocorrs.length === 0){
@@ -1186,7 +1163,7 @@
   /*******************************
    * EXCLUIR OCORRÊNCIA
    *******************************/
-  async function deleteOccurrence(occurrenceId, sheet){
+  async function deleteOccurrence(occurrenceId){
     if(!occurrenceId){
       alert('ID inválido para exclusão.');
       return;
@@ -1196,7 +1173,7 @@
       const resp = await fetch(`${SCRIPT_URL}?endpoint=delete-occurrence`, {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ occurrenceId, sheet })
+        body: JSON.stringify({ occurrenceId })
       });
       const j = await resp.json();
       if(j && j.status === 'success'){
@@ -1222,7 +1199,7 @@
       const resp = await fetch(`${SCRIPT_URL}?endpoint=generate-pdf`, {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ occurrenceId, sheet: SHEET_PROF })
+        body: JSON.stringify({ occurrenceId })
       });
       const j = await resp.json();
       if(j && j.status === 'success' && j.pdfUrl){
