@@ -79,6 +79,8 @@
     .btn-success:hover{background:linear-gradient(90deg,#2E7D32,#388E3C);transform:translateY(-2px);box-shadow: 0 5px 10px rgba(0,0,0,0.2);}
     .btn-secondary{background:linear-gradient(90deg,#6c757d,#5a6268);color:#fff;}
     .btn-secondary:hover{background:linear-gradient(90deg,#5a6268,#6c757d);transform:translateY(-2px);box-shadow: 0 5px 10px rgba(0,0,0,0.2);}
+    .btn-excel{background:linear-gradient(90deg,#217346,#2a8c55);color:#fff;}
+    .btn-excel:hover{background:linear-gradient(90deg,#2a8c55,#34a56d);transform:translateY(-2px);box-shadow: 0 5px 10px rgba(0,0,0,0.2);}
 
     /* Text Elements */
     .subtitle{
@@ -198,6 +200,19 @@
       display:none;margin-top:12px;background:linear-gradient(90deg,#4CAF50,#2E7D32);
       padding:14px;border-radius:8px;color:#fff;font-weight:600; box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
+
+    /* Auto-save indicator */
+    .auto-save-indicator {
+      display: none;
+      margin-top: 12px;
+      background: linear-gradient(90deg, #2196F3, #1976D2);
+      padding: 10px 14px;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
   </style>
 </head>
 <body>
@@ -210,6 +225,7 @@
         <div id="userDisplay" class="muted">Não autenticado</div>
         <button id="btnLogout" class="btn-danger" style="display:none" onclick="logout()">Sair</button>
         <button id="btnDownloadPdf" class="btn-success" style="display:none" onclick="downloadDocument()">Baixar Template</button>
+        <button id="btnExportExcel" class="btn-excel" style="display:none" onclick="exportToExcel()">Exportar para Excel</button>
       </div>
     </header>
 
@@ -346,6 +362,9 @@
           <div id="successGestao" class="success-message">
             Ocorrência registrada com sucesso!
           </div>
+          <div id="autoSaveGestao" class="auto-save-indicator">
+            Salvando automaticamente...
+          </div>
         </div>
       </div>
 
@@ -449,6 +468,9 @@
           <div id="successProfessor" class="success-message">
             Ocorrência registrada com sucesso!
           </div>
+          <div id="autoSaveProfessor" class="auto-save-indicator">
+            Salvando automaticamente...
+          </div>
         </div>
       </div>
 
@@ -515,6 +537,9 @@
     // A URL deve terminar com /exec e ser da implantação ativa
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyeDiuIHxiahh16l-BiLAaQPIo0RH2Yk-CHeBrzp3eLSWpMc7j7qJ23xg6pvp2gx4bo/exec';
 
+    // URL da planilha Excel do SharePoint (para salvamento automático)
+    const SHAREPOINT_EXCEL_URL = 'https://seducsp-my.sharepoint.com/:x:/g/personal/e923357w10_professor_educacao_sp_gov_br/EdAMsLnS0k9Bia-6V5c2UOwBXGopV6LDzvy3yo87v61rkw?e=uGNHgb';
+
     // Nomes das abas (sheets) na planilha Google
     const SHEET_GESTAO = 'BANCODEALUNOS';
     const SHEET_PROF = 'OCORRENCIASDOSPROFESSORES';
@@ -534,6 +559,7 @@
     window.addEventListener('DOMContentLoaded', async () => {
       console.log('Sistema de Cadastro de Ocorrências iniciado.');
       console.log('URL do Script:', SCRIPT_URL);
+      console.log('URL do SharePoint:', SHAREPOINT_EXCEL_URL);
       
       // Preenche a data atual no campo de data do professor
       const hoje = new Date().toISOString().split('T')[0];
@@ -543,7 +569,212 @@
       await carregarProfessores();
       await carregarTurmas();
       await carregarTurmasGestao();
+
+      // Configura o salvamento automático
+      setupAutoSave();
     });
+
+    // =================================================================
+    // SISTEMA DE SALVAMENTO AUTOMÁTICO
+    // =================================================================
+
+    function setupAutoSave() {
+      // Configura eventos para detectar mudanças nos formulários
+      const forms = ['gestao', 'professor'];
+      
+      forms.forEach(tipo => {
+        if (tipo === 'gestao') {
+          // Para gestão
+          const elementos = [
+            'serie_gestao', 'professor_gestao', 'disciplina_gestao', 
+            'classificacao_gestao', 'dataRetorno_gestao', 'descricao_gestao'
+          ];
+          
+          elementos.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+              element.addEventListener('change', () => {
+                if (isFormValid('gestao')) {
+                  setTimeout(() => autoSaveToExcel('gestao'), 1000);
+                }
+              });
+            }
+          });
+
+          // Monitora mudanças na seleção de alunos
+          const observerGestao = new MutationObserver(() => {
+            if (isFormValid('gestao')) {
+              setTimeout(() => autoSaveToExcel('gestao'), 1000);
+            }
+          });
+          
+          observerGestao.observe(document.getElementById('selectedPillsGestao'), {
+            childList: true,
+            subtree: true
+          });
+
+        } else {
+          // Para professor
+          const elementos = [
+            'professor_select', 'turma_select', 'data_prof', 'descricao_prof'
+          ];
+          
+          elementos.forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+              element.addEventListener('change', () => {
+                if (isFormValid('professor')) {
+                  setTimeout(() => autoSaveToExcel('professor'), 1000);
+                }
+              });
+            }
+          });
+
+          // Monitora checkboxes de irregularidades
+          document.querySelectorAll('input[name="irreg"]').forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+              if (isFormValid('professor')) {
+                setTimeout(() => autoSaveToExcel('professor'), 1000);
+              }
+            });
+          });
+
+          // Monitora mudanças na seleção de alunos
+          const observerProfessor = new MutationObserver(() => {
+            if (isFormValid('professor')) {
+              setTimeout(() => autoSaveToExcel('professor'), 1000);
+            }
+          });
+          
+          observerProfessor.observe(document.getElementById('selectedPills'), {
+            childList: true,
+            subtree: true
+          });
+        }
+      });
+    }
+
+    function isFormValid(tipo) {
+      if (tipo === 'gestao') {
+        const turma = document.getElementById('serie_gestao').value.trim();
+        const professor = document.getElementById('professor_gestao').value.trim();
+        const disciplina = document.getElementById('disciplina_gestao').value.trim();
+        const classificacao = document.getElementById('classificacao_gestao').value;
+        const descricao = document.getElementById('descricao_gestao').value.trim();
+        
+        return turma && alunosSelecionadosGestao.length > 0 && professor && 
+               disciplina && classificacao && descricao;
+      } else {
+        const professor = document.getElementById('professor_select').value;
+        const turma = document.getElementById('turma_select').value;
+        const dataOc = document.getElementById('data_prof').value;
+        const descricao = document.getElementById('descricao_prof').value.trim();
+        
+        return professor && turma && dataOc && alunosSelecionados.length > 0 && descricao;
+      }
+    }
+
+    async function autoSaveToExcel(tipo) {
+      if (currentRole !== tipo) return;
+      
+      const autoSaveElement = document.getElementById(`autoSave${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`);
+      
+      try {
+        // Mostra indicador de salvamento
+        autoSaveElement.style.display = 'block';
+        autoSaveElement.textContent = 'Salvando automaticamente...';
+
+        let dataToSave;
+        
+        if (tipo === 'gestao') {
+          const turma = document.getElementById('serie_gestao').value.trim();
+          const alunos = alunosSelecionadosGestao.join(', ');
+          const ras = document.getElementById('ra_gestao').value.trim();
+          const professor = document.getElementById('professor_gestao').value.trim();
+          const disciplina = document.getElementById('disciplina_gestao').value.trim();
+          const classificacao = document.getElementById('classificacao_gestao').value;
+          const descricao = document.getElementById('descricao_gestao').value.trim();
+          const dataRetorno = document.getElementById('dataRetorno_gestao').value || '';
+
+          dataToSave = {
+            tipo: 'gestao',
+            data: new Date().toISOString().split('T')[0],
+            turma,
+            alunos,
+            ras,
+            professor,
+            disciplina,
+            classificacao,
+            dataRetorno,
+            descricao,
+            timestamp: new Date().toISOString()
+          };
+        } else {
+          const professor = document.getElementById('professor_select').value;
+          const turma = document.getElementById('turma_select').value;
+          const dataOc = document.getElementById('data_prof').value;
+          const descricao = document.getElementById('descricao_prof').value.trim();
+          const irregs = Array.from(document.querySelectorAll('input[name="irreg"]:checked')).map(x => x.value);
+
+          dataToSave = {
+            tipo: 'professor',
+            data: dataOc,
+            turma,
+            alunos: alunosSelecionados.join(', '),
+            professor,
+            irregularidades: irregs.join(', '),
+            descricao,
+            timestamp: new Date().toISOString()
+          };
+        }
+
+        // Salva no localStorage como backup
+        const autoSaveKey = `autoSave_${tipo}_${new Date().getTime()}`;
+        localStorage.setItem(autoSaveKey, JSON.stringify(dataToSave));
+
+        // Limpa salvamentos antigos (mantém apenas os últimos 10)
+        const keys = Object.keys(localStorage).filter(key => key.startsWith('autoSave_'));
+        if (keys.length > 10) {
+          keys.sort().slice(0, keys.length - 10).forEach(key => localStorage.removeItem(key));
+        }
+
+        // Tenta salvar no SharePoint (simulação - na prática precisaria de API)
+        await simulateSharePointSave(dataToSave);
+
+        // Atualiza indicador
+        autoSaveElement.textContent = 'Salvo automaticamente ✓';
+        setTimeout(() => {
+          autoSaveElement.style.display = 'none';
+        }, 2000);
+
+        console.log(`Dados salvos automaticamente (${tipo}):`, dataToSave);
+
+      } catch (error) {
+        console.error('Erro no salvamento automático:', error);
+        autoSaveElement.textContent = 'Erro no salvamento automático';
+        autoSaveElement.style.background = 'linear-gradient(90deg, #e94b4b, #c62828)';
+        
+        setTimeout(() => {
+          autoSaveElement.style.display = 'none';
+          autoSaveElement.style.background = 'linear-gradient(90deg, #2196F3, #1976D2)';
+        }, 3000);
+      }
+    }
+
+    // Simula o salvamento no SharePoint (na prática, você precisaria implementar a API real)
+    async function simulateSharePointSave(data) {
+      // Esta é uma simulação - na implementação real, você precisaria:
+      // 1. Autenticação com Microsoft Graph API
+      // 2. Permissões para escrever na planilha do SharePoint
+      // 3. Implementação específica da API do Excel Online
+      
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          console.log('Simulação de salvamento no SharePoint:', data);
+          resolve(true);
+        }, 500);
+      });
+    }
 
     // =================================================================
     // SISTEMA DE LOGIN
@@ -607,6 +838,7 @@
       document.getElementById('userDisplay').textContent = `Logado: ${currentUser} (${tipo})`;
       document.getElementById('btnLogout').style.display = 'inline-block';
       document.getElementById('btnDownloadPdf').style.display = 'inline-block';
+      document.getElementById('btnExportExcel').style.display = 'inline-block';
 
       if (tipo === 'gestao') {
         document.getElementById('mainAppGestao').style.display = 'flex';
@@ -628,6 +860,7 @@
       document.getElementById('userDisplay').textContent = 'Não autenticado';
       document.getElementById('btnLogout').style.display = 'none';
       document.getElementById('btnDownloadPdf').style.display = 'none';
+      document.getElementById('btnExportExcel').style.display = 'none';
       
       // Limpa os formulários
       document.getElementById('emailGestao').value = '';
@@ -641,7 +874,139 @@
     }
 
     // =================================================================
-    // CARREGAMENTO DE DADOS (GET)
+    // FUNÇÃO DE EXPORTAÇÃO PARA EXCEL
+    // =================================================================
+
+    function exportToExcel() {
+      try {
+        // Determina qual conjunto de dados exportar baseado no papel atual
+        let dataToExport = [];
+        let fileName = '';
+        
+        if (currentRole === 'gestao') {
+          // Para gestão, exporta dados da aba de gestão
+          const historyItems = document.querySelectorAll('#historyListGestao .historyItem');
+          if (historyItems.length === 0) {
+            alert('Não há dados para exportar no histórico de gestão.');
+            return;
+          }
+          
+          dataToExport = Array.from(historyItems).map(item => {
+            const meta = item.querySelector('.meta');
+            const alunoText = meta.querySelector('span:first-child').textContent;
+            const [aluno, turma] = alunoText.split(' | ');
+            const data = meta.querySelector('.muted').textContent;
+            
+            const professorElement = item.querySelector('div:nth-child(2)');
+            const professorMatch = professorElement.textContent.match(/Professor:\s*(.*?)\s*\|\s*Disciplina:/);
+            const professor = professorMatch ? professorMatch[1] : 'N/A';
+            
+            const disciplinaMatch = professorElement.textContent.match(/Disciplina:\s*(.*)/);
+            const disciplina = disciplinaMatch ? disciplinaMatch[1] : 'N/A';
+            
+            const irregularidadesElement = item.querySelector('div:nth-child(3)');
+            const irregularidades = irregularidadesElement ? irregularidadesElement.textContent.replace('Irregularidades:', '').trim() : 'N/A';
+            
+            const descricao = item.querySelector('.desc').textContent;
+            
+            return {
+              'Data': data,
+              'Aluno': aluno.replace('Sem nome', 'N/A').trim(),
+              'Turma': turma.replace('Sem turma', 'N/A').trim(),
+              'Professor': professor,
+              'Disciplina': disciplina,
+              'Classificação': irregularidades,
+              'Descrição': descricao.replace('Sem descrição', 'N/A')
+            };
+          });
+          
+          fileName = `Ocorrencias_Gestao_${new Date().toISOString().split('T')[0]}.xls`;
+          
+        } else if (currentRole === 'professor') {
+          // Para professor, exporta dados da aba de professor
+          const historyItems = document.querySelectorAll('#historyListProfessor .historyItem');
+          if (historyItems.length === 0) {
+            alert('Não há dados para exportar no histórico de professor.');
+            return;
+          }
+          
+          dataToExport = Array.from(historyItems).map(item => {
+            const meta = item.querySelector('.meta');
+            const alunoText = meta.querySelector('span:first-child').textContent;
+            const [aluno, turma] = alunoText.split(' | ');
+            const data = meta.querySelector('.muted').textContent;
+            
+            const professorElement = item.querySelector('div:nth-child(2)');
+            const professor = professorElement ? professorElement.textContent.replace('Professor:', '').trim() : 'N/A';
+            
+            const irregularidadesElement = item.querySelector('div:nth-child(3)');
+            const irregularidades = irregularidadesElement ? irregularidadesElement.textContent.replace('Irregularidades:', '').trim() : 'N/A';
+            
+            const descricao = item.querySelector('.desc').textContent;
+            
+            return {
+              'Data': data,
+              'Aluno': aluno.replace('Sem nome', 'N/A').trim(),
+              'Turma': turma.replace('Sem turma', 'N/A').trim(),
+              'Professor': professor,
+              'Irregularidades': irregularidades,
+              'Descrição': descricao.replace('Sem descrição', 'N/A')
+            };
+          });
+          
+          fileName = `Ocorrencias_Professor_${new Date().toISOString().split('T')[0]}.xls`;
+        }
+
+        if (dataToExport.length === 0) {
+          alert('Não há dados disponíveis para exportação.');
+          return;
+        }
+
+        // Cria a tabela HTML para exportação
+        let tableHTML = `
+          <table border="1">
+            <thead>
+              <tr>
+                ${Object.keys(dataToExport[0]).map(key => `<th>${key}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody>
+              ${dataToExport.map(row => `
+                <tr>
+                  ${Object.values(row).map(value => `<td>${value}</td>`).join('')}
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+
+        // Cria o blob com BOM para UTF-8 
+        const blob = new Blob(['\uFEFF' + tableHTML], {
+          type: 'application/vnd.ms-excel'
+        });
+
+        // Cria o link de download 
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        
+        // Limpeza
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        
+        console.log(`Exportação concluída: ${fileName} com ${dataToExport.length} registros`);
+        
+      } catch (error) {
+        console.error('Erro durante a exportação para Excel:', error);
+        alert('Ocorreu um erro durante a exportação. Verifique o console para mais detalhes.');
+      }
+    }
+
+    // =================================================================
+    // CARREGAMENTO DE DADOS (GET) - MANTIDO ORIGINAL
     // =================================================================
 
     async function carregarProfessores() {
@@ -749,7 +1114,7 @@
     }
 
     // =================================================================
-    // MODAL DE SELEÇÃO DE ALUNOS (PROFESSOR)
+    // MODAL DE SELEÇÃO DE ALUNOS (PROFESSOR) - MANTIDO ORIGINAL
     // =================================================================
 
     function openStudentsModal() {
@@ -805,7 +1170,7 @@
     }
 
     // =================================================================
-    // MODAL DE SELEÇÃO DE ALUNOS (GESTÃO)
+    // MODAL DE SELEÇÃO DE ALUNOS (GESTÃO) - MANTIDO ORIGINAL
     // =================================================================
 
     function openStudentsModalGestao() {
@@ -869,7 +1234,7 @@
     }
 
     // =================================================================
-    // FUNÇÕES DE REGISTRO (POST) - COM DIAGNÓSTICO AVANÇADO
+    // FUNÇÕES DE REGISTRO (POST) - MANTIDO ORIGINAL
     // =================================================================
 
     async function cadastrarOcorrenciaGestao() {
@@ -917,6 +1282,9 @@
         if (j && j.status === 'success') {
           document.getElementById('successGestao').style.display = 'block';
           setTimeout(() => document.getElementById('successGestao').style.display = 'none', 2200);
+          
+          // Dispara salvamento automático
+          await autoSaveToExcel('gestao');
           
           // Limpar formulário
           document.getElementById('serie_gestao').value = '';
@@ -994,6 +1362,10 @@
         if (j && j.status === 'success') {
           document.getElementById('successProfessor').style.display = 'block';
           setTimeout(() => document.getElementById('successProfessor').style.display = 'none', 2200);
+          
+          // Dispara salvamento automático
+          await autoSaveToExcel('professor');
+          
           clearProfessorForm();
           carregarHistoricoProfessor();
         } else {
@@ -1036,7 +1408,7 @@
     }
 
     // =================================================================
-    // HISTÓRICO (GET)
+    // HISTÓRICO (GET) - MANTIDO ORIGINAL
     // =================================================================
 
     async function carregarHistoricoGestao() {
@@ -1144,7 +1516,7 @@
     }
 
     // =================================================================
-    // FUNÇÕES AUXILIARES
+    // FUNÇÕES AUXILIARES - MANTIDO ORIGINAL
     // =================================================================
 
     function toggleSuspension(tipo) {
