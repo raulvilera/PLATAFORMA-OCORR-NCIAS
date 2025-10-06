@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Cadastro de Ocorrências - 2025 (Revisado)</title>
+  <title>Cadastro de Ocorrências - 2025 (Corrigido)</title>
 
   <!-- jsPDF para geração local de PDF -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -14,7 +14,7 @@
     html,body{height:100%}
     body{
       font-family: 'Segoe UI', Roboto, Arial, sans-serif;
-      background: linear-gradient(135deg, #e6f2ff 0%, #e6ffe6 60%, #e6f9ff 100%);
+      background: linear-gradient(135deg, #e6f2ff 0%, #e6ffe6 60%, #e6f9ff 100% );
       color:#333; font-weight:500; padding:20px;
     }
     .app{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
@@ -25,7 +25,7 @@
       border-radius:12px;background:linear-gradient(90deg,rgba(0,31,63,0.95),rgba(0,78,120,0.95));
       box-shadow:0 8px 30px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.1);
     }
-    header h1{font-size:22px;margin:0;color:#fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2);}    
+    header h1{font-size:22px;margin:0;color:#fff; text-shadow: 0 1px 2px rgba(0,0,0,0.2);}
     .header-controls{display:flex;gap:12px;align-items:center}
 
     /* Card Styles */
@@ -58,7 +58,7 @@
       transition:border-color 0.3s, box-shadow 0.3s;
       box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
     }
-    input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, 
+    input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus,
      select:focus, textarea:focus, input[type="date"]:focus {
       border-color: #2a5298;
       outline: none;
@@ -115,7 +115,7 @@
     /* Login Options */
     .login-options {display: flex; gap: 14px; margin-bottom: 20px;}
     .login-option {
-      flex: 1; text-align: center; padding: 18px; border-radius: 10px; cursor: pointer; 
+      flex: 1; text-align: center; padding: 18px; border-radius: 10px; cursor: pointer;
        background: rgba(255,255,255,0.2); border: 2px solid transparent; transition: all 0.2s;
       box-shadow: 0 3px 8px rgba(0,0,0,0.1);
     }
@@ -123,35 +123,35 @@
       background: linear-gradient(90deg, rgba(0,78,120,0.8), rgba(0,120,120,0.8));
        color: #fff; border-color: #fff; box-shadow: 0 5px 12px rgba(0,0,0,0.2);
     }
-    .login-option:hover {background: rgba(255,255,255,0.3); box-shadow: 0 4px 10px rgba(0,0,0,0.15);}    
+    .login-option:hover {background: rgba(255,255,255,0.3); box-shadow: 0 4px 10px rgba(0,0,0,0.15);}
     .access-area {display: none;}
 
     /* Checkbox Styles */
     .checkbox-group {display: flex; flex-wrap: wrap; gap: 12px; margin: 12px 0;}
     .checkbox-item {
-      display: flex; align-items: center; background: #f5f5f5; padding: 10px 14px; 
+      display: flex; align-items: center; background: #f5f5f5; padding: 10px 14px;
        border-radius: 20px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.08);
     }
-    .checkbox-item:hover {background: #e9e9e9; box-shadow: 0 3px 6px rgba(0,0,0,0.12);}    
+    .checkbox-item:hover {background: #e9e9e9; box-shadow: 0 3px 6px rgba(0,0,0,0.12);}
     .checkbox-item input {margin-right: 8px;}
 
     /* Form Groups */
     .form-group {margin-bottom: 18px; flex: 1;}
-    .form-group-half {flex: 0 0 calc(50% - 12px);}    
-    .form-group-third {flex: 0 0 calc(33.333% - 12px);}    
-    .form-group-quarter {flex: 0 0 calc(25% - 12px);}    
+    .form-group-half {flex: 0 0 calc(50% - 12px);}
+    .form-group-third {flex: 0 0 calc(33.333% - 12px);}
+    .form-group-quarter {flex: 0 0 calc(25% - 12px);}
 
     /* Student Selection */
     .student-selector {
-      padding: 14px; border: 1px solid #ddd; border-radius: 8px; background: #fff; 
+      padding: 14px; border: 1px solid #ddd; border-radius: 8px; background: #fff;
        cursor: pointer; transition: all 0.2s; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
     }
-    .student-selector:hover {background: #f0f0f0; border-color: #2a5298; box-shadow: inset 0 1px 4px rgba(0,0,0,0.15);}    
+    .student-selector:hover {background: #f0f0f0; border-color: #2a5298; box-shadow: inset 0 1px 4px rgba(0,0,0,0.15);}
 
     /* Responsive */
     @media(max-width:980px){
       .flex-row{flex-direction:column; gap: 12px;}
-      header{flex-direction:column;gap:14px;align-items:flex-start;} 
+      header{flex-direction:column;gap:14px;align-items:flex-start;}
       .login-options {flex-direction: column;}
       .form-group-half, .form-group-third, .form-group-quarter {flex: 1;}
       .card {padding: 18px;}
@@ -163,11 +163,11 @@
 
     /* Student checkbox in modal */
     .student-checkbox {
-      display: flex; align-items: center; padding: 14px; border-bottom: 1px solid #eee; 
+      display: flex; align-items: center; padding: 14px; border-bottom: 1px solid #eee;
        cursor: pointer; transition: background 0.2s; border-radius: 6px;
     }
-    .student-checkbox:hover {background: #f0f4ff; box-shadow: 0 2px 5px rgba(0,0,0,0.05);}    
-    .student-checkbox input[type="checkbox"] {margin-right: 14px; transform: scale(1.3);}    
+    .student-checkbox:hover {background: #f0f4ff; box-shadow: 0 2px 5px rgba(0,0,0,0.05);}
+    .student-checkbox input[type="checkbox"] {margin-right: 14px; transform: scale(1.3);}
 
     /* Custom styles for the redesign */
     .form-row {
@@ -301,7 +301,7 @@
                   <option value="9° ANO A TARDE">9° ANO A TARDE</option>
                   <option value="9° ANO B TARDE">9° ANO B TARDE</option>
                   <option value="9° ANO C TARDE">9° ANO C TARDE</option>
-                  <option value="9° ANO D TARDE">9° ANO D TARDE</option>
+                  <option value="9° ANO D TARDE">9° ANO D TARDE</n>
                   <option value="1ª SERIE A MANHA">1ª SERIE A MANHA</option>
                   <option value="1ª SERIE B MANHA">1ª SERIE B MANHA</option>
                   <option value="1ª SERIE C MANHA">1ª SERIE C MANHA</option>
@@ -314,10 +314,10 @@
                   <option value="2ª SERIE A MANHA">2ª SERIE A MANHA</option>
                   <option value="2ª SERIE B MANHA">2ª SERIE B MANHA</option>
                   <option value="2ª SERIE C MANHA">2ª SERIE C MANHA</option>
-                  <option value="2ª SERIE D MANHA">2ª SERIE D MANHA</option>
+                  <option value="2ª SERIE D MANHA">2ª SERIE D MANHA</n>
                   <option value="2ª SERIE E MANHA">2ª SERIE E MANHA</option>
                   <option value="2ª SERIE F NOITE">2ª SERIE F NOITE</option>
-                  <option value="2ª SERIE G NOITE">2ª SERIE G NOITE</option>
+                  <option value="2ª SERIE G NOITE">2ª SERIE G NOITE</n>
                   <option value="2ª SERIE H NOITE">2ª SERIE H NOITE</option>
                   <option value="3ª SERIE A MANHA">3ª SERIE A MANHA</option>
                   <option value="3ª SERIE B MANHA">3ª SERIE B MANHA</option>
@@ -341,7 +341,7 @@
             <div class="form-row">
               <div class="field-group">
                 <label>RA(s)</label>
-                <input id="ra_gestao" type="text" readonly>
+                <input id="ra_gestao" type="text" readonly placeholder="Selecione os alunos para carregar o RA">
               </div>
             </div>
           </div>
@@ -533,7 +533,7 @@
     <div id="modalRootGestao" class="modal-root">
       <div class="modal">
         <header style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
-          <strong>Selecionar alunos</strong>
+          <strong>Selecionar alunos para Gestão</strong>
           <button onclick="closeStudentsModalGestao()" style="background:transparent;border:none;font-weight:700;cursor:pointer;font-size:20px">✕</button>
         </header>
 
@@ -552,68 +552,88 @@
   </div> <!-- app -->
 
   <script>
-    /*******************************
-     * CONFIGURAÇÕES
-     *******************************/
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzoWPB-2HLBXwe8tEOFq2Hx0drNEWb0cBCF1sfZlxEXs40MzNeKfOVjWpSWTCDtCM9e/exec';
-    const SPREADSHEET_ID = '1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio';
-    
-    // Planilha SharePoint (Excel) para professor
-    const SHAREPOINT_ID = 'EdAMsLnS0k9Bia-6V5c2UOwBXGopV6LDzvy3yo87v61rkw?e=XZs4hP';
-    const SHAREPOINT_URL = `https://seducsp-my.sharepoint.com/:x:/g/personal/e923357w10_professor_educacao_sp_gov_br/${SHAREPOINT_ID}`;
+    // Variáveis globais para armazenar dados
+    let currentUser = null;
+    let currentRole = null;
+    let allStudents = []; // Armazena todos os alunos carregados do backend
+    let selectedStudents = []; // Alunos selecionados no modal do Professor
+    let selectedStudentsGestao = []; // Alunos selecionados no modal da Gestão
 
-    // Template PDF
-    const PDF_TEMPLATE_URL = 'https://docs.google.com/document/d/1dHwyN8mlb_4bltEksnoc3Yx5wUcDNgAkzqsluLPYeP8/edit?tab=t.0';
-
-    // nomes de abas (front-end manda "sheet" para o Apps Script)
-    const SHEET_GERAL = 'BANCODEDADOSGERAL';
-    const SHEET_PROF = 'OCORRENCIASDOSPROFESSORES';
-    const SHEET_GESTAO = 'BANCODEALUNOS';
-
-    // estado
-    let allAlunos = [];
-    let alunosDaTurmaAtual = []; // array uniforme de objetos {nome, ra}
-    let alunosSelecionados = []; // nomes
-    let alunosDaTurmaAtualGestao = [];
-    let alunosSelecionadosGestao = [];
-    let professores = [];
-    let turmas = [];
-    let currentUserRole = null;
-
-    // inicial
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('data_prof').value = new Date().toISOString().split('T')[0];
-      // Mostrar formulário de gestão por padrão
-      selectLoginOption('gestao');
-
-      // placeholders
-      document.getElementById('aluno_gestao_placeholder').textContent = "Selecione a turma e depois clique para escolher os alunos";
-      document.getElementById('alunos_selected_placeholder').textContent = "Clique para selecionar";
-
-      // mostrar login area por default
-      document.getElementById('loginFormGestao').style.display = 'block';
-      
-      // Configurar campos de data para abrir calendário automaticamente
-      setupDateFields();
-    });
-
-    // Configurar campos de data para abrir calendário automaticamente
-    function setupDateFields() {
-      const dateFields = document.querySelectorAll('.date-field');
-      dateFields.forEach(field => {
-        field.addEventListener('click', function() {
-          this.showPicker();
-        });
-      });
+    // Função para simular a chamada ao Google Apps Script
+    function googleScriptCall(functionName, args, callback) {
+      // Simulação de chamada para testes locais
+      console.log(`Simulando chamada para Google Apps Script: ${functionName} com args:`, args);
+      if (functionName === 'doGetInitialData') {
+        // Dados de exemplo para professores e turmas
+        const demoData = {
+          professores: ['Prof. Ana', 'Prof. Bruno', 'Prof. Carla'],
+          turmas: [
+            '6° ANO A MANHA', '6° ANO B MANHA', '6° ANO C MANHA',
+            '7° ANO A TARDE', '7° ANO B TARDE',
+            '8° ANO A TARDE', '8° ANO B TARDE',
+            '9° ANO A TARDE', '9° ANO B TARDE',
+            '1ª SERIE A MANHA', '1ª SERIE B MANHA',
+            '2ª SERIE A MANHA', '2ª SERIE B MANHA',
+            '3ª SERIE A MANHA', '3ª SERIE B MANHA'
+          ],
+          alunos: [
+            { nome: 'Aluno 1', turma: '6° ANO A MANHA', ra: '12345' },
+            { nome: 'Aluno 2', turma: '6° ANO A MANHA', ra: '12346' },
+            { nome: 'Aluno 3', turma: '6° ANO B MANHA', ra: '12347' },
+            { nome: 'Aluno 4', turma: '7° ANO A TARDE', ra: '12348' },
+            { nome: 'Aluno 5', turma: '7° ANO A TARDE', ra: '12349' },
+            { nome: 'Aluno 6', turma: '8° ANO A TARDE', ra: '12350' },
+            { nome: 'Aluno 7', turma: '8° ANO A TARDE', ra: '12351' },
+            { nome: 'Aluno 8', turma: '9° ANO A TARDE', ra: '12352' },
+            { nome: 'Aluno 9', turma: '9° ANO A TARDE', ra: '12353' },
+            { nome: 'Aluno 10', turma: '1ª SERIE A MANHA', ra: '12354' },
+            { nome: 'Aluno 11', turma: '1ª SERIE A MANHA', ra: '12355' },
+            { nome: 'Aluno 12', turma: '2ª SERIE A MANHA', ra: '12356' },
+            { nome: 'Aluno 13', turma: '2ª SERIE A MANHA', ra: '12357' },
+            { nome: 'Aluno 14', turma: '3ª SERIE A MANHA', ra: '12358' },
+            { nome: 'Aluno 15', turma: '3ª SERIE A MANHA', ra: '12359' },
+          ],
+          historicoProfessor: [
+            { data: '2025-01-01', professor: 'Prof. Ana', turma: '6° ANO A MANHA', alunos: 'Aluno 1', irregularidades: 'Indisciplina', descricao: 'Conversa excessiva em sala.' },
+            { data: '2025-01-02', professor: 'Prof. Bruno', turma: '7° ANO A TARDE', alunos: 'Aluno 4, Aluno 5', irregularidades: 'Uso de celular', descricao: 'Alunos utilizando celular durante a aula.' }
+          ],
+          historicoGestao: [
+            { data: '2025-01-05', professor: 'Prof. Carla', disciplina: 'Matemática', turma: '8° ANO A TARDE', alunos: 'Aluno 6', ra: '12350', classificacao: 'OCORRÊNCIA', dataRetorno: '', descricao: 'Falta de material e recusa em fazer atividade.' }
+          ]
+        };
+        callback(demoData);
+      } else if (functionName === 'doPost') {
+        // Simula um registro bem-sucedido
+        console.log('Dados enviados para registro:', args);
+        callback({ status: 'SUCCESS', message: 'Registro simulado com sucesso!' });
+      } else if (functionName === 'getStudentsByTurma') {
+        const turma = args[0];
+        const filteredStudents = allStudents.filter(student => student.turma === turma);
+        callback(filteredStudents);
+      } else if (functionName === 'getProfessorOccurrences') {
+        // Simula o retorno de ocorrências do professor
+        callback(demoData.historicoProfessor);
+      } else if (functionName === 'getGestaoOccurrences') {
+        // Simula o retorno de ocorrências da gestão
+        callback(demoData.historicoGestao);
+      }
     }
 
-    // Selecionar opção de login
-    function selectLoginOption(role) {
-      document.querySelectorAll('.login-option').forEach(opt => opt.classList.remove('active'));
-      document.getElementById(`option${role.charAt(0).toUpperCase() + role.slice(1)}`).classList.add('active');
+    // Substitua esta função pela chamada real ao Google Apps Script quando implantar
+    // function googleScriptCall(functionName, args, callback) {
+    //   google.script.run
+    //     .withSuccessHandler(callback)
+    //     .withFailureHandler(err => console.error("Erro no Google Apps Script:", err))
+    //     [functionName](...args);
+    // }
 
-      document.querySelectorAll('.access-area').forEach(area => area.style.display = 'none');
-      document.getElementById(`loginForm${role.charAt(0).toUpperCase() + role.slice(1)}`).style.display = 'block';
+    // Funções de Login e Logout
+    function selectLoginOption(option) {
+      document.querySelectorAll('.login-option').forEach(el => el.classList.remove('active'));
+      document.getElementById(`option${option.charAt(0).toUpperCase() + option.slice(1)}`).classList.add('active');
+
+      document.querySelectorAll('.access-area').forEach(el => el.style.display = 'none');
+      document.getElementById(`loginForm${option.charAt(0).toUpperCase() + option.slice(1)}`).style.display = 'block';
     }
 
     // login por tipo de usuário (demo local)
@@ -627,731 +647,463 @@
         password = document.getElementById('passwordProfessor').value.trim();
       }
 
-      if(role === 'gestao' && email === 'gestao@escola.com' && password === 'gestao123'){
+      // Validação para Gestão
+      if(role === 'gestao' && email.toLowerCase() === 'gestao@escola.com' && password === 'gestao123'){
         showAppAs(role, email);
-      } else if(role === 'professor' && email === 'professor@escola.com' && password === 'prof123'){
-        showAppAs(role, email);
-      } else {
-        alert('E-mail ou senha incorretos.');
+        return;
       }
+      
+      // Validação para Professor
+      if(role === 'professor' && email.toLowerCase() === 'professor@escola.com' && password === 'prof123'){
+        showAppAs(role, email);
+        return;
+      }
+
+      // Se nenhuma das validações passar, mostra o alerta
+      alert('E-mail ou senha incorretos.');
     }
 
-    function fillDemo(role){
+    function fillDemo(role) {
       if (role === 'gestao') {
-        document.getElementById('emailGestao').value='gestao@escola.com';
-        document.getElementById('passwordGestao').value='gestao123';
+        document.getElementById('emailGestao').value = 'gestao@escola.com';
+        document.getElementById('passwordGestao').value = 'gestao123';
+      } else if (role === 'professor') {
+        document.getElementById('emailProfessor').value = 'professor@escola.com';
+        document.getElementById('passwordProfessor').value = 'prof123';
       }
     }
 
-    function showAppAs(role, email){
-      currentUserRole = role;
+    function showAppAs(role, email) {
+      currentUser = email;
+      currentRole = role;
       document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('userDisplay').textContent = `Logado como: ${email} (${role.toUpperCase()})`;
+      document.getElementById('btnLogout').style.display = 'inline-block';
 
       if (role === 'gestao') {
         document.getElementById('mainAppGestao').style.display = 'flex';
         document.getElementById('mainAppProfessor').style.display = 'none';
-        carregarTodosAlunos();
         carregarHistoricoGestao();
-      } else {
-        document.getElementById('mainAppGestao').style.display = 'none';
+      } else if (role === 'professor') {
         document.getElementById('mainAppProfessor').style.display = 'flex';
-        carregarProfessoresETurmas();
+        document.getElementById('mainAppGestao').style.display = 'none';
         carregarHistoricoProfessor();
       }
-
-      document.getElementById('userDisplay').textContent = email + (role==='gestao'?' (Gestão)':' (Professor)');
-      document.getElementById('btnLogout').style.display = 'inline-block';
-      document.getElementById('btnDownloadPdf').style.display = 'inline-block';
+      loadInitialData();
     }
 
-    function logout(){
-      currentUserRole = null;
+    function logout() {
+      currentUser = null;
+      currentRole = null;
       document.getElementById('loginScreen').style.display = 'block';
       document.getElementById('mainAppGestao').style.display = 'none';
       document.getElementById('mainAppProfessor').style.display = 'none';
       document.getElementById('userDisplay').textContent = 'Não autenticado';
       document.getElementById('btnLogout').style.display = 'none';
-      document.getElementById('btnDownloadPdf').style.display = 'none';
-      alunosDaTurmaAtual = []; alunosSelecionados = []; document.getElementById('selectedPills').innerHTML='';
-      alunosDaTurmaAtualGestao = []; alunosSelecionadosGestao = []; document.getElementById('selectedPillsGestao').innerHTML='';
-
-      // Limpar formulários
+      // Limpar campos de login
       document.getElementById('emailGestao').value = '';
       document.getElementById('passwordGestao').value = '';
       document.getElementById('emailProfessor').value = '';
       document.getElementById('passwordProfessor').value = '';
-
-      // Reset placeholders
-      document.getElementById('aluno_gestao_placeholder').textContent = "Selecione a turma e depois clique para escolher os alunos";
-      document.getElementById('alunos_selected_placeholder').textContent = "Clique para selecionar";
+      // Resetar seleção de login
+      selectLoginOption('gestao');
     }
 
-    /*******************************
-     * GET professores & turmas (consultando BANCODEDADOSGERAL)
-     *******************************/
-    async function carregarProfessoresETurmas(){
-      try {
-        // professores (GET do sheet geral)
-        const r1 = await fetch(`${SCRIPT_URL}?endpoint=teachers&sheet=${encodeURIComponent(SHEET_GERAL)}`);
-        const j1 = await r1.json();
-        if(j1 && j1.status === 'success' && Array.isArray(j1.teachers)) professores = j1.teachers; else professores = getFallbackProfessores();
-
-        const profSel = document.getElementById('professor_select');
-        profSel.innerHTML = '<option value="">-- selecione --</option>';
-        professores.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; profSel.appendChild(o) });
-
-        // turmas (GET do sheet geral)
-        const r2 = await fetch(`${SCRIPT_URL}?endpoint=classes&sheet=${encodeURIComponent(SHEET_GERAL)}`);
-        const j2 = await r2.json();
-        if(j2 && j2.status === 'success' && Array.isArray(j2.classes)) turmas = j2.classes; else turmas = Object.keys(_getClassRanges());
-
-        const turmaSel = document.getElementById('turma_select');
-        turmaSel.innerHTML = '<option value="">-- selecione --</option>';
-        turmas.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; turmaSel.appendChild(o) });
-      } catch(err){
-        console.error('Erro carregar professores/turmas:', err);
-        // fallback
-        professores = getFallbackProfessores();
-        const profSel = document.getElementById('professor_select');
-        profSel.innerHTML = '<option value="">-- selecione --</option>';
-        professores.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; profSel.appendChild(o) });
-        turmas = Object.keys(_getClassRanges());
-        const turmaSel = document.getElementById('turma_select');
-        turmaSel.innerHTML = '<option value="">-- selecione --</option>';
-        turmas.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; turmaSel.appendChild(o) });
-      }
-    }
-
-    /*******************************
-     * GET students by class (consultando BANCODEDADOSGERAL)
-     *******************************/
-    async function onTurmaChange(){
-      const turma = document.getElementById('turma_select').value;
-      if(!turma){ alunosDaTurmaAtual = []; renderStudentList([]); return; }
-      await carregarAlunosPorTurma(turma);
-      renderStudentList(alunosDaTurmaAtual);
-    }
-
-    async function carregarAlunosPorTurma(turma){
-      try {
-        const resp = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
-        const json = await resp.json();
-        // json.students pode ser array de nomes (strings) ou json.studentsList array de objetos {nome, ra}
-        const raw = json.studentsList || json.students || [];
-        alunosDaTurmaAtual = normalizeStudentArray(raw);
-      } catch(err){
-        console.error('Erro get students:', err);
-        alunosDaTurmaAtual = [];
-      }
-    }
-
-    /*******************************
-     * Carregar alunos por turma (GESTÃO)
-     *******************************/
-    async function carregarAlunosPorTurmaGestao(turma){
-      if(!turma){
-        alunosDaTurmaAtualGestao = []; 
-        document.getElementById('aluno_gestao_placeholder').textContent = "Selecione a turma e depois clique para escolher os alunos";
-        return;
-      }
-
-      try {
-        const resp = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
-        const json = await resp.json();
-        const raw = json.studentsList || json.students || [];
-        alunosDaTurmaAtualGestao = normalizeStudentArray(raw);
-        document.getElementById('aluno_gestao_placeholder').textContent = "Clique para selecionar os alunos";
-      } catch(err){
-        console.error('Erro get students (gestão):', err);
-        alunosDaTurmaAtualGestao = [];
-      }
-    }
-
-    /*******************************
-     * carregarTodosAlunos (autocomplete gestor) - consulta BANCODEDADOSGERAL
-     *******************************/
-    async function carregarTodosAlunos(){
-      allAlunos = [];
-      const classList = Object.keys(_getClassRanges());
-      for(const turma of classList){
-        try{
-          const r = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
-          const j = await r.json();
-          const list = j.studentsList || j.students || [];
-          const normalized = normalizeStudentArray(list);
-          normalized.forEach(a => { if(a && a.nome) allAlunos.push({nome:a.nome, turma}) });
-        }catch(e){}
-      }
-      // dedupe
-      const seen = new Set();
-      allAlunos = allAlunos.filter(a => { if(seen.has(a.nome)) return false; seen.add(a.nome); return true; });
-    }
-
-    /*******************************
-     * Modal alunos (professor)
-     *******************************/
-    function openStudentsModal(){
-      if(!alunosDaTurmaAtual || alunosDaTurmaAtual.length === 0){ alert('Nenhum aluno encontrado para a turma selecionada.'); return; }
-      document.getElementById('modalRoot').style.display = 'flex';
-      renderStudentList(alunosDaTurmaAtual);
-      document.getElementById('studentSearch').value = '';
-    }
-    function closeStudentsModal(){ document.getElementById('modalRoot').style.display = 'none'; }
-
-    // renderStudentList aceita array de strings ou array de {nome, ra}
-    function renderStudentList(list){
-      const container = document.getElementById('studentList'); container.innerHTML = '';
-      list.forEach(item => {
-        const nome = (typeof item === 'string') ? item : (item.nome || '');
-        const ra = (typeof item === 'object' && item.ra) ? item.ra : '';
-
-        const row = document.createElement('div');
-        row.className = 'student-checkbox';
-
-        const cb = document.createElement('input'); 
-        cb.type='checkbox'; 
-        cb.value = nome; 
-        cb.checked = alunosSelecionados.includes(nome);
-        cb.onchange = (e) => {
-          if(e.target.checked){ 
-            if(!alunosSelecionados.includes(nome)) alunosSelecionados.push(nome); 
-          } else { 
-            alunosSelecionados = alunosSelecionados.filter(x => x !== nome); 
-          }
-          // atualizar pills visual enquanto seleciona
-          renderSelectedPills();
-        };
-
-        const lblWrap = document.createElement('div'); lblWrap.style.display='flex'; lblWrap.style.flexDirection='column';
-        const lbl = document.createElement('div'); lbl.textContent = nome;
-        const sub = document.createElement('div'); sub.className='muted'; sub.style.fontSize='12px'; sub.textContent = ra ? ('RA: '+ra) : '';
-
-        lblWrap.appendChild(lbl); if(ra) lblWrap.appendChild(sub);
-
-        row.appendChild(cb);
-        row.appendChild(lblWrap);
-        container.appendChild(row);
+    // Funções de Carregamento de Dados Iniciais
+    function loadInitialData() {
+      googleScriptCall('doGetInitialData', [], function(response) {
+        console.log('Dados iniciais carregados:', response);
+        allStudents = response.alunos || [];
+        populateDropdown('professor_select', response.professores);
+        populateDropdown('turma_select', response.turmas);
+        // Definir a data atual para os campos de data
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('data_prof').value = today;
+        document.getElementById('dataRetorno_gestao').value = today;
       });
     }
 
-    function filterStudentList(){
-      const q = document.getElementById('studentSearch').value.toLowerCase();
-      const filtered = alunosDaTurmaAtual.filter(s => ((typeof s==='string'?s:s.nome).toLowerCase().includes(q)));
-      renderStudentList(filtered);
+    function populateDropdown(elementId, items) {
+      const select = document.getElementById(elementId);
+      select.innerHTML = '<option value="">Selecione</option>';
+      items.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item;
+        option.textContent = item;
+        select.appendChild(option);
+      });
     }
 
-    function confirmStudents(){
-      document.getElementById('alunos_selected_placeholder').textContent = alunosSelecionados.length > 0
-         ? `${alunosSelecionados.length} aluno(s) selecionado(s)`
-         : "Clique para selecionar";
+    // Funções do Modal de Seleção de Alunos (Professor)
+    function openStudentsModal() {
+      const turma = document.getElementById('turma_select').value;
+      if (!turma) {
+        alert('Por favor, selecione uma turma primeiro.');
+        return;
+      }
+      renderStudentList(turma, 'studentList', selectedStudents);
+      document.getElementById('modalRoot').style.display = 'flex';
+    }
 
-      renderSelectedPills();
+    function closeStudentsModal() {
+      document.getElementById('modalRoot').style.display = 'none';
+      document.getElementById('studentSearch').value = ''; // Limpa o filtro
+    }
+
+    function renderStudentList(turma, listId, currentSelected) {
+      const studentListDiv = document.getElementById(listId);
+      studentListDiv.innerHTML = '';
+      const filteredByTurma = allStudents.filter(student => student.turma === turma);
+
+      if (filteredByTurma.length === 0) {
+        studentListDiv.innerHTML = '<p>Nenhum aluno encontrado para esta turma.</p>';
+        return;
+      }
+
+      filteredByTurma.forEach(student => {
+        const isChecked = currentSelected.some(s => s.nome === student.nome && s.ra === student.ra);
+        const studentDiv = document.createElement('div');
+        studentDiv.className = 'student-checkbox';
+        studentDiv.innerHTML = `
+          <input type="checkbox" value="${student.nome}" data-ra="${student.ra}" ${isChecked ? 'checked' : ''}>
+          <span>${student.nome} (RA: ${student.ra})</span>
+        `;
+        studentDiv.addEventListener('click', function(event) {
+          // Toggle checkbox when clicking on the div
+          const checkbox = studentDiv.querySelector('input[type="checkbox"]');
+          checkbox.checked = !checkbox.checked;
+          // Prevent event from bubbling up and re-toggling if clicked directly on checkbox
+          event.stopPropagation();
+        });
+        studentListDiv.appendChild(studentDiv);
+      });
+    }
+
+    function filterStudentList() {
+      const searchInput = document.getElementById('studentSearch').value.toLowerCase();
+      const studentItems = document.getElementById('studentList').querySelectorAll('.student-checkbox');
+      studentItems.forEach(item => {
+        const studentName = item.querySelector('span').textContent.toLowerCase();
+        if (studentName.includes(searchInput)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    function confirmStudents() {
+      const studentCheckboxes = document.getElementById('studentList').querySelectorAll('input[type="checkbox"]');
+      selectedStudents = [];
+      studentCheckboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+          selectedStudents.push({ nome: checkbox.value, ra: checkbox.dataset.ra });
+        }
+      });
+      updateSelectedStudentsDisplay('alunos_selected_placeholder', 'selectedPills', selectedStudents);
       closeStudentsModal();
     }
 
-    function renderSelectedPills(){
-      const pills = document.getElementById('selectedPills'); pills.innerHTML = '';
-      alunosSelecionados.forEach(a => {
-        const el = document.createElement('div');
-        el.className='pill';
-        el.textContent = a;
-        pills.appendChild(el);
-      });
+    function updateSelectedStudentsDisplay(placeholderId, pillsId, studentsArray) {
+      const placeholder = document.getElementById(placeholderId);
+      const pillsContainer = document.getElementById(pillsId);
+      pillsContainer.innerHTML = '';
+
+      if (studentsArray.length > 0) {
+        placeholder.textContent = `${studentsArray.length} aluno(s) selecionado(s)`;
+        studentsArray.forEach(student => {
+          const pill = document.createElement('span');
+          pill.className = 'pill';
+          pill.textContent = student.nome;
+          pillsContainer.appendChild(pill);
+        });
+      } else {
+        placeholder.textContent = 'Clique para selecionar';
+      }
     }
 
-    /*******************************
-     * Modal alunos (gestão)
-     *******************************/
-    function openStudentsModalGestao(){
+    // Funções do Modal de Seleção de Alunos (Gestão)
+    function openStudentsModalGestao() {
       const turma = document.getElementById('serie_gestao').value;
-      if(!turma){ alert('Selecione uma turma primeiro.'); return; }
-      if(!alunosDaTurmaAtualGestao || alunosDaTurmaAtualGestao.length === 0){ alert('Nenhum aluno encontrado para a turma selecionada.'); return; }
+      if (!turma) {
+        alert('Por favor, selecione uma turma primeiro.');
+        return;
+      }
+      renderStudentList(turma, 'studentListGestao', selectedStudentsGestao);
       document.getElementById('modalRootGestao').style.display = 'flex';
-      renderStudentListGestao(alunosDaTurmaAtualGestao);
-      document.getElementById('studentSearchGestao').value = '';
     }
 
-    function closeStudentsModalGestao(){ document.getElementById('modalRootGestao').style.display = 'none'; }
+    function closeStudentsModalGestao() {
+      document.getElementById('modalRootGestao').style.display = 'none';
+      document.getElementById('studentSearchGestao').value = ''; // Limpa o filtro
+    }
 
-    function renderStudentListGestao(list){
-      const container = document.getElementById('studentListGestao');
-      container.innerHTML = '';
-      list.forEach(item => {
-        const nome = (typeof item === 'string') ? item : (item.nome || '');
-        const ra = (typeof item === 'object' && item.ra) ? item.ra : '';
-
-        const row = document.createElement('div');
-        row.className = 'student-checkbox';
-
-        const cb = document.createElement('input');
-        cb.type='checkbox';
-        cb.value = nome;
-        cb.checked = alunosSelecionadosGestao.includes(nome);
-        cb.onchange = (e) => { 
-          if(e.target.checked){ 
-            if(!alunosSelecionadosGestao.includes(nome)) alunosSelecionadosGestao.push(nome); 
-          } else { 
-            alunosSelecionadosGestao = alunosSelecionadosGestao.filter(x => x !== nome); 
-          }
-          // Atualizar automaticamente o RA quando selecionar um aluno
-          updateRAsGestao();
-        };
-
-        const lblWrap = document.createElement('div'); lblWrap.style.display='flex'; lblWrap.style.flexDirection='column';
-        const lbl = document.createElement('div'); lbl.textContent = nome;
-        const sub = document.createElement('div'); sub.className='muted'; sub.style.fontSize='12px'; sub.textContent = ra ? ('RA: '+ra) : '';
-        lblWrap.appendChild(lbl); if(ra) lblWrap.appendChild(sub);
-
-        row.appendChild(cb);
-        row.appendChild(lblWrap);
-        container.appendChild(row);
+    function filterStudentListGestao() {
+      const searchInput = document.getElementById('studentSearchGestao').value.toLowerCase();
+      const studentItems = document.getElementById('studentListGestao').querySelectorAll('.student-checkbox');
+      studentItems.forEach(item => {
+        const studentName = item.querySelector('span').textContent.toLowerCase();
+        if (studentName.includes(searchInput)) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
       });
     }
 
-    // Função para atualizar automaticamente os RAs quando selecionar um aluno
-    function updateRAsGestao() {
-      const ras = alunosDaTurmaAtualGestao
-        .filter(item => alunosSelecionadosGestao.includes(item.nome) && item.ra)
-        .map(item => item.ra);
-      
-      document.getElementById('ra_gestao').value = ras.length ? ras.join(', ') : 'RAs serão preenchidos automaticamente';
-    }
-
-    function filterStudentListGestao(){
-      const q = document.getElementById('studentSearchGestao').value.toLowerCase();
-      const filtered = alunosDaTurmaAtualGestao.filter(s => ((typeof s==='string'?s:s.nome).toLowerCase().includes(q)));
-      renderStudentListGestao(filtered);
-    }
-
-    function confirmStudentsGestao(){
-      document.getElementById('aluno_gestao_placeholder').textContent = alunosSelecionadosGestao.length > 0
-         ? `${alunosSelecionadosGestao.length} aluno(s) selecionado(s)`
-         : "Clique para selecionar os alunos";
-
-      const pills = document.getElementById('selectedPillsGestao'); pills.innerHTML = '';
-      alunosSelecionadosGestao.forEach(a => { 
-        const el = document.createElement('div'); 
-        el.className='pill'; 
-        el.textContent = a; 
-        pills.appendChild(el); 
+    function confirmStudentsGestao() {
+      const studentCheckboxes = document.getElementById('studentListGestao').querySelectorAll('input[type="checkbox"]');
+      selectedStudentsGestao = [];
+      const selectedRAs = [];
+      studentCheckboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+          selectedStudentsGestao.push({ nome: checkbox.value, ra: checkbox.dataset.ra });
+          selectedRAs.push(checkbox.dataset.ra);
+        }
       });
-
-      // Preencher automaticamente os RAs (quando disponíveis)
-      updateRAsGestao();
-
+      updateSelectedStudentsDisplay('aluno_gestao_placeholder', 'selectedPillsGestao', selectedStudentsGestao);
+      document.getElementById('ra_gestao').value = selectedRAs.join(', '); // Atualiza o campo RA(s)
       closeStudentsModalGestao();
     }
 
-    /*******************************
-     * Toggle suspensão (gestão)
-     *******************************/
-    function toggleSuspension(area){
-      if(area === 'gestao'){
-        const val = document.getElementById('classificacao_gestao').value;
-        document.getElementById('suspensionRow_gestao').style.display = (val === 'SUSPENSÃO') ? 'flex' : 'none';
-      }
+    // Funções de Ocorrência do Professor
+    function onTurmaChange() {
+      selectedStudents = []; // Limpa a seleção de alunos ao mudar a turma
+      updateSelectedStudentsDisplay('alunos_selected_placeholder', 'selectedPills', selectedStudents);
     }
 
-    /*******************************
-     * POST cadastrar ocorrência (gestão) -> grava em BANCODEALUNOS (sheet: SHEET_GESTAO)
-     *******************************/
-    async function cadastrarOcorrenciaGestao(){
-      const turma = document.getElementById('serie_gestao').value.trim();
-      const alunos = alunosSelecionadosGestao.join(', ');
-      const ras = document.getElementById('ra_gestao').value.trim();
-      const professor = document.getElementById('professor_gestao').value.trim();
-      const disciplina = document.getElementById('disciplina_gestao').value.trim();
-      const classificacao = document.getElementById('classificacao_gestao').value;
-      const descricao = document.getElementById('descricao_gestao').value.trim();
-      const dataRetorno = document.getElementById('dataRetorno_gestao').value || null;
-
-      if(!turma || alunosSelecionadosGestao.length === 0 || !professor || !disciplina || !classificacao || !descricao){
-        alert('Preencha todos os campos obrigatórios.');
-        return;
-      }
-      if(classificacao === 'SUSPENSÃO' && !dataRetorno){
-        alert('Informe data de retorno para suspensão.');
-        return;
-      }
-
-      const payload = {
-        sheet: SHEET_GESTAO,
-        startRow: 2,
-        date: new Date().toISOString().split('T')[0],
-        professor: professor,
-        studentClass: turma,
-        student: alunos,
-        ra: ras,
-        disciplina: disciplina,
-        irregularities: classificacao + (dataRetorno ? (' - retorno: ' + dataRetorno) : ''),
-        description: descricao
-      };
-
-      try {
-        const resp = await fetch(`${SCRIPT_URL}`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify(payload)
-        });
-        const j = await resp.json();
-        if(j && j.status === 'success'){
-          document.getElementById('successGestao').style.display = 'block';
-          setTimeout(()=> document.getElementById('successGestao').style.display = 'none', 2200);
-          // limpar
-          document.getElementById('serie_gestao').value='';
-          document.getElementById('aluno_gestao_placeholder').textContent = "Selecione a turma e depois clique para escolher os alunos";
-          document.getElementById('ra_gestao').value='';
-          document.getElementById('professor_gestao').value='';
-          document.getElementById('disciplina_gestao').value='';
-          document.getElementById('classificacao_gestao').value='';
-          document.getElementById('descricao_gestao').value='';
-          document.getElementById('suspensionRow_gestao').style.display='none';
-          document.getElementById('selectedPillsGestao').innerHTML='';
-          alunosSelecionadosGestao = [];
-          carregarHistoricoGestao();
-        } else {
-          alert('Erro ao registrar: ' + (j && j.message ? j.message : 'Resposta inesperada'));
-        }
-      } catch(err){
-        console.error('Erro POST ocorrencia (gestao):', err);
-        alert('Erro ao comunicar com o servidor (ver console).');
-      }
-    }
-
-    /*******************************
-     * POST registrar ocorrência (professor) -> grava em OCORRENCIASDOSPROFESSORES (sheet: SHEET_PROF)
-     * e também na planilha SharePoint
-     *******************************/
-    async function registrarOcorrenciaProfessor(){
+    function registrarOcorrenciaProfessor() {
       const professor = document.getElementById('professor_select').value;
       const turma = document.getElementById('turma_select').value;
-      const dataOc = document.getElementById('data_prof').value;
-      const descricao = document.getElementById('descricao_prof').value.trim();
-      if(!professor || !turma || !dataOc || alunosSelecionados.length === 0){ 
-        alert('Preencha todos os campos obrigatórios e selecione ao menos um aluno.'); 
-        return; 
+      const data = document.getElementById('data_prof').value;
+      const irregularidades = Array.from(document.querySelectorAll('input[name="irreg"]:checked')).map(cb => cb.value).join(', ');
+      const descricao = document.getElementById('descricao_prof').value;
+      const alunosNomes = selectedStudents.map(s => s.nome).join(', ');
+      const alunosRAs = selectedStudents.map(s => s.ra).join(', ');
+
+      if (!professor || !turma || !data || selectedStudents.length === 0 || !irregularidades || !descricao) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
       }
-      const irregs = Array.from(document.querySelectorAll('input[name="irreg"]:checked')).map(x=>x.value);
-      
-      // Payload para Google Sheets
-      const payload = {
-         sheet: SHEET_PROF,
-         startRow: 2,
-         date: dataOc,
-         professor: professor,
-         studentClass: turma,
-         student: alunosSelecionados.join(', '),
-         irregularities: irregs.join(', '),
-         description: descricao
-       };
-      
-      // Payload para SharePoint (Excel)
-      const sharepointPayload = {
-        sheet: 'Sheet1',
-        date: dataOc,
+
+      const dataToSend = {
         professor: professor,
-        studentClass: turma,
-        student: alunosSelecionados.join(', '),
-        irregularities: irregs.join(', '),
-        description: descricao
+        turma: turma,
+        data: data,
+        alunos: alunosNomes,
+        ras: alunosRAs,
+        irregularidades: irregularidades,
+        descricao: descricao,
+        tipo: 'PROFESSOR' // Identificador para o tipo de registro
       };
 
-      try {
-        // Registrar no Google Sheets (OCORRENCIASDOSPROFESSORES)
-        const resp = await fetch(`${SCRIPT_URL}`, { 
-          method:'POST', 
-          headers:{'Content-Type':'application/json'}, 
-          body: JSON.stringify(payload) 
-        });
-        const j = await resp.json();
-        
-        // Registrar também na planilha SharePoint
-        await registrarNoSharePoint(sharepointPayload);
-        
-        if(j && j.status === 'success'){
-          document.getElementById('successProfessor').style.display = 'block';
-          setTimeout(()=> document.getElementById('successProfessor').style.display = 'none', 2200);
+      console.log('Dados a serem enviados (Professor):', dataToSend);
+
+      googleScriptCall('doPost', [dataToSend], function(response) {
+        console.log('Resposta do servidor (Professor):', response);
+        if (response.status === 'SUCCESS') {
+          showSuccessMessage('successProfessor');
           clearProfessorForm();
           carregarHistoricoProfessor();
         } else {
-          alert('Erro ao registrar: ' + (j && j.message ? j.message : 'Resposta inesperada'));
+          alert('Erro ao registrar ocorrência: ' + response.message);
         }
-      } catch(err){
-        console.error('Erro POST ocorrencia (professor):', err);
-        alert('Erro ao comunicar com o servidor (ver console).');
-      }
+      });
     }
 
-    // Função para registrar no SharePoint (simulação - implementação real dependerá da API do SharePoint)
-    async function registrarNoSharePoint(payload) {
-      // Esta é uma implementação simulada
-      // A implementação real dependerá da API específica do SharePoint
-      console.log('Registrando no SharePoint:', payload);
-      
-      // Em uma implementação real, você faria uma requisição para a API do SharePoint
-      // Exemplo:
-      // try {
-      //   const response = await fetch(SHAREPOINT_URL, {
-      //     method: 'POST',
-      //     headers: {
-      //       'Content-Type': 'application/json',
-      //       // Adicionar headers de autenticação conforme necessário
-      //     },
-      //     body: JSON.stringify(payload)
-      //   });
-      //   if (!response.ok) {
-      //     throw new Error('Erro ao registrar no SharePoint');
-      //   }
-      //   console.log('Registro no SharePoint realizado com sucesso');
-      // } catch (error) {
-      //   console.error('Erro ao registrar no SharePoint:', error);
-      // }
-    }
-
-    function clearProfessorForm(){
-      document.getElementById('professor_select').value='';
-      document.getElementById('turma_select').value='';
-      document.getElementById('alunos_selected_placeholder').textContent = "Clique para selecionar";
-      document.getElementById('selectedPills').innerHTML='';
-      document.getElementById('descricao_prof').value='';
-      alunosSelecionados = [];
-      Array.from(document.querySelectorAll('input[name="irreg"]')).forEach(cb => cb.checked=false);
+    function clearProfessorForm() {
+      document.getElementById('professor_select').value = '';
+      document.getElementById('turma_select').value = '';
       document.getElementById('data_prof').value = new Date().toISOString().split('T')[0];
+      document.querySelectorAll('input[name="irreg"]:checked').forEach(cb => cb.checked = false);
+      document.getElementById('descricao_prof').value = '';
+      selectedStudents = [];
+      updateSelectedStudentsDisplay('alunos_selected_placeholder', 'selectedPills', selectedStudents);
     }
 
-    /*******************************
-     * GET histórico (consultando BANCODEDADOSGERAL)
-     *******************************/
-    async function carregarHistoricoGestao(){
-      const container = document.getElementById('historyListGestao');
-      container.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
-      try {
-        const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GESTAO)}`);
-        const json = await resp.json();
-        const ocorrs = json.occurrences || json.data || [];
-        container.innerHTML = '';
-        if(!ocorrs || ocorrs.length === 0){ container.innerHTML = '<div class="muted">Nenhuma ocorrência encontrada.</div>'; return; }
-
-        // Exibe do mais recente para o mais antigo
-        ocorrs.slice().reverse().forEach(r => {
-          const id = r.id || r.ID || r.Id || null;
-          const date = r.DATA || r.date || r.col1 || '';
-          const prof = r.PROFESSOR || r.professor || r.col2 || '';
-          const turma = r.TURMA || r.studentClass || r.col3 || '';
-          const aluno = r.ALUNO || r.student || r.col4 || '';
-          const ra = r.RA || r.ra || r.col5 || '';
-          const disciplina = r.DISCIPLINA || r.disciplina || r.col6 || '';
-          const irreg = r.IRREGULARIDADES || r.irregularities || r.col7 || '';
-          const desc = r.DESCRICAO || r.description || r.col8 || '';
-
-          const div = document.createElement('div'); div.className='historyItem';
-          const meta = document.createElement('div'); meta.className='meta';
-          meta.innerHTML = `<div><strong>${date}</strong> — <span class="muted">${prof}</span></div>`;
-          const controls = document.createElement('div');
-          const pdfBtn = document.createElement('button');
-          pdfBtn.className='btn-success'; pdfBtn.style.fontSize='12px'; pdfBtn.style.marginLeft='8px';
-          pdfBtn.textContent = 'Gerar PDF (template)';
-          pdfBtn.onclick = () => generatePdfFromBackend(id);
-
-          const delBtn = document.createElement('button');
-          delBtn.className='btn-danger'; delBtn.style.fontSize='12px'; delBtn.style.marginLeft='8px';
-          delBtn.textContent = 'Excluir';
-          delBtn.onclick = () => deleteOccurrence(id);
-
-          controls.appendChild(pdfBtn); controls.appendChild(delBtn);
-          meta.appendChild(controls);
-
-          const ddesc = document.createElement('div'); ddesc.className='desc';
-          ddesc.innerHTML = `
-            <strong>Aluno(s):</strong> ${aluno || 'N/A'}<br/>
-            <strong>RA(s):</strong> ${ra || 'N/A'}<br/>
-            <strong>Turma:</strong> ${turma || 'N/A'}<br/>
-            <strong>Disciplina:</strong> ${disciplina || 'N/A'}<br/>
-            <strong>Irregularidades:</strong> ${irreg || 'N/A'}<br/>
-            <em>${desc || ''}</em>
-          `;
-
-          const idLine = document.createElement('div'); idLine.style.marginTop='8px'; idLine.style.fontSize='12px'; idLine.style.opacity='0.9'; idLine.innerHTML = `ID: <span class="qnum">${id}</span>`;
-
-          div.appendChild(meta); div.appendChild(ddesc); div.appendChild(idLine);
-          container.appendChild(div);
-        });
-      } catch(err){
-        console.error('Erro carregarHistorico:', err);
-        document.getElementById('historyListGestao').innerHTML = '<div class="muted">Erro ao carregar histórico (ver console).</div>';
-      }
-    }
-
-    async function carregarHistoricoProfessor(){
-      const container = document.getElementById('historyListProfessor');
-      container.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
-      try {
-        const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_PROF)}`);
-        const json = await resp.json();
-        const ocorrs = json.occurrences || json.data || [];
-        container.innerHTML = '';
-        if(!ocorrs || ocorrs.length === 0){ container.innerHTML = '<div class="muted">Nenhuma ocorrência encontrada.</div>'; return; }
-
-        ocorrs.slice().reverse().forEach(r => {
-          const id = r.id || r.ID || r.Id || null;
-          const date = r.DATA || r.date || r.col1 || '';
-          const prof = r.PROFESSOR || r.professor || r.col2 || '';
-          const turma = r.TURMA || r.studentClass || r.col3 || '';
-          const aluno = r.ALUNO || r.student || r.col4 || '';
-          const irreg = r.IRREGULARIDADES || r.irregularities || r.col5 || '';
-          const desc = r.DESCRICAO || r.description || r.col6 || '';
-
-          const div = document.createElement('div'); div.className='historyItem';
-          const meta = document.createElement('div'); meta.className='meta';
-          meta.innerHTML = `<div><strong>${date}</strong> — <span class="muted">${prof}</span></div>`;
-
-          const ddesc = document.createElement('div'); ddesc.className='desc';
-          ddesc.innerHTML = `<strong>Aluno(s):</strong> ${aluno || 'N/A'}<br/><strong>Turma:</strong> ${turma || 'N/A'}<br/><strong>Irregularidades:</strong> ${irreg || 'N/A'}<br/><em>${desc || ''}</em>`;
-
-          const idLine = document.createElement('div'); idLine.style.marginTop='8px'; idLine.style.fontSize='12px'; idLine.style.opacity='0.9'; idLine.innerHTML = `ID: <span class="qnum">${id}</span>`;
-
-          div.appendChild(meta); div.appendChild(ddesc); div.appendChild(idLine);
-          container.appendChild(div);
-        });
-      } catch(err){
-        console.error('Erro carregarHistorico:', err);
-        document.getElementById('historyListProfessor').innerHTML = '<div class="muted">Erro ao carregar histórico (ver console).</div>';
-      }
-    }
-
-    /*******************************
-     * DELETE ocorrência (POST ?endpoint=delete-occurrence)
-     *******************************/
-    async function deleteOccurrence(occurrenceId){
-      if(occurrenceId === null || occurrenceId === undefined){ alert('ID inválido para exclusão.'); return; }
-      if(!confirm('Confirma exclusão desta ocorrência (ID '+occurrenceId+')?')) return;
-      try {
-        const resp = await fetch(`${SCRIPT_URL}?endpoint=delete-occurrence`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ occurrenceId, sheet: SHEET_GESTAO })
-        });
-        const j = await resp.json();
-        if(j && j.status === 'success'){ alert('Ocorrência excluída.'); carregarHistoricoGestao(); }
-        else alert('Erro ao excluir: ' + (j && j.message ? j.message : 'Resposta inesperada'));
-      } catch(err){ console.error('Erro deleteOccurrence:', err); alert('Erro ao comunicar com servidor.'); }
-    }
-
-    /*******************************
-     * Geração de PDF via backend
-     *******************************/
-    async function generatePdfFromBackend(occurrenceId){
-      if(!occurrenceId){ alert('ID inválido para geração de PDF.'); return; }
-      try {
-        const resp = await fetch(`${SCRIPT_URL}?endpoint=generate-pdf`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ occurrenceId, sheet: SHEET_GESTAO })
-        });
-        const j = await resp.json();
-        if(j && j.status === 'success' && j.pdfUrl){
-          window.open(j.pdfUrl, '_blank');
+    function carregarHistoricoProfessor() {
+      googleScriptCall('getProfessorOccurrences', [], function(historico) {
+        const historyListDiv = document.getElementById('historyListProfessor');
+        historyListDiv.innerHTML = '';
+        if (historico && historico.length > 0) {
+          historico.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'historyItem';
+            itemDiv.innerHTML = `
+              <div class="meta">
+                <span>Data: ${item.data}</span>
+                <span>Professor: ${item.professor}</span>
+                <span>Turma: ${item.turma}</span>
+              </div>
+              <p><strong>Alunos:</strong> ${item.alunos}</p>
+              <p><strong>Irregularidades:</strong> ${item.irregularidades}</p>
+              <p class="desc"><strong>Descrição:</strong> ${item.descricao}</p>
+            `;
+            historyListDiv.appendChild(itemDiv);
+          });
         } else {
-          alert('Servidor não retornou URL do PDF. Resposta: ' + JSON.stringify(j));
+          historyListDiv.innerHTML = '<p>Nenhuma ocorrência registrada para professores.</p>';
         }
-      } catch(err){
-        console.error('Erro generatePdfFromBackend:', err);
-        alert('Erro ao pedir geração de PDF. Verifique se o endpoint generate-pdf existe no Apps Script.');
+      });
+    }
+
+    // Funções de Ocorrência da Gestão
+    function carregarAlunosPorTurmaGestao(turma) {
+      selectedStudentsGestao = []; // Limpa a seleção de alunos ao mudar a turma
+      updateSelectedStudentsDisplay('aluno_gestao_placeholder', 'selectedPillsGestao', selectedStudentsGestao);
+      document.getElementById('ra_gestao').value = ''; // Limpa o RA
+    }
+
+    function toggleSuspension(role) {
+      const classificacao = document.getElementById(`classificacao_${role}`).value;
+      const suspensionRow = document.getElementById(`suspensionRow_${role}`);
+      if (classificacao === 'SUSPENSÃO') {
+        suspensionRow.style.display = 'flex';
+      } else {
+        suspensionRow.style.display = 'none';
+        document.getElementById(`dataRetorno_${role}`).value = ''; // Limpa a data se não for suspensão
       }
     }
 
-    /*******************************
-     * fallback: gerar PDF localmente (apenas conteúdo simples)
-     *******************************/
-    function generatePDFLocal(){
-      try {
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        doc.setFontSize(16);
-        doc.text('Registro de Ocorrência', 14, 20);
-        const turma = document.getElementById('serie_gestao').value || '';
-        const alunos = alunosSelecionadosGestao.join(', ') || '';
-        const ras = document.getElementById('ra_gestao').value || '';
-        const prof = document.getElementById('professor_gestao').value || '';
-        const disciplina = document.getElementById('disciplina_gestao').value || '';
-        const classificacao = document.getElementById('classificacao_gestao').value || '';
-        const desc = document.getElementById('descricao_gestao').value || '';
-        let y = 36;
-        if(turma){ doc.text(`Turma: ${turma}`, 14, y); y+=8; }
-        if(alunos){ doc.text(`Aluno(s): ${alunos}`, 14, y); y+=8; }
-        if(ras){ doc.text(`RA(s): ${ras}`, 14, y); y+=8; }
-        if(prof){ doc.text(`Professor: ${prof}`, 14, y); y+=8; }
-        if(disciplina){ doc.text(`Disciplina: ${disciplina}`, 14, y); y+=8; }
-        if(classificacao){ doc.text(`Classificação: ${classificacao}`, 14, y); y+=8; }
-        doc.text('Descrição:', 14, y); y+=8;
-        const split = doc.splitTextToSize(desc || 'Sem descrição', 180);
-        doc.text(split, 14, y);
-        doc.save(`ocorrencia_${Date.now()}.pdf`);
-      } catch(err){ console.error('Erro gerar PDF local:', err); alert('Erro ao gerar PDF local (ver console).'); }
-    }
+    function cadastrarOcorrenciaGestao() {
+      const serie = document.getElementById('serie_gestao').value;
+      const alunosNomes = selectedStudentsGestao.map(s => s.nome).join(', ');
+      const alunosRAs = document.getElementById('ra_gestao').value;
+      const professor = document.getElementById('professor_gestao').value;
+      const disciplina = document.getElementById('disciplina_gestao').value;
+      const classificacao = document.getElementById('classificacao_gestao').value;
+      const dataRetorno = document.getElementById('dataRetorno_gestao').value;
+      const descricao = document.getElementById('descricao_gestao').value;
 
-    /*******************************
-     * utilitários / fallbacks
-     *******************************/
-    function _getClassRanges(){ return {
-      "6° ANO A MANHA":"C3:C46","6° ANO B MANHA":"H3:H46","6° ANO C MANHA":"M3:M46","6° ANO D MANHA":"R3:R46",
-      "6° ANO E TARDE":"W3:W46","6° ANO F TARDE":"AB3:AB46","7° ANO A TARDE":"AG3:AG46","7° ANO B TARDE":"AL3:AL46",
-      "7° ANO C TARDE":"AQ3:AQ46","7° ANO D TARDE":"AV3:AV46","7° ANO E TARDE":"BA3:BA46","7° ANO F TARDE":"BF3:BF46",
-      "8° ANO A TARDE":"BK3:BK46","8° ANO B TARDE":"BP3:BP46","8° ANO C TARDE":"BU3:BU46","8° ANO D TARDE":"BZ3:B46",
-      "9° ANO A TARDE":"CE3:CE46","9° ANO B TARDE":"CJ3:CJ46","9° ANO C TARDE":"CO3:CO46","9° ANO D TARDE":"CT3:CT46",
-      "1ª SERIE A MANHA":"CY3:CY46","1ª SERIE B MANHA":"DD3:DD46","1ª SERIE C MANHA":"DI3:DI46","1ª SERIE D MANHA":"DN3:DN46",
-      "1ª SERIE E MANHA":"DS3:DS46","1ª SERIE F MANHA":"DX3:DX46","1ª SERIE G TARDE":"EC3:EC46","1ª SERIE H NOITE":"EH3:EH46",
-      "1ª SERIE I NOITE":"EM3:EM46","2ª SERIE A MANHA":"ER3:ER46","2ª SERIE B MANHA":"EW3:EW46","2ª SERIE C MANHA":"FB3:FB46",
-      "2ª SERIE D MANHA":"FG3:FG46","2ª SERIE E MANHA":"FL3:FL46","2ª SERIE F NOITE":"FQ3:FQ46","2ª SERIE G NOITE":"FV3:FV46",
-      "2ª SERIE H NOITE":"GA3:GA46","3ª SERIE A MANHA":"GK3:GK46","3ª SERIE B MANHA":"GP3:GP46","3ª SERIE C MANHA":"GU3:GU46",
-      "3ª SERIE D NOITE":"GZ3:GZ46","3ª SERIE E NOITE":"HE3:HE46","3ª SERIE F NOITE":"HJ3:HJ46"
-    };}
+      if (!serie || selectedStudentsGestao.length === 0 || !alunosRAs || !professor || !disciplina || !classificacao || !descricao) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+      }
 
-    function getFallbackProfessores(){
-      return [
-        "ALEX LUTH PEREIRA MARANHAO","ALEXSANDRA PAULA VARELLA DE SOUZA","ALISON VASCONCELOS BESERRA","AMAURI TEODORO DE OLIVEIRA",
-        "ANA PAULA DOS SANTOS","ANDREIA DOS SANTOS FREITAS","ANDREIA MADUREIRA REIS","ANTONIO CARLOS DE OLIVEIRA",
-        "ANTONIO RAMS DE ARAUJO","ANTONIO WILTON WANDERLEY CABRAL","AUGUSTO LINO PESSOA NETO","AUREA MARIA DE JESUS MARQUES",
-        "CAROLINA PERNOMIAN PARUSSOLOLO","CASSIA OLIVEIRA ANTONIAZI","CLAUDINEIA DE AGUIAR LIMA","DANIEL DE FREITAS ALMEIDA",
-        "DANIEL LOPES BARBOSA","DANIELA FERREIRA LIMA","DANIELLE LUCIA BATISTA DE ALMEIDA","EDIANE VIEIRA DA SILVA",
-        "EDILEUSA NUNES PEREIRA","EDUARDO HENRIQUE DA FONSECA","ELIANE SANTOS SILVA","ELIAS MONTEIRO DA SILVA",
-        "ELISABETE APARECIDA PIRES","ELZA DE FARIA PEREIRA","EMERSON GABLER DE ALMEIDA","EUZELI ARAUJO DE OLIVEIRA",
-        "FABIANO AUGUSTO PIEDADE","FABIO CAMILO","FERNANDO JOSE DA SILVA FILHO","FLAVIA CRISTINA APARECIDA BICHLER",
-        "FLAVIO CARDOSO FLEURY","FRANCISCA EDIVANIA DE MORAIS COSTA","GABRIELA SERIGHELLI DE MELO","GELSON DE ALMEIDA BATISTA",
-        "GENILTON DE OLIVEIRA SILVA","GIANI CRISTINA DO PRADO","INGRYD CAROLINE SUGUIMOTO VIEIRA","IVANILDES DOS SANTOS OSHIKAWA",
-        "JANINA DOS PASSOS BRAGA DE ALMEIDA","JOSE APARECIDO DA SILVA","JUAREZ GOMES DE MAGALHAES FILHO","JUREMA SOLEDADE FURINI SANTOS",
-        "KATIUSCIA ALVES BOMFIM","LUANA CAROLINE ALVES LIMA","LUANA DE FREITAS SILVA","LUCIANA NOVAIS CORREIA SANTOS",
-        "LUCIANO MOREIRA DE AZEVEDO","MARCIEL DA SILVA","MARIA HELENA CUNHA MORO","MARIA QUITÉRIA FERREIRA DOS SANTOS",
-        "MARINA DA CONCEICAO FRANCISCO SILVA","MAURICIO DE BARROS SANTOS","MICHELE DE PINHO MORAES","MOISES ANTONIO DE BARROS",
-        "PAULA ARMANI VILA","PAULO ROBERTO DA SILVA ITO","PEDRO ZANOTTI FILHO","RAUL PEREIRA VILERA JUNIOR",
-        "REGIANE CURTI DE SOUZA OLIVEIRA","REGINA DA SILSA CASTRO","RICARDO AMERICO DA SILVA","ROBERTO SALGADO",
-        "RODRIGO VIEIRA","ROSANGELA CAFASSO MOREIRA","ROSIMERY DE SOUZA PESSOA","ROSMARA DA SILSA CARDOSO",
-        "SANDRA CRISTINA MACEDO MORAES","SELMA GOMES DA SILSA","SERGIO AGRIPINO VILLA NOVA","SOLANGE ALMEIDA DA SILSA",
-        "SUZINEIDE SILSA DE FREITAS","THIAGO FABIANO BRITO","TITTO AUGUSTO NASCIMENTO SILSA","VANDERSON HYPPOLITO",
-        "VANESSA IVETE GOMES DOS SANTOS","VANIA PENHA DE BARROS","VIVIANE LEAL CAMERA DE MORAES","WILSON RODRIGUES MOTA"
-      ];
-    }
+      const dataToSend = {
+        serie: serie,
+        alunos: alunosNomes,
+        ras: alunosRAs,
+        professor: professor,
+        disciplina: disciplina,
+        classificacao: classificacao,
+        dataRetorno: classificacao === 'SUSPENSÃO' ? dataRetorno : '',
+        descricao: descricao,
+        tipo: 'GESTAO' // Identificador para o tipo de registro
+      };
 
-    // Normalize raw student list (strings or {nome,ra}) -> [{nome,ra}]
-    function normalizeStudentArray(raw){
-      if(!Array.isArray(raw)) return [];
-      return raw.map(x => {
-        if(typeof x === 'string') return { nome: String(x).trim(), ra: '' };
-        if(typeof x === 'object' && x !== null){
-          // if object from backend already contains nome/ra or 'nome' property
-          return { nome: String(x.nome || x[0] || '').trim(), ra: String(x.ra || x[1] || '').trim() };
+      console.log('Dados a serem enviados (Gestão):', dataToSend);
+
+      googleScriptCall('doPost', [dataToSend], function(response) {
+        console.log('Resposta do servidor (Gestão):', response);
+        if (response.status === 'SUCCESS') {
+          showSuccessMessage('successGestao');
+          clearGestaoForm();
+          carregarHistoricoGestao();
+        } else {
+          alert('Erro ao registrar ocorrência: ' + response.message);
         }
-        return null;
-      }).filter(Boolean);
+      });
     }
 
-    // Função para download de template - chama endpoint generate-pdf-form para gerar uma cópia do template (somente gestão pode usar)
-    async function downloadDocument(){
-      if(currentUserRole !== 'gestao') { alert('Apenas gestão pode acessar o template de gestão.'); return; }
-      // Abre o documento PDF no link fornecido
-      window.open(PDF_TEMPLATE_URL, '_blank');
+    function clearGestaoForm() {
+      document.getElementById('serie_gestao').value = '';
+      selectedStudentsGestao = [];
+      updateSelectedStudentsDisplay('aluno_gestao_placeholder', 'selectedPillsGestao', selectedStudentsGestao);
+      document.getElementById('ra_gestao').value = '';
+      document.getElementById('professor_gestao').value = '';
+      document.getElementById('disciplina_gestao').value = '';
+      document.getElementById('classificacao_gestao').value = '';
+      document.getElementById('dataRetorno_gestao').value = new Date().toISOString().split('T')[0];
+      document.getElementById('suspensionRow_gestao').style.display = 'none';
+      document.getElementById('descricao_gestao').value = '';
     }
 
+    function carregarHistoricoGestao() {
+      googleScriptCall('getGestaoOccurrences', [], function(historico) {
+        const historyListDiv = document.getElementById('historyListGestao');
+        historyListDiv.innerHTML = '';
+        if (historico && historico.length > 0) {
+          historico.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'historyItem';
+            itemDiv.innerHTML = `
+              <div class="meta">
+                <span>Data: ${item.data}</span>
+                <span>Professor: ${item.professor}</span>
+                <span>Turma: ${item.serie}</span>
+              </div>
+              <p><strong>Alunos:</strong> ${item.alunos} (RA: ${item.ra})</p>
+              <p><strong>Disciplina:</strong> ${item.disciplina}</p>
+              <p><strong>Classificação:</strong> ${item.classificacao} ${item.dataRetorno ? `(Retorno: ${item.dataRetorno})` : ''}</p>
+              <p class="desc"><strong>Descrição:</strong> ${item.descricao}</p>
+            `;
+            historyListDiv.appendChild(itemDiv);
+          });
+        } else {
+          historyListDiv.innerHTML = '<p>Nenhuma ocorrência registrada para gestão.</p>';
+        }
+      });
+    }
+
+    // Função para mostrar mensagem de sucesso
+    function showSuccessMessage(elementId) {
+      const successMessage = document.getElementById(elementId);
+      successMessage.style.display = 'block';
+      setTimeout(() => {
+        successMessage.style.display = 'none';
+      }, 3000);
+    }
+
+    // Geração de PDF local (apenas para Gestão)
+    function generatePDFLocal() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(18);
+      doc.text("Relatório de Ocorrência", 14, 22);
+
+      doc.setFontSize(12);
+      const serie = document.getElementById('serie_gestao').value;
+      const alunosNomes = selectedStudentsGestao.map(s => s.nome).join(', ');
+      const alunosRAs = document.getElementById('ra_gestao').value;
+      const professor = document.getElementById('professor_gestao').value;
+      const disciplina = document.getElementById('disciplina_gestao').value;
+      const classificacao = document.getElementById('classificacao_gestao').value;
+      const dataRetorno = document.getElementById('dataRetorno_gestao').value;
+      const descricao = document.getElementById('descricao_gestao').value;
+      const dataAtual = new Date().toLocaleDateString('pt-BR');
+
+      let y = 30;
+      const addText = (label, value) => {
+        doc.text(`${label}: ${value}`, 14, y);
+        y += 7;
+      };
+
+      addText("Data do Registro", dataAtual);
+      addText("Série/Turma", serie);
+      addText("Alunos", alunosNomes);
+      addText("RA(s)", alunosRAs);
+      addText("Professor", professor);
+      addText("Disciplina", disciplina);
+      addText("Classificação", classificacao);
+      if (classificacao === 'SUSPENSÃO' && dataRetorno) {
+        addText("Data de Retorno", dataRetorno);
+      }
+      y += 5; // Espaço extra antes da descrição
+      doc.text("Descrição:", 14, y);
+      y += 7;
+      const splitDescription = doc.splitTextToSize(descricao, 180); // 180mm largura máxima
+      doc.text(splitDescription, 14, y);
+
+      doc.save('ocorrencia.pdf');
+    }
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', function() {
+      selectLoginOption('gestao'); // Seleciona Gestão por padrão
+      // loadInitialData(); // Não carrega dados antes do login
+    });
   </script>
 </body>
 </html>
