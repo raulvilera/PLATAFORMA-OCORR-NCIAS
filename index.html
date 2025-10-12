@@ -1280,7 +1280,7 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Configurações da aplicação
-            const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyV74CMNExr_o10IrU3dMeUFAiKS051nGQvSzaw1EZCYOQ8WydE4dTVFzf2J0pra-GX/exec"; // URL do backend Node.js
+            const BACKEND_URL = "https://script.google.com/macros/s/AKfycbyV74CMNExr_o10IrU3dMeUFAiKS051nGQvSzaw1EZCYOQ8WydE4dTVFzf2J0pra-GX/exec";
 
             // Elementos do DOM
             const form = document.getElementById('occurrenceForm');
@@ -1358,10 +1358,10 @@
                 });
             }
 
-            // Carregar professores
+            // Carregar professores - CORRIGIDO: usar parâmetro de query
             async function loadTeachers() {
                 try {
-                    const response = await fetch(`${BACKEND_URL}/teachers`);
+                    const response = await fetch(`${BACKEND_URL}?endpoint=teachers`);
                     const data = await response.json();
                     
                     if (data.status === 'success') {
@@ -1380,10 +1380,10 @@
                 }
             }
 
-            // Carregar turmas
+            // Carregar turmas - CORRIGIDO: usar parâmetro de query
             async function loadClasses() {
                 try {
-                    const response = await fetch(`${BACKEND_URL}/classes`);
+                    const response = await fetch(`${BACKEND_URL}?endpoint=classes`);
                     const data = await response.json();
                     
                     if (data.status === 'success') {
@@ -1448,10 +1448,10 @@
                 });
             }
 
-            // Carregar tabela de registros
+            // Carregar tabela de registros - CORRIGIDO: usar parâmetro de query
             async function loadRegistrosTable() {
                 try {
-                    const response = await fetch(`${BACKEND_URL}/occurrences`);
+                    const response = await fetch(`${BACKEND_URL}?endpoint=occurrences&sheet=BANCODEALUNOS`);
                     const data = await response.json();
                     
                     if (data.status === 'success') {
@@ -1486,7 +1486,7 @@
                 }
             }
 
-            // Manipular envio do formulário
+            // Manipular envio do formulário - CORRIGIDO: incluir endpoint e sheet no payload
             async function handleFormSubmit(e) {
                 e.preventDefault();
                 
@@ -1499,12 +1499,20 @@
                 
                 try {
                     const formData = collectFormData();
-                    const response = await fetch(`${BACKEND_URL}/occurrences`, {
+                    
+                    // Adicionar campos obrigatórios para o backend
+                    const payload = {
+                        endpoint: 'create-occurrence',
+                        sheet: 'BANCODEALUNOS',
+                        ...formData
+                    };
+                    
+                    const response = await fetch(BACKEND_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(formData)
+                        body: JSON.stringify(payload)
                     });
                     
                     const data = await response.json();
@@ -1568,7 +1576,7 @@
                 };
             }
 
-            // Manipular mudança de turma
+            // Manipular mudança de turma - CORRIGIDO: usar parâmetro de query
             async function handleClassChange() {
                 const selectedClass = classSelect.value;
                 studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
@@ -1587,7 +1595,7 @@
                 }
 
                 try {
-                    const response = await fetch(`${BACKEND_URL}/students/${encodeURIComponent(selectedClass)}`);
+                    const response = await fetch(`${BACKEND_URL}?endpoint=students&turma=${encodeURIComponent(selectedClass)}`);
                     const data = await response.json();
                     
                     if (data.status === 'success' && Array.isArray(data.students)) {
@@ -1620,7 +1628,7 @@
                 }
             }
 
-            // Manipular mudança de aluno
+            // Manipular mudança de aluno - CORRIGIDO: usar parâmetro de query
             async function handleStudentChange() {
                 if (studentSelect.value) {
                     // Mostrar o card de ocorrências do aluno
@@ -1629,7 +1637,7 @@
                     studentOccurrencesCount.textContent = "Carregando...";
                     
                     try {
-                        const response = await fetch(`${BACKEND_URL}/student-stats/${encodeURIComponent(studentSelect.value)}`);
+                        const response = await fetch(`${BACKEND_URL}?endpoint=student-stats&aluno=${encodeURIComponent(studentSelect.value)}`);
                         const data = await response.json();
                         
                         if (data.status === 'success') {
@@ -1682,10 +1690,10 @@
                 });
             }
 
-            // Exportar dados
+            // Exportar dados - CORRIGIDO: usar parâmetro de query
             async function exportData() {
                 try {
-                    const response = await fetch(`${BACKEND_URL}/occurrences`);
+                    const response = await fetch(`${BACKEND_URL}?endpoint=occurrences&sheet=BANCODEALUNOS`);
                     const data = await response.json();
                     
                     if (data.status === 'success' && Array.isArray(data.occurrences)) {
@@ -1718,10 +1726,10 @@
                 }
             }
 
-            // Carregar estatísticas
+            // Carregar estatísticas - CORRIGIDO: usar parâmetro de query
             async function loadStatistics() {
                 try {
-                    const response = await fetch(`${BACKEND_URL}/dashboard-stats`);
+                    const response = await fetch(`${BACKEND_URL}?endpoint=dashboard-stats`);
                     const data = await response.json();
                     
                     if (data.status === 'success') {
@@ -1736,10 +1744,10 @@
                 }
             }
 
-            // Carregar estatísticas de alunos por período
+            // Carregar estatísticas de alunos por período - CORRIGIDO: usar parâmetro de query
             async function loadStudentPeriodStats() {
                 try {
-                    const response = await fetch(`${BACKEND_URL}/period-stats`);
+                    const response = await fetch(`${BACKEND_URL}?endpoint=period-stats`);
                     const data = await response.json();
                     
                     if (data.status === 'success') {
@@ -1770,14 +1778,14 @@
                 }
             }
 
-            // Excluir ocorrência
+            // Excluir ocorrência - CORRIGIDO: usar parâmetro de query
             window.deleteOccurrence = async function(occurrenceId) {
                 if (!confirm('Tem certeza que deseja excluir esta ocorrência?')) {
                     return;
                 }
 
                 try {
-                    const response = await fetch(`${BACKEND_URL}/occurrences/${occurrenceId}`, {
+                    const response = await fetch(`${BACKEND_URL}?endpoint=delete-occurrence&id=${occurrenceId}`, {
                         method: 'DELETE'
                     });
                     
@@ -1906,4 +1914,3 @@
     </script>
 </body>
 </html>
-
