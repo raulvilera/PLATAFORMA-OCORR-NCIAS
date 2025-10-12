@@ -1358,7 +1358,7 @@
                 });
             }
 
-            // Carregar professores - CORRIGIDO: usar parâmetro de query
+            // Carregar professores
             async function loadTeachers() {
                 try {
                     const response = await fetch(`${BACKEND_URL}?endpoint=teachers`);
@@ -1380,7 +1380,7 @@
                 }
             }
 
-            // Carregar turmas - CORRIGIDO: usar parâmetro de query
+            // Carregar turmas
             async function loadClasses() {
                 try {
                     const response = await fetch(`${BACKEND_URL}?endpoint=classes`);
@@ -1448,7 +1448,7 @@
                 });
             }
 
-            // Carregar tabela de registros - CORRIGIDO: usar parâmetro de query
+            // Carregar tabela de registros
             async function loadRegistrosTable() {
                 try {
                     const response = await fetch(`${BACKEND_URL}?endpoint=occurrences&sheet=BANCODEALUNOS`);
@@ -1486,7 +1486,7 @@
                 }
             }
 
-            // Manipular envio do formulário - CORRIGIDO: incluir endpoint e sheet no payload
+            // Manipular envio do formulário - CORREÇÃO APLICADA: adicionado endpoint no payload
             async function handleFormSubmit(e) {
                 e.preventDefault();
                 
@@ -1500,7 +1500,7 @@
                 try {
                     const formData = collectFormData();
                     
-                    // Adicionar campos obrigatórios para o backend
+                    // CORREÇÃO: Adicionar campos obrigatórios para o backend
                     const payload = {
                         endpoint: 'create-occurrence',
                         sheet: 'BANCODEALUNOS',
@@ -1576,7 +1576,7 @@
                 };
             }
 
-            // Manipular mudança de turma - CORRIGIDO: usar parâmetro de query
+            // Manipular mudança de turma
             async function handleClassChange() {
                 const selectedClass = classSelect.value;
                 studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
@@ -1628,7 +1628,7 @@
                 }
             }
 
-            // Manipular mudança de aluno - CORRIGIDO: usar parâmetro de query
+            // Manipular mudança de aluno
             async function handleStudentChange() {
                 if (studentSelect.value) {
                     // Mostrar o card de ocorrências do aluno
@@ -1690,7 +1690,7 @@
                 });
             }
 
-            // Exportar dados - CORRIGIDO: usar parâmetro de query
+            // Exportar dados
             async function exportData() {
                 try {
                     const response = await fetch(`${BACKEND_URL}?endpoint=occurrences&sheet=BANCODEALUNOS`);
@@ -1726,7 +1726,7 @@
                 }
             }
 
-            // Carregar estatísticas - CORRIGIDO: usar parâmetro de query
+            // Carregar estatísticas
             async function loadStatistics() {
                 try {
                     const response = await fetch(`${BACKEND_URL}?endpoint=dashboard-stats`);
@@ -1744,7 +1744,7 @@
                 }
             }
 
-            // Carregar estatísticas de alunos por período - CORRIGIDO: usar parâmetro de query
+            // Carregar estatísticas de alunos por período
             async function loadStudentPeriodStats() {
                 try {
                     const response = await fetch(`${BACKEND_URL}?endpoint=period-stats`);
@@ -1778,7 +1778,7 @@
                 }
             }
 
-            // Excluir ocorrência - CORRIGIDO: usar parâmetro de query
+            // Excluir ocorrência
             window.deleteOccurrence = async function(occurrenceId) {
                 if (!confirm('Tem certeza que deseja excluir esta ocorrência?')) {
                     return;
