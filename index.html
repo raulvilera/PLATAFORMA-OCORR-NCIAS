@@ -325,6 +325,7 @@
         .input-error {
             border-color: var(--error-color) !important;
             box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2) !important;
+            animation: shake 0.5s ease-in-out;
         }
         
         textarea {
@@ -970,6 +971,46 @@
             font-size: 1.2rem;
         }
         
+        /* Estilos aprimorados para o formulário */
+        .form-loading {
+            opacity: 0.7;
+            pointer-events: none;
+            position: relative;
+        }
+        
+        .form-loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 10;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        
+        .enhanced-success {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%) !important;
+            border-left: 4px solid #219653 !important;
+            max-width: 400px;
+        }
+        
+        .success-details {
+            margin-top: 8px;
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+        
+        .success-details div {
+            margin: 2px 0;
+        }
+        
         @media (max-width: 992px) {
             .dashboard {
                 grid-template-columns: 1fr;
@@ -1486,60 +1527,228 @@
                 }
             }
 
-            // Manipular envio do formulário - CORREÇÃO APLICADA: adicionado endpoint no payload
+            // FUNÇÃO PRINCIPAL APRIMORADA - Manipular envio do formulário
             async function handleFormSubmit(e) {
                 e.preventDefault();
+
+                const submitBtn = document.getElementById('submitBtn');
+                const originalText = submitBtn.innerHTML;
                 
-                if (!validateForm()) {
-                    return;
-                }
-                
+                // Desabilitar botão e mostrar estado de carregamento
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = '<div class="loading"></div> Salvando...';
+                submitBtn.innerHTML = '<div class="loading"></div> Processando...';
                 
+                // Adicionar classe de carregamento ao formulário
+                form.classList.add('form-loading');
+
                 try {
-                    const formData = collectFormData();
-                    
-                    // CORREÇÃO: Adicionar campos obrigatórios para o backend
-                    const payload = {
+                    // Validação completa do formulário
+                    const validationResult = validateFormComplete();
+                    if (!validationResult.isValid) {
+                        showNotification('error', validationResult.message);
+                        highlightInvalidFields(validationResult.invalidFields);
+                        return;
+                    }
+
+                    // Captura os valores do formulário
+                    const professor = professorSelect.value.trim();
+                    const turma = classSelect.value.trim();
+                    const aluno = studentSelect.value.trim();
+                    const descricao = document.getElementById('description').value.trim();
+                    const dataOcorrencia = document.getElementById('occurrenceDate').value;
+
+                    // Coleta irregularidades marcadas
+                    const irregularidadesSelecionadas = Array.from(
+                        document.querySelectorAll('#irregularitiesContainer input[type="checkbox"]:checked')
+                    ).map(cb => cb.value);
+
+                    // Atualizar estado do botão
+                    submitBtn.innerHTML = '<div class="loading"></div> Salvando no sistema...';
+
+                    // Monta o corpo da requisição
+                    const data = {
                         endpoint: 'create-occurrence',
                         sheet: 'BANCODEALUNOS',
-                        ...formData
+                        date: new Date().toISOString(),
+                        occurrenceDate: dataOcorrencia,
+                        professor: professor,
+                        studentClass: turma,
+                        student: aluno,
+                        description: descricao,
+                        irregularities: irregularidadesSelecionadas.join(', ')
                     };
+
+                    // Envio para o backend
+                    submitBtn.innerHTML = '<div class="loading"></div> Conectando com servidor...';
                     
                     const response = await fetch(BACKEND_URL, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(payload)
+                        body: JSON.stringify(data)
                     });
-                    
-                    const data = await response.json();
-                    
-                    if (data.status === 'success') {
-                        showNotification('success', data.message || 'Ocorrência salva com sucesso!');
-                        clearForm();
-                        loadRegistrosTable();
-                        loadStatistics();
-                        
-                        // Atualizar estatísticas do aluno se selecionado
-                        if (studentSelect.value) {
-                            handleStudentChange();
-                        }
-                    } else {
-                        throw new Error(data?.message || 'Erro ao salvar ocorrência');
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`Erro do servidor: ${response.status} - ${errorText}`);
                     }
+
+                    const result = await response.json();
+
+                    if (result.status === 'success') {
+                        // Feedback visual de sucesso
+                        showEnhancedSuccessNotification(professor, aluno, turma);
+                        
+                        // Reset inteligente do formulário (mantém professor e data)
+                        intelligentFormReset();
+                        
+                        // Recarregar dados atualizados
+                        await Promise.all([
+                            loadRegistrosTable(),
+                            loadStatistics(),
+                            updateStudentStatsIfSelected(aluno)
+                        ]);
+                        
+                    } else {
+                        throw new Error(result.message || 'Erro desconhecido ao registrar ocorrência.');
+                    }
+
                 } catch (error) {
-                    console.error('Erro ao enviar formulário:', error);
-                    showNotification('error', `Erro ao salvar ocorrência: ${error.message}`);
+                    console.error('Erro detalhado ao salvar ocorrência:', error);
+                    
+                    // Determinar mensagem de erro mais amigável
+                    const userFriendlyMessage = getFriendlyErrorMessage(error);
+                    showNotification('error', `Erro ao salvar ocorrência: ${userFriendlyMessage}`);
+                    
                 } finally {
+                    // Restaurar estado original
                     submitBtn.disabled = false;
-                    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> CADASTRAR';
+                    submitBtn.innerHTML = originalText;
+                    form.classList.remove('form-loading');
+                    
+                    // Remover highlights de erro
+                    clearFieldHighlights();
                 }
             }
 
-            // Validar formulário
+            // Funções auxiliares para os aprimoramentos
+            function validateFormComplete() {
+                const requiredFields = [
+                    { id: 'professor', name: 'Professor' },
+                    { id: 'occurrenceDate', name: 'Data da ocorrência' },
+                    { id: 'studentClass', name: 'Turma' },
+                    { id: 'student', name: 'Aluno' }
+                ];
+
+                const invalidFields = [];
+                
+                for (const field of requiredFields) {
+                    const element = document.getElementById(field.id);
+                    if (!element.value.trim()) {
+                        invalidFields.push(field);
+                    }
+                }
+
+                return {
+                    isValid: invalidFields.length === 0,
+                    message: invalidFields.length > 0 
+                        ? `Por favor, preencha os campos obrigatórios: ${invalidFields.map(f => f.name).join(', ')}`
+                        : '',
+                    invalidFields: invalidFields
+                };
+            }
+
+            function highlightInvalidFields(invalidFields) {
+                invalidFields.forEach(field => {
+                    const element = document.getElementById(field.id);
+                    element.classList.add('input-error');
+                    
+                    // Scroll para o primeiro campo inválido
+                    if (invalidFields[0].id === field.id) {
+                        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                });
+            }
+
+            function clearFieldHighlights() {
+                document.querySelectorAll('.input-error').forEach(element => {
+                    element.classList.remove('input-error');
+                });
+            }
+
+            function showEnhancedSuccessNotification(professor, aluno, turma) {
+                // Criar notificação customizada de sucesso
+                const notification = document.createElement('div');
+                notification.className = 'notification success show enhanced-success';
+                notification.innerHTML = `
+                    <i class="fas fa-check-circle icon"></i>
+                    <div class="content">
+                        <strong>Ocorrência registrada com sucesso!</strong>
+                        <div class="success-details">
+                            <div><strong>Professor:</strong> ${professor}</div>
+                            <div><strong>Aluno:</strong> ${aluno}</div>
+                            <div><strong>Turma:</strong> ${turma}</div>
+                            <div><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</div>
+                        </div>
+                    </div>
+                    <button class="close"><i class="fas fa-times"></i></button>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Configurar botão de fechar
+                notification.querySelector('.close').addEventListener('click', () => {
+                    notification.remove();
+                });
+                
+                // Auto-remover após 8 segundos
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 8000);
+            }
+
+            function intelligentFormReset() {
+                // Mantém professor e data atual, reseta o resto
+                const professorValue = professorSelect.value;
+                const today = new Date().toISOString().split('T')[0];
+                
+                form.reset();
+                
+                // Restaura valores que devem ser mantidos
+                professorSelect.value = professorValue;
+                document.getElementById('occurrenceDate').value = today;
+                
+                // Reseta estados dos selects dependentes
+                studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+                studentSelect.disabled = true;
+                
+                // Esconde cards de estatísticas
+                studentOccurrencesCard.style.display = 'none';
+                classStudentsCard.style.display = 'none';
+            }
+
+            function getFriendlyErrorMessage(error) {
+                if (error.message.includes('Failed to fetch')) {
+                    return 'Não foi possível conectar com o servidor. Verifique sua conexão com a internet.';
+                } else if (error.message.includes('Erro do servidor: 5')) {
+                    return 'Problema temporário no servidor. Tente novamente em alguns instantes.';
+                } else if (error.message.includes('Erro do servidor: 4')) {
+                    return 'Dados inválidos enviados. Verifique as informações do formulário.';
+                } else {
+                    return error.message;
+                }
+            }
+
+            async function updateStudentStatsIfSelected(studentName) {
+                if (studentName && studentSelect.value === studentName) {
+                    await handleStudentChange();
+                }
+            }
+
+            // Validação básica (mantida para compatibilidade)
             function validateForm() {
                 const requiredFields = ['professor', 'occurrenceDate', 'studentClass', 'student'];
                 let isValid = true;
