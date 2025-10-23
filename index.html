@@ -1319,866 +1319,639 @@
     </footer>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Configurações da aplicação
-        const BACKEND_URL = "https://script.google.com/macros/s/AKfycbzio4g72zI3mZMu-Va7vGh4qHTE-LI8MURDsPD4PqVirqXG61WD1ANQm9A1ltM_vmgo/exec";
-
-        // Elementos do DOM
-        const form = document.getElementById('occurrenceForm');
-        const professorSelect = document.getElementById('professor');
-        const classSelect = document.getElementById('studentClass');
-        const studentSelect = document.getElementById('student');
-        const submitBtn = document.getElementById('submitBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const exportBtn = document.getElementById('exportBtn');
-        const registrosTable = document.getElementById('registrosTable');
-        const registrosTableBody = document.getElementById('registrosTableBody');
-        const notification = document.getElementById('notification');
-        const notificationIcon = notification.querySelector('.icon');
-        const notificationContent = notification.querySelector('.content');
-        const notificationClose = notification.querySelector('.close');
-        const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
-        const studentOccurrencesName = document.getElementById('studentOccurrencesName');
-        const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
-        const classStudentsCard = document.getElementById('classStudentsCard');
-        const classStudentsCount = document.getElementById('classStudentsCount');
-        const selectedClassPeriod = document.getElementById('selectedClassPeriod');
-        const totalOccurrencesEl = document.getElementById('totalOccurrences');
-        const morningCountEl = document.getElementById('morningCount');
-        const afternoonCountEl = document.getElementById('afternoonCount');
-        const nightCountEl = document.getElementById('nightCount');
-
-        // Variáveis globais
-        let currentEditId = null;
-        let charts = {};
-        let availableClasses = [];
-
-        // Lista de irregularidades
-        const irregularities = [
-            'Indisciplina',
-            'Atraso',
-            'Falta',
-            'Uso Indevido de Celular',
-            'Desrespeito ao Professor',
-            'Desrespeito aos Colegas',
-            'Não Fez Tarefa',
-            'Não Trouxe Material',
-            'Conversa Excessiva',
-            'Saída da Sala sem Autorização',
-            'Uso de Linguagem Inadequada',
-            'Agressão Física',
-            'Agressão Verbal',
-            'Vandalismo',
-            'Bullying',
-            'Outros'
-        ];
-
-        // Inicializar aplicação
-        async function initApp() {
-            // Definir data atual
-            const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-            document.getElementById('occurrenceDate').value = formattedDate;
-
-            // Carregar dados iniciais
-            await loadTeachers();
-            await loadClasses();
-            createIrregularitiesCheckboxes();
-            await loadRegistrosTable();
-            await loadStatistics();
-            await loadStudentPeriodStats();
-
-            // Event listeners
-            form.addEventListener('submit', handleFormSubmit);
-            clearBtn.addEventListener('click', clearForm);
-            exportBtn.addEventListener('click', exportData);
-            classSelect.addEventListener('change', handleClassChange);
-            studentSelect.addEventListener('change', handleStudentChange);
-            notificationClose.addEventListener('click', () => {
-                notification.classList.remove('show');
-            });
-        }
-
-        // Carregar professores
-        async function loadTeachers() {
-            try {
-                const response = await fetch(`${BACKEND_URL}?endpoint=teachers`);
-                const data = await response.json();
-
-                if (data.status === 'success') {
-                    professorSelect.innerHTML = '<option value="">Selecione seu nome</option>';
-                    data.teachers.forEach(teacher => {
-                        const option = document.createElement('option');
-                        option.value = teacher;
-                        option.textContent = teacher;
-                        professorSelect.appendChild(option);
-                    });
-                    document.getElementById('totalTeachers').textContent = data.teachers.length;
-                }
-            } catch (error) {
-                console.error('Erro ao carregar professores:', error);
-                showNotification('error', 'Erro ao carregar lista de professores');
-            }
-        }
-
-        // Carregar turmas
-        async function loadClasses() {
-            try {
-                const response = await fetch(`${BACKEND_URL}?endpoint=classes`);
-                const data = await response.json();
-
-                if (data.status === 'success') {
-                    availableClasses = data.classes;
-                    classSelect.innerHTML = '<option value="">Selecione a turma</option>';
-                    data.classes.forEach(className => {
-                        const option = document.createElement('option');
-                        option.value = className;
-                        option.textContent = className;
-                        classSelect.appendChild(option);
-                    });
-                    document.getElementById('totalClasses').textContent = data.classes.length;
-                }
-            } catch (error) {
-                console.error('Erro ao carregar turmas:', error);
-                showNotification('error', 'Erro ao carregar lista de turmas');
-            }
-        }
-
-        // Criar checkboxes de irregularidades
-        function createIrregularitiesCheckboxes() {
-            const container = document.getElementById('irregularitiesContainer');
-            container.innerHTML = '';
-
-            irregularities.forEach(irregularity => {
-                const checkboxItem = document.createElement('div');
-                checkboxItem.className = 'checkbox-item';
-
-                const chartContainer = document.createElement('div');
-                chartContainer.className = 'chart-container';
-
-                const canvas = document.createElement('canvas');
-                canvas.className = 'donut-chart';
-                canvas.width = 50;
-                canvas.height = 50;
-                canvas.setAttribute('data-irregularity', irregularity);
-
-                const chartValue = document.createElement('div');
-                chartValue.className = 'chart-value';
-                chartValue.textContent = '0';
-
-                chartContainer.appendChild(canvas);
-                chartContainer.appendChild(chartValue);
-
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = `irregularity_${irregularity.replace(/\s+/g, '_')}`;
-                checkbox.value = irregularity;
-
-                const label = document.createElement('label');
-                label.htmlFor = checkbox.id;
-                label.textContent = irregularity;
-
-                checkboxItem.appendChild(chartContainer);
-                checkboxItem.appendChild(checkbox);
-                checkboxItem.appendChild(label);
-
-                container.appendChild(checkboxItem);
-
-                // Criar gráfico inicial
-                createDonutChart(canvas, 0);
-            });
-        }
-
-        // Carregar tabela de registros
-        async function loadRegistrosTable() {
-            try {
-                const response = await fetch(`${BACKEND_URL}?endpoint=occurrences&sheet=BANCODEALUNOS`);
-                const data = await response.json();
-
-                if (data.status === 'success') {
-                    const tbody = registrosTableBody;
-                    tbody.innerHTML = '';
-
-                    if (!Array.isArray(data.occurrences) || data.occurrences.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="7" class="no-records">Nenhuma ocorrência registrada</td></tr>';
-                    } else {
-                        data.occurrences.forEach(occurrence => {
-                            const row = document.createElement('tr');
-
-                            // Tentativa de parse de data com fallback seguro
-                            let rawDate = occurrence.data || occurrence.date || occurrence['Data'] || '';
-                            let displayDate = '';
-                            try {
-                                displayDate = rawDate ? new Date(rawDate).toLocaleDateString('pt-BR') : '';
-                            } catch (err) {
-                                displayDate = rawDate;
-                            }
-
-                            const professor = occurrence.professor || occurrence['Professor'] || '';
-                            const turma = occurrence.turma || occurrence.studentClass || occurrence['Turma'] || '';
-                            const aluno = occurrence.aluno || occurrence.student || occurrence['Aluno'] || '';
-                            const irregulars = occurrence.irregularidades || occurrence.irregularities || occurrence['Irregularidades'] || '';
-                            const descricao = occurrence.descricao || occurrence.description || occurrence['Descrição'] || '';
-
-                            row.innerHTML = `
-                                <td>${displayDate}</td>
-                                <td>${professor}</td>
-                                <td>${turma}</td>
-                                <td>${aluno}</td>
-                                <td>${irregulars}</td>
-                                <td>${descricao}</td>
-                                <td class="actions-cell">
-                                    <button class="btn-action btn-delete" data-id="${occurrence.id}">
-                                        <i class="fas fa-trash"></i> Excluir
-                                    </button>
-                                </td>
-                            `;
-                            tbody.appendChild(row);
-                        });
-
-                        // Delegação de evento para os botões excluir criados dinamicamente
-                        tbody.querySelectorAll('.btn-delete').forEach(btn => {
-                            btn.addEventListener('click', function(ev) {
-                                const id = this.getAttribute('data-id');
-                                if (id) window.deleteOccurrence(Number(id));
-                            });
-                        });
-                    }
-                }
-            } catch (error) {
-                console.error('Erro ao carregar registros:', error);
-                showNotification('error', 'Erro ao carregar registros de ocorrências');
-            }
-        }
-
-        // FUNÇÃO PRINCIPAL APRIMORADA - Manipular envio do formulário
-        async function handleFormSubmit(e) {
-            e.preventDefault();
-
-            const originalText = submitBtn.innerHTML;
-
-            // Desabilitar botão e mostrar estado de carregamento
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<div class="loading"></div> Processando...';
-
-            // Adicionar classe de carregamento ao formulário
-            form.classList.add('form-loading');
-
-            try {
-                // Validação completa do formulário
-                const validationResult = validateFormComplete();
-                if (!validationResult.isValid) {
-                    showNotification('error', validationResult.message);
-                    highlightInvalidFields(validationResult.invalidFields);
-                    // restaurar estado
-                    return;
-                }
-
-                // Captura os valores do formulário
-                const professor = professorSelect.value.trim();
-                const turma = classSelect.value.trim();
-                const aluno = studentSelect.value.trim();
-                const descricao = document.getElementById('description').value.trim();
-                const dataOcorrencia = document.getElementById('occurrenceDate').value;
-
-                // Coleta irregularidades marcadas
-                const irregularidadesSelecionadas = Array.from(
-                    document.querySelectorAll('#irregularitiesContainer input[type="checkbox"]:checked')
-                ).map(cb => cb.value);
-
-                // Atualizar estado do botão
-                submitBtn.innerHTML = '<div class="loading"></div> Salvando no sistema...';
-
-                // Monta o corpo da requisição (inclui endpoint obrigatório)
-                const payload = {
-                    endpoint: 'create-occurrence',
-                    sheet: 'BANCODEALUNOS',
-                    date: new Date().toISOString(),
-                    occurrenceDate: dataOcorrencia,
-                    professor: professor,
-                    studentClass: turma,
-                    student: aluno,
-                    description: descricao,
-                    irregularities: irregularidadesSelecionadas.join(', ')
-                };
-
-                // Envio para o backend
-                submitBtn.innerHTML = '<div class="loading"></div> Conectando com servidor...';
-
-                const response = await fetch(BACKEND_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload),
-                    mode: 'cors'
-                });
-
-                // se o endpoint retornar status HTTP não OK, obtém texto do erro
-                if (!response.ok) {
-                    const errorText = await response.text().catch(() => '');
-                    throw new Error(`Erro do servidor: ${response.status} - ${errorText}`);
-                }
-
-                const result = await response.json();
-
-                if (result.status === 'success') {
-                    // Feedback visual de sucesso
-                    showEnhancedSuccessNotification(professor, aluno, turma);
-
-                    // Reset inteligente do formulário (mantém professor e data)
-                    intelligentFormReset();
-
-                    // Recarregar dados atualizados
-                    await Promise.all([
-                        loadRegistrosTable(),
-                        loadStatistics(),
-                        updateStudentStatsIfSelected(aluno)
-                    ]);
-                } else {
-                    throw new Error(result.message || 'Erro desconhecido ao registrar ocorrência.');
-                }
-
-            } catch (error) {
-                console.error('Erro detalhado ao salvar ocorrência:', error);
-
-                // Determinar mensagem de erro mais amigável
-                const userFriendlyMessage = getFriendlyErrorMessage(error);
-                showNotification('error', `Erro ao salvar ocorrência: ${userFriendlyMessage}`);
-            } finally {
-                // Restaurar estado original
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalText;
-                form.classList.remove('form-loading');
-
-                // Remover highlights de erro
-                clearFieldHighlights();
-            }
-        }
-
-        // Funções auxiliares para os aprimoramentos
-        function validateFormComplete() {
-            const requiredFields = [
-                { id: 'professor', name: 'Professor' },
-                { id: 'occurrenceDate', name: 'Data da ocorrência' },
-                { id: 'studentClass', name: 'Turma' },
-                { id: 'student', name: 'Aluno' }
-            ];
-
-            const invalidFields = [];
-
-            for (const field of requiredFields) {
-                const element = document.getElementById(field.id);
-                if (!element || !element.value || !element.value.toString().trim()) {
-                    invalidFields.push(field);
-                }
-            }
-
-            return {
-                isValid: invalidFields.length === 0,
-                message: invalidFields.length > 0
-                    ? `Por favor, preencha os campos obrigatórios: ${invalidFields.map(f => f.name).join(', ')}`
-                    : '',
-                invalidFields: invalidFields
-            };
-        }
-
-        function highlightInvalidFields(invalidFields) {
-            invalidFields.forEach(field => {
-                const element = document.getElementById(field.id);
-                if (element) {
-                    element.classList.add('input-error');
-                }
-
-                // Scroll para o primeiro campo inválido
-                if (invalidFields[0] && invalidFields[0].id === field.id && element) {
-                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            });
-        }
-
-        function clearFieldHighlights() {
-            document.querySelectorAll('.input-error').forEach(element => {
-                element.classList.remove('input-error');
-            });
-        }
-
-        function showEnhancedSuccessNotification(professor, aluno, turma) {
-            // Criar notificação customizada de sucesso
-            const notificationEl = document.createElement('div');
-            notificationEl.className = 'notification success show enhanced-success';
-            notificationEl.innerHTML = `
-                <i class="fas fa-check-circle icon"></i>
-                <div class="content">
-                    <strong>Ocorrência registrada com sucesso!</strong>
-                    <div class="success-details">
-                        <div><strong>Professor:</strong> ${professor}</div>
-                        <div><strong>Aluno:</strong> ${aluno}</div>
-                        <div><strong>Turma:</strong> ${turma}</div>
-                        <div><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</div>
-                    </div>
-                </div>
-                <button class="close"><i class="fas fa-times"></i></button>
-            `;
-
-            document.body.appendChild(notificationEl);
-
-            // Configurar botão de fechar
-            notificationEl.querySelector('.close').addEventListener('click', () => {
-                notificationEl.remove();
-            });
-
-            // Auto-remover após 8 segundos
-            setTimeout(() => {
-                if (notificationEl.parentNode) {
-                    notificationEl.remove();
-                }
-            }, 8000);
-        }
-
-        function intelligentFormReset() {
-            // Mantém professor e data atual, reseta o resto
-            const professorValue = professorSelect.value;
-            const today = new Date().toISOString().split('T')[0];
-
-            form.reset();
-
-            // Restaura valores que devem ser mantidos
-            professorSelect.value = professorValue;
-            document.getElementById('occurrenceDate').value = today;
-
-            // Reseta estados dos selects dependentes
-            studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-            studentSelect.disabled = true;
-
-            // Esconde cards de estatísticas
-            studentOccurrencesCard.style.display = 'none';
-            classStudentsCard.style.display = 'none';
-        }
-
-        function getFriendlyErrorMessage(error) {
-            const msg = (error && error.message) ? error.message : String(error);
-            if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
-                return 'Não foi possível conectar com o servidor. Verifique sua conexão com a internet.';
-            } else if (msg.includes('Erro do servidor: 5')) {
-                return 'Problema temporário no servidor. Tente novamente em alguns instantes.';
-            } else if (msg.includes('Erro do servidor: 4') || msg.includes('400') || msg.includes('403')) {
-                return 'Dados inválidos ou sem permissão. Verifique as informações do formulário e as permissões do Web App.';
-            } else {
-                return msg;
-            }
-        }
-
-        async function updateStudentStatsIfSelected(studentName) {
-            if (studentName && studentSelect.value === studentName) {
-                await handleStudentChange();
-            }
-        }
-
-        // Validação básica (mantida para compatibilidade)
-        function validateForm() {
-            const requiredFields = ['professor', 'occurrenceDate', 'studentClass', 'student'];
-            let isValid = true;
-
-            requiredFields.forEach(fieldId => {
-                const field = document.getElementById(fieldId);
-                if (!field || !field.value.trim()) {
-                    if (field) field.classList.add('input-error');
-                    isValid = false;
-                } else {
-                    if (field) field.classList.remove('input-error');
-                }
-            });
-
-            if (!isValid) {
-                showNotification('error', 'Por favor, preencha todos os campos obrigatórios');
-            }
-
-            return isValid;
-        }
-
-        // Coletar dados do formulário
-        function collectFormData() {
-            const selectedIrregularities = Array.from(document.querySelectorAll('#irregularitiesContainer input[type="checkbox"]:checked'))
-                .map(checkbox => checkbox.value);
-
-            return {
-                professor: professorSelect.value,
-                date: document.getElementById('occurrenceDate').value,
-                studentClass: classSelect.value,
-                student: studentSelect.value,
-                irregularities: selectedIrregularities.join(', '),
-                description: document.getElementById('description').value
-            };
-        }
-
-        // Manipular mudança de turma
-        async function handleClassChange() {
-            const selectedClass = classSelect.value;
-            studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
-            studentSelect.disabled = true;
-            studentOccurrencesCard.style.display = 'none';
-            classStudentsCard.style.display = 'none';
-
-            // Resetar gráficos
-            document.querySelectorAll('.donut-chart').forEach(canvas => {
-                createDonutChart(canvas, 0);
-            });
-
-            if (!selectedClass) {
-                studentSelect.innerHTML = '<option value="">Selecione uma turma</option>';
-                return;
-            }
-
-            try {
-                const response = await fetch(`${BACKEND_URL}?endpoint=students&turma=${encodeURIComponent(selectedClass)}`);
-                const data = await response.json();
-
-                if (data.status === 'success' && Array.isArray(data.students)) {
-                    studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
-                    data.students.forEach(student => {
-                        const option = document.createElement('option');
-                        option.value = student;
-                        option.textContent = student;
-                        studentSelect.appendChild(option);
-                    });
-                    studentSelect.disabled = false;
-
-                    // Atualizar o card com o total de alunos na turma
-                    classStudentsCount.textContent = data.students.length;
-
-                    // Determinar o período da turma
-                    const periodo = selectedClass.includes("MANHA") ? "Manhã" :
-                                   selectedClass.includes("TARDE") ? "Tarde" :
-                                   selectedClass.includes("NOITE") ? "Noite" : "Desconhecido";
-                    selectedClassPeriod.textContent = periodo;
-
-                    classStudentsCard.style.display = 'block';
-                } else {
-                    throw new Error(data?.message || 'Resposta inesperada do servidor');
-                }
-            } catch (error) {
-                console.error('Erro ao carregar alunos:', error);
-                studentSelect.innerHTML = `<option value="">Erro: ${error.message}</option>`;
-                showNotification('error', 'Erro ao carregar alunos');
-            }
-        }
-
-        // Manipular mudança de aluno
-        async function handleStudentChange() {
-            if (studentSelect.value) {
-                // Mostrar o card de ocorrências do aluno
-                studentOccurrencesCard.style.display = 'block';
-                studentOccurrencesName.textContent = studentSelect.value;
-                studentOccurrencesCount.textContent = "Carregando...";
-
-                try {
-                    const response = await fetch(`${BACKEND_URL}?endpoint=student-stats&aluno=${encodeURIComponent(studentSelect.value)}`);
-                    const data = await response.json();
-
-                    if (data.status === 'success') {
-                        studentOccurrencesCount.textContent = data.total_occurrences || 0;
-                    } else {
-                        studentOccurrencesCount.textContent = "0";
-                        console.error('Erro ao buscar estatísticas:', data?.message);
-                    }
-                } catch (error) {
-                    studentOccurrencesCount.textContent = "0";
-                    console.error('Erro ao buscar estatísticas:', error);
-                }
-            } else {
-                studentOccurrencesCard.style.display = 'none';
-                // Resetar gráficos
-                document.querySelectorAll('.donut-chart').forEach(canvas => {
-                    createDonutChart(canvas, 0);
-                });
-            }
-        }
-
-        // Limpar formulário
-        function clearForm() {
-            form.reset();
-            const today = new Date();
-            const formattedDate = today.toISOString().split('T')[0];
-            document.getElementById('occurrenceDate').value = formattedDate;
-            professorSelect.selectedIndex = 0;
-            studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
-            studentSelect.disabled = true;
-            studentOccurrencesCard.style.display = 'none';
-            classStudentsCard.style.display = 'none';
-            classSelect.selectedIndex = 0;
-            currentEditId = null;
-            submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> CADASTRAR';
-
-            // Resetar gráficos
-            document.querySelectorAll('.donut-chart').forEach(canvas => {
-                createDonutChart(canvas, 0);
-            });
-
-            // Desmarcar todos os checkboxes apenas dentro do container de irregularidades
-            document.querySelectorAll('#irregularitiesContainer input[type="checkbox"]').forEach(checkbox => {
-                checkbox.checked = false;
-            });
-
-            // Remover erros de validação
-            document.querySelectorAll('.input-error').forEach(el => {
-                el.classList.remove('input-error');
-            });
-        }
-
-        // Exportar dados
-        async function exportData() {
-            try {
-                const response = await fetch(`${BACKEND_URL}?endpoint=occurrences&sheet=BANCODEALUNOS`);
-                const data = await response.json();
-
-                if (data.status === 'success' && Array.isArray(data.occurrences)) {
-                    // Preparar dados para exportação
-                    const exportData = data.occurrences.map(occurrence => {
-                        return {
-                            'Data': new Date(occurrence.data || occurrence.date || occurrence['Data']).toLocaleDateString('pt-BR'),
-                            'Professor': occurrence.professor || occurrence['Professor'],
-                            'Turma': occurrence.turma || occurrence.studentClass || occurrence['Turma'],
-                            'Aluno': occurrence.aluno || occurrence.student || occurrence['Aluno'],
-                            'Irregularidades': occurrence.irregularidades || occurrence.irregularities || occurrence['Irregularidades'],
-                            'Descrição': occurrence.descricao || occurrence.description || occurrence['Descrição']
-                        };
-                    });
-
-                    // Criar planilha
-                    const worksheet = XLSX.utils.json_to_sheet(exportData);
-                    const workbook = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(workbook, worksheet, "OCORRENCIASDOSPROFESSORES");
-
-                    // Exportar para arquivo Excel
-                    XLSX.writeFile(workbook, 'ocorrencias_escolares.xlsx');
-                    showNotification('success', 'Dados exportados com sucesso!');
-                } else {
-                    throw new Error(data?.message || 'Erro ao obter dados para exportação');
-                }
-            } catch (error) {
-                console.error('Erro ao exportar dados:', error);
-                showNotification('error', 'Erro ao exportar dados');
-            }
-        }
-
-        // Carregar estatísticas
-        async function loadStatistics() {
-            try {
-                const response = await fetch(`${BACKEND_URL}?endpoint=dashboard-stats`);
-                const data = await response.json();
-
-                if (data.status === 'success') {
-                    totalOccurrencesEl.textContent = data.stats.total_occurrences || 0;
-                    document.getElementById('totalClasses').textContent = availableClasses.length;
-                }
-            } catch (error) {
-                console.error('Erro ao carregar estatísticas:', error);
-                // Usar valores padrão em caso de erro
-                totalOccurrencesEl.textContent = 0;
-                document.getElementById('totalClasses').textContent = availableClasses.length;
-            }
-        }
-
-        // Carregar estatísticas de alunos por período
-        async function loadStudentPeriodStats() {
-            try {
-                const response = await fetch(`${BACKEND_URL}?endpoint=period-stats`);
-                const data = await response.json();
-
-                if (data.status === 'success') {
-                    document.getElementById('totalStudents').textContent = data.statistics.total;
-                    morningCountEl.textContent = data.statistics.morning;
-                    afternoonCountEl.textContent = data.statistics.afternoon;
-                    nightCountEl.textContent = data.statistics.night;
-
-                    // Atualizar gráfico de distribuição por período
-                    updateStudentsPeriodChart(data.statistics);
-                } else {
-                    throw new Error(data?.message || "Erro ao carregar estatísticas de alunos");
-                }
-            } catch (error) {
-                console.error('Erro ao carregar estatísticas de alunos:', error);
-                // Usar dados simulados para demonstração
-                const demoData = {
-                    total: 1488,
-                    morning: 685,
-                    afternoon: 505,
-                    night: 298
-                };
-                document.getElementById('totalStudents').textContent = demoData.total;
-                morningCountEl.textContent = demoData.morning;
-                afternoonCountEl.textContent = demoData.afternoon;
-                nightCountEl.textContent = demoData.night;
-                updateStudentsPeriodChart(demoData);
-            }
-        }
-
-        // Excluir ocorrência (usa POST com endpoint delete-occurrence para compatibilidade com Apps Script)
-        window.deleteOccurrence = async function(occurrenceId) {
-            if (!confirm('Tem certeza que deseja excluir esta ocorrência?')) {
-                return;
-            }
-
-            try {
-                // Monta payload POST para delete (Apps Script implementa handleDeleteOccurrence via POST)
-                const payload = {
-                    endpoint: 'delete-occurrence',
-                    occurrenceId: occurrenceId,
-                    sheet: 'BANCODEALUNOS'
-                };
-
-                const response = await fetch(BACKEND_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload),
-                    mode: 'cors'
-                });
-
-                if (!response.ok) {
-                    const errText = await response.text().catch(() => '');
-                    throw new Error(`Erro do servidor: ${response.status} - ${errText}`);
-                }
-
-                const data = await response.json();
-
-                if (data.status === 'success') {
-                    showNotification('success', 'Ocorrência excluída com sucesso!');
-                    // Recarregar tabela
-                    loadRegistrosTable();
-                    // Atualizar estatísticas
-                    loadStatistics();
-                } else {
-                    throw new Error(data?.message || "Erro ao excluir ocorrência");
-                }
-            } catch (error) {
-                console.error('Erro ao excluir ocorrência:', error);
-                showNotification('error', `Erro ao excluir ocorrência: ${error.message}`);
-            }
-        };
-
-        // Criar gráfico de rosca
-        function createDonutChart(canvas, value, maxValue = 10) {
-            // segura caso Chart não esteja definido
-            if (typeof Chart === 'undefined') return;
-
-            const ctx = canvas.getContext('2d');
-            const chartKey = canvas.getAttribute('data-irregularity') || Math.random();
-
-            // Destruir gráfico anterior se existir
-            if (charts[chartKey]) {
-                try { charts[chartKey].destroy(); } catch (e) { /* ignore */ }
-            }
-
-            // Garantir valores numéricos
-            const val = Number(value) || 0;
-            const mx = Number(maxValue) || 10;
-            const remainder = Math.max(0, mx - val);
-
-            charts[chartKey] = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    datasets: [{
-                        data: [val, remainder],
-                        backgroundColor: [
-                            '#3498db',
-                            '#e0e0e0'
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    cutout: '70%',
-                    responsive: false,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { display: false },
-                        tooltip: { enabled: false }
-                    }
-                }
-            });
-
-            // Atualizar o número de ocorrências
-            const chartValue = canvas.parentElement ? canvas.parentElement.querySelector('.chart-value') : null;
-            if (chartValue) chartValue.textContent = String(val);
-        }
-
-        // Atualizar gráfico de distribuição por período
-        function updateStudentsPeriodChart(data) {
-            // segura caso Chart não esteja definido
-            if (typeof Chart === 'undefined') return;
-
-            const ctx = document.getElementById('studentsPeriodChart').getContext('2d');
-
-            // Destruir gráfico anterior se existir
-            if (charts.studentsPeriodChart) {
-                try { charts.studentsPeriodChart.destroy(); } catch (e) { /* ignore */ }
-            }
-
-            const morning = Number(data.morning) || 0;
-            const afternoon = Number(data.afternoon) || 0;
-            const night = Number(data.night) || 0;
-
-            charts.studentsPeriodChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Manhã', 'Tarde', 'Noite'],
-                    datasets: [{
-                        data: [morning, afternoon, night],
-                        backgroundColor: [
-                            '#f1c40f',
-                            '#e67e22',
-                            '#9b59b6'
-                        ],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                color: 'white',
-                                font: {
-                                    size: 12
-                                }
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.parsed;
-                                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
-                                    const percentage = total ? ((value / total) * 100).toFixed(1) : 0;
-                                    return `${label}: ${value} (${percentage}%)`;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Mostrar notificação
-        function showNotification(type, message) {
-            notificationIcon.className = `fas icon ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}`;
-            notificationContent.textContent = message;
-            notification.className = `notification ${type} show`;
-
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 5000);
-        }
-
-        // Inicializar a aplicação
-        initApp();
+document.addEventListener('DOMContentLoaded', function () {
+  // Configurações da aplicação
+  const BACKEND_URL = "https://script.google.com/macros/s/AKfycbzio4g72zI3mZMu-Va7vGh4qHTE-LI8MURDsPD4PqVirqXG61WD1ANQm9A1ltM_vmgo/exec";
+
+  // Elementos do DOM
+  const form = document.getElementById('occurrenceForm');
+  const professorSelect = document.getElementById('professor');
+  const classSelect = document.getElementById('studentClass');
+  const studentSelect = document.getElementById('student');
+  const submitBtn = document.getElementById('submitBtn');
+  const clearBtn = document.getElementById('clearBtn');
+  const exportBtn = document.getElementById('exportBtn');
+  const registrosTableBody = document.getElementById('registrosTableBody');
+  const notification = document.getElementById('notification');
+  const notificationIcon = notification.querySelector('.icon');
+  const notificationContent = notification.querySelector('.content');
+  const notificationClose = notification.querySelector('.close');
+  const studentOccurrencesCard = document.getElementById('studentOccurrencesCard');
+  const studentOccurrencesName = document.getElementById('studentOccurrencesName');
+  const studentOccurrencesCount = document.getElementById('studentOccurrencesCount');
+  const classStudentsCard = document.getElementById('classStudentsCard');
+  const classStudentsCount = document.getElementById('classStudentsCount');
+  const selectedClassPeriod = document.getElementById('selectedClassPeriod');
+  const totalOccurrencesEl = document.getElementById('totalOccurrences');
+  const morningCountEl = document.getElementById('morningCount');
+  const afternoonCountEl = document.getElementById('afternoonCount');
+  const nightCountEl = document.getElementById('nightCount');
+
+  // Variáveis globais
+  let currentEditId = null;
+  let charts = {};
+  let availableClasses = [];
+
+  // Lista de irregularidades
+  const irregularities = [
+    'Indisciplina','Atraso','Falta','Uso Indevido de Celular','Desrespeito ao Professor',
+    'Desrespeito aos Colegas','Não Fez Tarefa','Não Trouxe Material','Conversa Excessiva',
+    'Saída da Sala sem Autorização','Uso de Linguagem Inadequada','Agressão Física',
+    'Agressão Verbal','Vandalismo','Bullying','Outros'
+  ];
+
+  // Inicializar aplicação
+  async function initApp() {
+    // Definir data atual
+    const today = new Date();
+    const formattedDate = today.toISOString().split('T')[0];
+    const occurrenceDateEl = document.getElementById('occurrenceDate');
+    if (occurrenceDateEl) occurrenceDateEl.value = formattedDate;
+
+    // Carregar dados iniciais
+    await loadTeachers();
+    await loadClasses();
+    createIrregularitiesCheckboxes();
+    await loadRegistrosTable();
+    await loadStatistics();
+    await loadStudentPeriodStats();
+
+    // Event listeners
+    if (form) form.addEventListener('submit', handleFormSubmit);
+    if (clearBtn) clearBtn.addEventListener('click', clearForm);
+    if (exportBtn) exportBtn.addEventListener('click', exportData);
+    if (classSelect) classSelect.addEventListener('change', handleClassChange);
+    if (studentSelect) studentSelect.addEventListener('change', handleStudentChange);
+    if (notificationClose) notificationClose.addEventListener('click', () => notification.classList.remove('show'));
+  }
+
+  // ---------- Carregamento de dados ----------
+  async function loadTeachers() {
+    try {
+      const response = await fetch(`${BACKEND_URL}?endpoint=teachers`, { method: 'GET', mode: 'cors' });
+      const data = await response.json();
+      if (data.status === 'success' && Array.isArray(data.teachers)) {
+        professorSelect.innerHTML = '<option value="">Selecione seu nome</option>';
+        data.teachers.forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t;
+          opt.textContent = t;
+          professorSelect.appendChild(opt);
+        });
+        const totalTeachersEl = document.getElementById('totalTeachers');
+        if (totalTeachersEl) totalTeachersEl.textContent = data.teachers.length;
+      } else {
+        console.warn('loadTeachers: resposta inesperada', data);
+      }
+    } catch (err) {
+      console.error('Erro ao carregar professores:', err);
+      showNotification('error', 'Erro ao carregar lista de professores');
+    }
+  }
+
+  async function loadClasses() {
+    try {
+      const response = await fetch(`${BACKEND_URL}?endpoint=classes`, { method: 'GET', mode: 'cors' });
+      const data = await response.json();
+      if (data.status === 'success' && Array.isArray(data.classes)) {
+        availableClasses = data.classes;
+        classSelect.innerHTML = '<option value="">Selecione a turma</option>';
+        data.classes.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c;
+          opt.textContent = c;
+          classSelect.appendChild(opt);
+        });
+        const totalClassesEl = document.getElementById('totalClasses');
+        if (totalClassesEl) totalClassesEl.textContent = data.classes.length;
+      } else {
+        console.warn('loadClasses: resposta inesperada', data);
+      }
+    } catch (err) {
+      console.error('Erro ao carregar turmas:', err);
+      showNotification('error', 'Erro ao carregar lista de turmas');
+    }
+  }
+
+  function createIrregularitiesCheckboxes() {
+    const container = document.getElementById('irregularitiesContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    irregularities.forEach(ir => {
+      const item = document.createElement('div');
+      item.className = 'checkbox-item';
+
+      const chartContainer = document.createElement('div');
+      chartContainer.className = 'chart-container';
+
+      const canvas = document.createElement('canvas');
+      canvas.className = 'donut-chart';
+      canvas.width = 50;
+      canvas.height = 50;
+      canvas.setAttribute('data-irregularity', ir);
+
+      const chartValue = document.createElement('div');
+      chartValue.className = 'chart-value';
+      chartValue.textContent = '0';
+
+      chartContainer.appendChild(canvas);
+      chartContainer.appendChild(chartValue);
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.id = `irregularity_${ir.replace(/\s+/g, '_')}`;
+      checkbox.value = ir;
+
+      const label = document.createElement('label');
+      label.htmlFor = checkbox.id;
+      label.textContent = ir;
+
+      item.appendChild(chartContainer);
+      item.appendChild(checkbox);
+      item.appendChild(label);
+      container.appendChild(item);
+
+      createDonutChart(canvas, 0);
     });
+  }
+
+  async function loadRegistrosTable() {
+    try {
+      const response = await fetch(`${BACKEND_URL}?endpoint=occurrences&sheet=BANCODEALUNOS`, { method: 'GET', mode: 'cors' });
+      const data = await response.json();
+      const tbody = registrosTableBody;
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+      if (!data || data.status !== 'success' || !Array.isArray(data.occurrences) || data.occurrences.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="no-records">Nenhuma ocorrência registrada</td></tr>';
+        return;
+      }
+
+      data.occurrences.forEach(occ => {
+        const row = document.createElement('tr');
+        let rawDate = occ.data || occ.date || occ['Data'] || '';
+        let displayDate = '';
+        try { displayDate = rawDate ? new Date(rawDate).toLocaleDateString('pt-BR') : ''; } catch (e) { displayDate = rawDate; }
+
+        const prof = occ.professor || occ['Professor'] || '';
+        const turma = occ.turma || occ.studentClass || occ['Turma'] || '';
+        const aluno = occ.aluno || occ.student || occ['Aluno'] || '';
+        const irregulars = occ.irregularidades || occ.irregularities || occ['Irregularidades'] || '';
+        const descricao = occ.descricao || occ.description || occ['Descrição'] || '';
+
+        row.innerHTML = `
+          <td>${displayDate}</td>
+          <td>${escapeHtml(prof)}</td>
+          <td>${escapeHtml(turma)}</td>
+          <td>${escapeHtml(aluno)}</td>
+          <td>${escapeHtml(irregulars)}</td>
+          <td>${escapeHtml(descricao)}</td>
+          <td class="actions-cell">
+            <button class="btn-action btn-delete" data-id="${occ.id}">
+              <i class="fas fa-trash"></i> Excluir
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      // Delegação de evento para os botões excluir
+      tbody.querySelectorAll('.btn-delete').forEach(btn => {
+        btn.addEventListener('click', function () {
+          const id = this.getAttribute('data-id');
+          if (id) window.deleteOccurrence(Number(id));
+        });
+      });
+    } catch (err) {
+      console.error('Erro ao carregar registros:', err);
+      showNotification('error', 'Erro ao carregar registros de ocorrências');
+    }
+  }
+
+  // ---------- Envios / Manipulação do formulário ----------
+  async function handleFormSubmit(e) {
+    e.preventDefault();
+    if (!submitBtn) return;
+
+    const originalText = submitBtn.innerHTML;
+    try {
+      // Evitar duplo clique
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<div class="loading"></div> Processando...';
+      form.classList.add('form-loading');
+
+      const validationResult = validateFormComplete();
+      if (!validationResult.isValid) {
+        showNotification('error', validationResult.message);
+        highlightInvalidFields(validationResult.invalidFields);
+        return;
+      }
+
+      // coletar valores
+      const professor = (professorSelect.value || '').trim();
+      const turma = (classSelect.value || '').trim();
+      const aluno = (studentSelect.value || '').trim();
+      const descricao = (document.getElementById('description') ? document.getElementById('description').value : '').trim();
+      const dataOcorrencia = (document.getElementById('occurrenceDate') ? document.getElementById('occurrenceDate').value : '');
+
+      const irregularidadesSelecionadas = Array.from(
+        document.querySelectorAll('#irregularitiesContainer input[type="checkbox"]:checked')
+      ).map(cb => cb.value);
+
+      submitBtn.innerHTML = '<div class="loading"></div> Salvando no sistema...';
+
+      const payload = {
+        endpoint: 'create-occurrence',
+        sheet: 'BANCODEALUNOS',
+        date: new Date().toISOString(),
+        occurrenceDate: dataOcorrencia,
+        professor,
+        studentClass: turma,
+        student: aluno,
+        description: descricao,
+        irregularities: irregularidadesSelecionadas.join(', ')
+      };
+
+      // Envia como JSON — Apps Script espera JSON em postData.contents
+      submitBtn.innerHTML = '<div class="loading"></div> Conectando com servidor...';
+      const response = await fetch(BACKEND_URL, {
+        method: 'POST',
+        mode: 'cors',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json;charset=UTF-8'
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errText = await response.text().catch(() => '');
+        throw new Error(`Erro do servidor: ${response.status} ${errText}`);
+      }
+
+      const result = await response.json();
+      if (result.status === 'success') {
+        showEnhancedSuccessNotification(professor, aluno, turma);
+        intelligentFormReset();
+        await Promise.all([loadRegistrosTable(), loadStatistics(), updateStudentStatsIfSelected(aluno)]);
+      } else {
+        throw new Error(result.message || 'Erro desconhecido ao registrar ocorrência.');
+      }
+    } catch (err) {
+      console.error('Erro ao salvar ocorrência:', err);
+      const userMsg = getFriendlyErrorMessage(err);
+      showNotification('error', `Erro ao salvar ocorrência: ${userMsg}`);
+    } finally {
+      // sempre restaurar o estado do botão e form
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+      form.classList.remove('form-loading');
+      clearFieldHighlights();
+    }
+  }
+
+  // ---------- Auxiliares de validação e UI ----------
+  function validateFormComplete() {
+    const requiredFields = [
+      { id: 'professor', name: 'Professor' },
+      { id: 'occurrenceDate', name: 'Data da ocorrência' },
+      { id: 'studentClass', name: 'Turma' },
+      { id: 'student', name: 'Aluno' }
+    ];
+    const invalid = [];
+    requiredFields.forEach(f => {
+      const el = document.getElementById(f.id);
+      if (!el || !el.value || !el.value.toString().trim()) invalid.push(f);
+    });
+    return {
+      isValid: invalid.length === 0,
+      message: invalid.length ? `Por favor, preencha os campos obrigatórios: ${invalid.map(x => x.name).join(', ')}` : '',
+      invalidFields: invalid
+    };
+  }
+
+  function highlightInvalidFields(fields) {
+    fields.forEach((f, idx) => {
+      const el = document.getElementById(f.id);
+      if (el) el.classList.add('input-error');
+      if (idx === 0 && el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  }
+
+  function clearFieldHighlights() {
+    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+  }
+
+  function showEnhancedSuccessNotification(professor, aluno, turma) {
+    const n = document.createElement('div');
+    n.className = 'notification success show enhanced-success';
+    n.innerHTML = `
+      <i class="fas fa-check-circle icon"></i>
+      <div class="content">
+        <strong>Ocorrência registrada com sucesso!</strong>
+        <div class="success-details">
+          <div><strong>Professor:</strong> ${escapeHtml(professor)}</div>
+          <div><strong>Aluno:</strong> ${escapeHtml(aluno)}</div>
+          <div><strong>Turma:</strong> ${escapeHtml(turma)}</div>
+          <div><strong>Data:</strong> ${new Date().toLocaleDateString('pt-BR')}</div>
+        </div>
+      </div>
+      <button class="close"><i class="fas fa-times"></i></button>
+    `;
+    document.body.appendChild(n);
+    n.querySelector('.close').addEventListener('click', () => n.remove());
+    setTimeout(() => { if (n.parentNode) n.remove(); }, 8000);
+  }
+
+  function intelligentFormReset() {
+    const professorValue = professorSelect ? professorSelect.value : '';
+    const today = new Date().toISOString().split('T')[0];
+    if (form) form.reset();
+    if (professorSelect) professorSelect.value = professorValue;
+    const occDate = document.getElementById('occurrenceDate');
+    if (occDate) occDate.value = today;
+    if (studentSelect) {
+      studentSelect.innerHTML = '<option value="">Selecione primeiro a turma</option>';
+      studentSelect.disabled = true;
+    }
+    if (studentOccurrencesCard) studentOccurrencesCard.style.display = 'none';
+    if (classStudentsCard) classStudentsCard.style.display = 'none';
+    // reset charts counts visually
+    document.querySelectorAll('.donut-chart').forEach(c => createDonutChart(c, 0));
+    // uncheck irregularities
+    document.querySelectorAll('#irregularitiesContainer input[type="checkbox"]').forEach(cb => cb.checked = false);
+  }
+
+  function getFriendlyErrorMessage(error) {
+    const msg = (error && error.message) ? error.message : String(error);
+    if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) {
+      return 'Não foi possível conectar com o servidor. Verifique sua conexão com a internet.';
+    } else if (msg.includes('Erro do servidor: 5')) {
+      return 'Problema temporário no servidor. Tente novamente em alguns instantes.';
+    } else if (msg.includes('Erro do servidor: 4') || msg.includes('400') || msg.includes('403') || msg.includes('Authorization required')) {
+      return 'Dados inválidos ou problema de permissão no Web App. Verifique a implantação.';
+    } else {
+      return msg;
+    }
+  }
+
+  async function updateStudentStatsIfSelected(studentName) {
+    if (studentName && studentSelect && studentSelect.value === studentName) {
+      await handleStudentChange();
+    }
+  }
+
+  // ---------- Coletas / Export ----------
+  function collectFormData() {
+    const selectedIrregularities = Array.from(document.querySelectorAll('#irregularitiesContainer input[type="checkbox"]:checked')).map(c => c.value);
+    return {
+      professor: professorSelect ? professorSelect.value : '',
+      date: (document.getElementById('occurrenceDate') ? document.getElementById('occurrenceDate').value : ''),
+      studentClass: classSelect ? classSelect.value : '',
+      student: studentSelect ? studentSelect.value : '',
+      irregularities: selectedIrregularities.join(', '),
+      description: document.getElementById('description') ? document.getElementById('description').value : ''
+    };
+  }
+
+  async function exportData() {
+    try {
+      const response = await fetch(`${BACKEND_URL}?endpoint=occurrences&sheet=BANCODEALUNOS`, { method: 'GET', mode: 'cors' });
+      const data = await response.json();
+      if (data.status === 'success' && Array.isArray(data.occurrences)) {
+        const exportData = data.occurrences.map(o => ({
+          'Data': new Date(o.data || o.date || o['Data']).toLocaleDateString('pt-BR'),
+          'Professor': o.professor || o['Professor'],
+          'Turma': o.turma || o.studentClass || o['Turma'],
+          'Aluno': o.aluno || o.student || o['Aluno'],
+          'Irregularidades': o.irregularidades || o.irregularities || o['Irregularidades'],
+          'Descrição': o.descricao || o.description || o['Descrição']
+        }));
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "OCORRENCIASDOSPROFESSORES");
+        XLSX.writeFile(workbook, 'ocorrencias_escolares.xlsx');
+        showNotification('success', 'Dados exportados com sucesso!');
+      } else {
+        throw new Error(data?.message || 'Erro ao obter dados para exportação');
+      }
+    } catch (err) {
+      console.error('Erro ao exportar dados:', err);
+      showNotification('error', 'Erro ao exportar dados');
+    }
+  }
+
+  // ---------- Estatísticas ----------
+  async function loadStatistics() {
+    try {
+      const response = await fetch(`${BACKEND_URL}?endpoint=dashboard-stats`, { method: 'GET', mode: 'cors' });
+      const data = await response.json();
+      if (data.status === 'success') {
+        if (totalOccurrencesEl) totalOccurrencesEl.textContent = data.stats.total_occurrences || 0;
+        const totalClassesEl = document.getElementById('totalClasses');
+        if (totalClassesEl) totalClassesEl.textContent = availableClasses.length;
+      }
+    } catch (err) {
+      console.error('Erro ao carregar estatísticas:', err);
+      if (totalOccurrencesEl) totalOccurrencesEl.textContent = 0;
+      const totalClassesEl = document.getElementById('totalClasses');
+      if (totalClassesEl) totalClassesEl.textContent = availableClasses.length;
+    }
+  }
+
+  async function loadStudentPeriodStats() {
+    try {
+      const response = await fetch(`${BACKEND_URL}?endpoint=period-stats`, { method: 'GET', mode: 'cors' });
+      const data = await response.json();
+      if (data.status === 'success') {
+        const stats = data.statistics || {};
+        const totalStudentsEl = document.getElementById('totalStudents');
+        if (totalStudentsEl) totalStudentsEl.textContent = stats.total || 0;
+        if (morningCountEl) morningCountEl.textContent = stats.morning || 0;
+        if (afternoonCountEl) afternoonCountEl.textContent = stats.afternoon || 0;
+        if (nightCountEl) nightCountEl.textContent = stats.night || 0;
+        updateStudentsPeriodChart(stats);
+      } else {
+        throw new Error(data?.message || 'Erro ao carregar period-stats');
+      }
+    } catch (err) {
+      console.error('Erro ao carregar student period stats:', err);
+      const demo = { total: 1488, morning: 685, afternoon: 505, night: 298 };
+      const totalStudentsEl = document.getElementById('totalStudents');
+      if (totalStudentsEl) totalStudentsEl.textContent = demo.total;
+      if (morningCountEl) morningCountEl.textContent = demo.morning;
+      if (afternoonCountEl) afternoonCountEl.textContent = demo.afternoon;
+      if (nightCountEl) nightCountEl.textContent = demo.night;
+      updateStudentsPeriodChart(demo);
+    }
+  }
+
+  // ---------- Exclusão ----------
+  window.deleteOccurrence = async function (occurrenceId) {
+    if (!confirm('Tem certeza que deseja excluir esta ocorrência?')) return;
+    try {
+      const payload = { endpoint: 'delete-occurrence', occurrenceId, sheet: 'BANCODEALUNOS' };
+      const response = await fetch(BACKEND_URL, {
+        method: 'POST',
+        mode: 'cors',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/json;charset=UTF-8' },
+        body: JSON.stringify(payload)
+      });
+      if (!response.ok) {
+        const errText = await response.text().catch(() => '');
+        throw new Error(`Erro do servidor: ${response.status} ${errText}`);
+      }
+      const data = await response.json();
+      if (data.status === 'success') {
+        showNotification('success', 'Ocorrência excluída com sucesso!');
+        await loadRegistrosTable();
+        await loadStatistics();
+      } else {
+        throw new Error(data?.message || 'Erro ao excluir ocorrência');
+      }
+    } catch (err) {
+      console.error('Erro ao excluir ocorrência:', err);
+      showNotification('error', `Erro ao excluir ocorrência: ${getFriendlyErrorMessage(err)}`);
+    }
+  };
+
+  // ---------- Gráficos ----------
+  function createDonutChart(canvas, value, maxValue = 10) {
+    if (typeof Chart === 'undefined' || !canvas) return;
+    const ctx = canvas.getContext('2d');
+    const chartKey = canvas.getAttribute('data-irregularity') || Math.random().toString(36).slice(2);
+    if (charts[chartKey]) {
+      try { charts[chartKey].destroy(); } catch (e) { /* ignore */ }
+    }
+    const val = Number(value) || 0;
+    const mx = Number(maxValue) || 10;
+    charts[chartKey] = new Chart(ctx, {
+      type: 'doughnut',
+      data: { datasets: [{ data: [val, Math.max(0, mx - val)], backgroundColor: ['#3498db', '#e0e0e0'], borderWidth: 0 }] },
+      options: { cutout: '70%', responsive: false, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { enabled: false } } }
+    });
+    const chartValue = canvas.parentElement ? canvas.parentElement.querySelector('.chart-value') : null;
+    if (chartValue) chartValue.textContent = String(val);
+  }
+
+  function updateStudentsPeriodChart(data) {
+    if (typeof Chart === 'undefined') return;
+    const el = document.getElementById('studentsPeriodChart');
+    if (!el) return;
+    const ctx = el.getContext('2d');
+    if (charts.studentsPeriodChart) {
+      try { charts.studentsPeriodChart.destroy(); } catch (e) { /* ignore */ }
+    }
+    const morning = Number(data.morning) || 0;
+    const afternoon = Number(data.afternoon) || 0;
+    const night = Number(data.night) || 0;
+    charts.studentsPeriodChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: { labels: ['Manhã', 'Tarde', 'Noite'], datasets: [{ data: [morning, afternoon, night], backgroundColor: ['#f1c40f', '#e67e22', '#9b59b6'], borderWidth: 2, borderColor: '#ffffff' }] },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom', labels: { color: 'white', font: { size: 12 } } },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                const label = context.label || '';
+                const value = context.parsed || 0;
+                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                const percentage = total ? ((value / total) * 100).toFixed(1) : 0;
+                return `${label}: ${value} (${percentage}%)`;
+              }
+            }
+          }
+        }
+      }
+    });
+  }
+
+  // ---------- Notificações ----------
+  function showNotification(type, message) {
+    if (!notificationIcon || !notificationContent || !notification) return;
+    notificationIcon.className = `fas icon ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}`;
+    notificationContent.textContent = message;
+    notification.className = `notification ${type} show`;
+    setTimeout(() => notification.classList.remove('show'), 5000);
+  }
+
+  // ---------- Turma / Aluno ----------
+  async function handleClassChange() {
+    const selectedClass = classSelect.value;
+    if (studentSelect) {
+      studentSelect.innerHTML = '<option value="">Carregando alunos...</option>';
+      studentSelect.disabled = true;
+    }
+    if (studentOccurrencesCard) studentOccurrencesCard.style.display = 'none';
+    if (classStudentsCard) classStudentsCard.style.display = 'none';
+    document.querySelectorAll('.donut-chart').forEach(c => createDonutChart(c, 0));
+
+    if (!selectedClass) {
+      if (studentSelect) studentSelect.innerHTML = '<option value="">Selecione uma turma</option>';
+      return;
+    }
+    try {
+      const response = await fetch(`${BACKEND_URL}?endpoint=students&turma=${encodeURIComponent(selectedClass)}`, { method: 'GET', mode: 'cors' });
+      const data = await response.json();
+      if (data.status === 'success' && Array.isArray(data.students)) {
+        studentSelect.innerHTML = '<option value="">Selecione um aluno</option>';
+        data.students.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s;
+          opt.textContent = s;
+          studentSelect.appendChild(opt);
+        });
+        studentSelect.disabled = false;
+        classStudentsCount.textContent = data.students.length;
+        const periodo = selectedClass.includes("MANHA") ? "Manhã" : selectedClass.includes("TARDE") ? "Tarde" : selectedClass.includes("NOITE") ? "Noite" : "Desconhecido";
+        selectedClassPeriod.textContent = periodo;
+        classStudentsCard.style.display = 'block';
+      } else {
+        throw new Error(data?.message || 'Resposta inesperada do servidor');
+      }
+    } catch (err) {
+      console.error('Erro ao carregar alunos:', err);
+      if (studentSelect) studentSelect.innerHTML = `<option value="">Erro: ${escapeHtml(err.message || 'erro')}</option>`;
+      showNotification('error', 'Erro ao carregar alunos');
+    }
+  }
+
+  async function handleStudentChange() {
+    if (studentSelect && studentSelect.value) {
+      studentOccurrencesCard.style.display = 'block';
+      studentOccurrencesName.textContent = studentSelect.value;
+      studentOccurrencesCount.textContent = "Carregando...";
+      try {
+        const response = await fetch(`${BACKEND_URL}?endpoint=student-stats&aluno=${encodeURIComponent(studentSelect.value)}`, { method: 'GET', mode: 'cors' });
+        const data = await response.json();
+        if (data.status === 'success') {
+          studentOccurrencesCount.textContent = data.total_occurrences || 0;
+        } else {
+          studentOccurrencesCount.textContent = "0";
+          console.error('Erro ao buscar estatísticas:', data?.message);
+        }
+      } catch (err) {
+        studentOccurrencesCount.textContent = "0";
+        console.error('Erro ao buscar estatísticas:', err);
+      }
+    } else {
+      if (studentOccurrencesCard) studentOccurrencesCard.style.display = 'none';
+      document.querySelectorAll('.donut-chart').forEach(c => createDonutChart(c, 0));
+    }
+  }
+
+  // ---------- Utilitários ----------
+  function escapeHtml(text) {
+    if (text === null || text === undefined) return '';
+    return String(text).replace(/[&<>"'`=\/]/g, s => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;",'/':'&#x2F;','`':'&#x60;','=':'&#x3D;' })[s]);
+  }
+
+  // Inicializar
+  initApp();
+});
 </script>
 
 </html>
