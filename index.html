@@ -1,2207 +1,1267 @@
-<!DOCTYPE html> 
-<html lang="pt-BR"> 
-<head> 
-    <meta charset="UTF-8"> 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Sistema de Registro de Ocorrências Escolares</title> 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font
-awesome/6.4.0/css/all.min.css"> 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> 
-    <script 
-src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script> 
-    <style> 
-        :root { 
-            --primary-color: #1a73e8; 
-            --primary-dark: #0d47a1; 
-            --secondary-color: #f8f9fa; 
-            --accent-color: #f1c40f; 
-            --success-color: #2ecc71; 
-            --error-color: #e74c3c; 
-            --border-color: #dadce0; 
-            --text-color: #202124; 
-            --light-text: #5f6368; 
-            --card-bg: #ffffff; 
-            --header-bg: #ffffff; 
-            --footer-bg: #ffffff; 
-            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
-            --transition: all 0.3s ease; 
-            --hover-bg: #f0f5ff; 
-            --morning-color: #3498db; 
-            --afternoon-color: #f39c12; 
-            --night-color: #9b59b6; 
-        } 
-         
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif; 
-        } 
-         
-        body { 
-            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf5 100%); 
-            color: var(--text-color); 
-            line-height: 1.6; 
-            min-height: 100vh; 
-            padding-bottom: 60px; 
-        } 
-         
-        .container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px; 
-        } 
-         
-        header { 
-            background: linear-gradient(135deg, #2ecc71 0%, #3498db 100%); 
-            border-bottom: 1px solid var(--border-color); 
-            padding: 15px 0; 
-            box-shadow: var(--shadow); 
-            position: sticky; 
-            top: 0; 
-            z-index: 100; 
-        } 
-         
-        .header-content { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 0 20px; 
-        } 
-         
-        .logo { 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-        } 
-         
-        .logo-icon { 
-            background: rgba(255, 255, 255, 0.2); 
-            color: white; 
-            width: 55px; 
-            height: 55px; 
-            border-radius: 12px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            font-size: 26px; 
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); 
-            backdrop-filter: blur(10px); 
-        } 
-         
-        .logo-text { 
-            display: flex; 
-            flex-direction: column; 
-        } 
-         
-        .logo h1 { 
-            font-size: 1.6rem; 
-            color: white; 
-            font-weight: 700; 
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2); 
-        } 
-         
-        .logo p { 
-            font-size: 0.9rem; 
-            color: rgba(255, 255, 255, 0.9); 
-            margin-top: 3px; 
-            text-shadow: 0 1px 2px rgba(0,0,0,0.1); 
-        } 
-         
-        main { 
-            padding: 30px 0; 
-        } 
-         
-        .dashboard { 
-            display: grid; 
-            grid-template-columns: 1fr 350px; 
-            gap: 25px; 
-            margin-bottom: 30px; 
-        } 
-         
-        .stats-card { 
-            background: linear-gradient(135deg, #2ecc71 0%, #3498db 100%); 
-            color: white; 
-            border-radius: 16px; 
-            padding: 25px; 
-            box-shadow: var(--shadow); 
-            position: relative; 
-            overflow: hidden; 
-        } 
-         
-        .stats-card::after { 
-            content: ''; 
-            position: absolute; 
-            bottom: 0; 
-            left: 0; 
-            right: 0; 
-            height: 20px; 
-            background: linear-gradient(to top, rgba(255,255,255,0.3), transparent); 
-            z-index: 1; 
-        } 
-         
-        .stats-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
-            gap: 20px; 
-            margin-top: 20px; 
-            position: relative; 
-            z-index: 2; 
-        } 
-         
-        .stat-item { 
-            background: rgba(255, 255, 255, 0.15); 
-            border-radius: 12px; 
-            padding: 15px; 
-            text-align: center; 
-            backdrop-filter: blur(10px); 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-            transition: var(--transition); 
-        } 
-         
-        .stat-item:hover { 
-            transform: translateY(-5px); 
-            background: rgba(255, 255, 255, 0.25); 
-        } 
-         
-        .stat-value { 
-            font-size: 2.2rem; 
-            font-weight: 700; 
-            margin: 10px 0; 
-        } 
-         
-        .stat-label { 
-            font-size: 0.95rem; 
-            opacity: 0.9; 
-        } 
-         
-        .card { 
-            background-color: var(--card-bg); 
-            border-radius: 16px; 
-            box-shadow: var(--shadow); 
-            overflow: hidden; 
-            margin-bottom: 25px; 
-            border: 1px solid var(--border-color); 
-            transition: var(--transition); 
-            position: relative; 
-        } 
-         
-        .card::after { 
-            content: ''; 
-            position: absolute; 
-            bottom: 0; 
-            left: 0; 
-            right: 0; 
-            height: 20px; 
-            background: linear-gradient(to top, rgba(255,255,255,0.8), transparent); 
-            z-index: 1; 
-        } 
-         
-        .card:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15); 
-        } 
-         
-        .card-header { 
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary
-dark) 100%); 
-            color: white; 
-            padding: 20px 30px; 
-            font-size: 1.35rem; 
-            font-weight: 600; 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            position: relative; 
-        } 
-         
-        .card-body { 
-            padding: 30px; 
-            position: relative; 
-            z-index: 2; 
-        } 
-         
-        .student-occurrences-card { 
-            background: linear-gradient(135deg, #2ecc71 0%, #3498db 100%); 
-            color: white; 
-            border-radius: 16px; 
-            padding: 25px; 
-            box-shadow: var(--shadow); 
-            position: relative; 
-            overflow: hidden; 
-            margin-top: 25px; 
-            display: none; 
-        } 
-         
-        .student-occurrences-card::after { 
-            content: ''; 
-            position: absolute; 
-            bottom: 0; 
-            left: 0; 
-            right: 0; 
-            height: 20px; 
-            background: linear-gradient(to top, rgba(255,255,255,0.3), transparent); 
-            z-index: 1; 
-        } 
-         
-        .student-occurrences-content { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            text-align: center; 
-            position: relative; 
-            z-index: 2; 
-        } 
-         
-        .student-occurrences-name { 
-            font-size: 1.3rem; 
-            font-weight: 600; 
-            margin-bottom: 15px; 
-            text-shadow: 0 2px 4px rgba(0,0,0,0.2); 
-        } 
-         
-        .student-occurrences-count { 
-            font-size: 3rem; 
-            font-weight: 700; 
-            margin: 10px 0; 
-            text-shadow: 0 3px 6px rgba(0,0,0,0.3); 
-        } 
-         
-        .student-occurrences-label { 
-            font-size: 1.1rem; 
-            opacity: 0.9; 
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2); 
-        } 
-         
-        .form-group { 
-            margin-bottom: 25px; 
-            position: relative; 
-        } 
-         
-        label { 
-            display: block; 
-            margin-bottom: 12px; 
-            font-weight: 600; 
-            color: var(--text-color); 
-            font-size: 1.1rem; 
-            transition: var(--transition); 
-            cursor: pointer; 
-        } 
-         
-        .form-group:hover label { 
-            color: var(--primary-color); 
-            transform: translateX(5px); 
-        } 
-         
-        .required::after { 
-            content: " *"; 
-            color: var(--error-color); 
-        } 
-         
-        input, select, textarea { 
-            width: 100%; 
-            padding: 15px; 
-            border: 2px solid #e1e5eb; 
-            border-radius: 10px; 
-            font-size: 16px; 
-            transition: var(--transition); 
-            background-color: #f8fafc; 
-        } 
-         
-        input:hover, select:hover, textarea:hover { 
-            border-color: var(--primary-color); 
-            background-color: var(--hover-bg); 
-            box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2); 
-            transform: translateY(-2px); 
-        } 
-         
-        input:focus, select:focus, textarea:focus { 
-            outline: none; 
-            border-color: var(--primary-color); 
-            box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.2); 
-            background-color: white; 
-            transform: translateY(-2px); 
-        } 
-         
-        .input-error { 
-            border-color: var(--error-color) !important; 
-            box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.2) !important; 
-            animation: shake 0.5s ease-in-out; 
-        } 
-         
-        textarea { 
-            min-height: 150px; 
-            resize: vertical; 
-        } 
-         
-        .checkbox-group { 
-            margin-bottom: 20px; 
-        } 
-         
-        .checkbox-container { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
-            gap: 18px; 
-        } 
-         
-        .checkbox-item { 
-            background: #f8fafc; 
-            padding: 15px; 
-            border-radius: 10px; 
-            border: 1px solid #e1e5eb; 
-            transition: var(--transition); 
-            display: flex; 
-            align-items: center; 
-            position: relative; 
-            cursor: pointer; 
-        } 
-         
-        .checkbox-item:hover { 
-            background: #e8f0fe; 
-            border-color: var(--primary-color); 
-            transform: translateY(-5px); 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
-        } 
-         
-        .checkbox-item input { 
-            width: auto; 
-            margin-right: 12px; 
-            transform: scale(1.2); 
-            cursor: pointer; 
-        } 
-         
-        .checkbox-item:hover label { 
-            color: var(--primary-dark); 
-        } 
-         
-        .chart-container { 
-            position: relative; 
-            width: 50px; 
-            height: 50px; 
-            margin-right: 15px; 
-            transition: var(--transition); 
-        } 
-         
-        .checkbox-item:hover .chart-container { 
-            transform: scale(1.1); 
-        } 
-         
-        .chart-value { 
-            position: absolute; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%); 
-            font-weight: 700; 
-            font-size: 14px; 
-            color: var(--primary-dark); 
-            transition: var(--transition); 
-            z-index: 10; 
-        } 
-         
-        .actions { 
-            display: flex; 
-            gap: 18px; 
-            padding-top: 25px; 
-            border-top: 1px solid var(--border-color); 
-            margin-top: 25px; 
-        } 
-         
-        .btn { 
-            padding: 16px 32px; 
-            border: none; 
-            border-radius: 10px; 
-            font-size: 16px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: var(--transition); 
-            display: inline-flex; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 12px; 
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); 
-        } 
-         
-        .btn-primary { 
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary
-dark) 100%); 
-            color: white; 
-        } 
-         
-        .btn-primary:hover { 
-            background: linear-gradient(135deg, #0d62d9 0%, #0a4ebf 100%); 
-            transform: translateY(-3px); 
-            box-shadow: 0 8px 20px rgba(26, 115, 232, 0.35); 
-        } 
-         
-        .btn-primary:active { 
-            transform: translateY(1px); 
-        } 
-         
-        .btn-secondary { 
-            background: linear-gradient(135deg, #f8f9fa 0%, #e8eaed 100%); 
-            color: var(--text-color); 
-            border: 1px solid var(--border-color); 
-        } 
-         
-        .btn-secondary:hover { 
-            background: linear-gradient(135deg, #e8eaed 0%, #d7d9dd 100%); 
-            transform: translateY(-3px); 
-        } 
-         
-        .btn-lg { 
-            padding: 18px 35px; 
-            font-size: 17px; 
-        } 
-         
-        .btn:disabled { 
-            opacity: 0.7; 
-            cursor: not-allowed; 
-            transform: none; 
-        } 
-         
-        footer { 
-            background-color: var(--footer-bg); 
-            border-top: 1px solid var(--border-color); 
-            padding: 25px 0; 
-            text-align: center; 
-            color: var(--light-text); 
-            font-size: 15px; 
-        } 
-         
-        .footer-links { 
-            display: flex; 
-            justify-content: center; 
-            gap: 30px; 
-            margin-bottom: 15px; 
-            flex-wrap: wrap; 
-        } 
-         
-        .footer-links a { 
-            color: var(--primary-color); 
-            text-decoration: none; 
-            transition: color 0.3s; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-        } 
-         
-        .footer-links a:hover { 
-            color: var(--primary-dark); 
-            text-decoration: underline; 
-            transform: translateY(-2px); 
-        } 
-         
-        .alert { 
-            padding: 20px; 
-            border-radius: 10px; 
-            margin-bottom: 25px; 
-            display: none; 
-            font-size: 17px; 
-            font-weight: 500; 
-            align-items: center; 
-            gap: 15px; 
-            transition: var(--transition); 
-        } 
-         
-        .alert:hover { 
-            transform: translateY(-2px); 
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); 
-        } 
-         
-        .alert-success { 
-            background: linear-gradient(135deg, rgba(46, 204, 113, 0.15) 0%, rgba(39, 
-174, 96, 0.15) 100%); 
-            border: 1px solid var(--success-color); 
-            color: #27ae60; 
-        } 
-         
-        .student-select-container { 
-            position: relative; 
-        } 
-         
-        .student-select-container::after { 
-            content: "\f107"; 
-            font-family: "Font Awesome 6 Free"; 
-            font-weight: 900; 
-            position: absolute; 
-            right: 20px; 
-            top: 50%; 
-            transform: translateY(-50%); 
-            pointer-events: none; 
-            color: var(--primary-color); 
-            font-size: 20px; 
-            transition: var(--transition); 
-        } 
-         
-        .student-select-container:hover::after { 
-            color: var(--primary-dark); 
-            transform: translateY(-50%) scale(1.1); 
-        } 
-         
-        .form-row { 
-            display: flex; 
-            gap: 25px; 
-            margin-bottom: 25px; 
-        } 
-         
-        .form-col { 
-            flex: 1; 
-        } 
-         
-        .section-title { 
-            font-size: 1.3rem; 
-            color: var(--primary-color); 
-            margin: 35px 0 20px; 
-            padding-bottom: 12px; 
-            border-bottom: 2px solid #e1e5eb; 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            transition: var(--transition); 
-            cursor: pointer; 
-        } 
-         
-        .section-title:hover { 
-            color: var(--primary-dark); 
-            transform: translateX(5px); 
-        } 
-         
-        select option:nth-child(even) { 
-            background-color: #f0f5ff; 
-        } 
-         
-        select option:nth-child(odd) { 
-            background-color: white; 
-        } 
-         
-        select:focus option:checked { 
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary
-dark) 100%); 
-            color: white; 
-        } 
-         
-        .status-indicator { 
-            width: 12px; 
-            height: 12px; 
-            border-radius: 50%; 
-            display: inline-block; 
-            margin-right: 8px; 
-            transition: var(--transition); 
-        } 
-         
-        .status-connected { 
-            background-color: var(--success-color); 
-        } 
-         
-        .status-disconnected { 
-            background-color: var(--error-color); 
-        } 
-         
-        .integration-status { 
-            background: #e8f5e9; 
-            padding: 15px; 
-            border-radius: 10px; 
-            margin: 20px 0; 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-            transition: var(--transition); 
-        } 
-         
-        .integration-status:hover { 
-            transform: translateY(-3px); 
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); 
-        } 
-         
-        .date-input-container { 
-            position: relative; 
-            transition: var(--transition); 
-        } 
-         
-        .date-input-container:hover { 
-            transform: translateY(-2px); 
-        } 
-         
-        .date-input-container input[type="date"] { 
-            padding-right: 40px; 
-            cursor: pointer; 
-        } 
-         
-        .date-input-container::after { 
-            content: "\f073"; 
-            font-family: "Font Awesome 6 Free"; 
-            font-weight: 900; 
-            position: absolute; 
-            right: 15px; 
-            top: 50%; 
-            transform: translateY(-50%); 
-            pointer-events: none; 
-            color: var(--primary-color); 
-            font-size: 18px; 
-            transition: var(--transition); 
-        } 
-         
-        .date-input-container:hover::after { 
-            color: var(--primary-dark); 
-            transform: translateY(-50%) scale(1.1); 
-        } 
-         
-        select { 
-            appearance: none; 
-            -webkit-appearance: none; 
-            -moz-appearance: none; 
-            cursor: pointer; 
-        } 
-         
-        select:hover { 
-            background-color: #f0f5ff; 
-        } 
-         
-        .stats-chart-container { 
-            height: 200px; 
-            margin-top: 20px; 
-            position: relative; 
-        } 
-         
-        .period-stats { 
-            display: flex; 
-            justify-content: space-between; 
-            margin-top: 15px; 
-            font-size: 0.85rem; 
-            color: rgba(255, 255, 255, 0.85); 
-            border-top: 1px solid rgba(255, 255, 255, 0.2); 
-            padding-top: 10px; 
-        } 
-         
-        .period-item { 
-            text-align: center; 
-            flex: 1; 
-            transition: var(--transition); 
-        } 
-         
-        .period-item:hover { 
-            transform: scale(1.05); 
-        } 
-         
-        .period-value { 
-            font-weight: 600; 
-            font-size: 1rem; 
-        } 
-         
-        .period-manha { color: #f1c40f; } 
-        .period-tarde { color: #e67e22; } 
-        .period-noite { color: #9b59b6; } 
-         
-        .class-total-card { 
-            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%); 
-            color: white; 
-            border-radius: 16px; 
-            padding: 25px; 
-            box-shadow: var(--shadow); 
-            position: relative; 
-            overflow: hidden; 
-            margin-top: 25px; 
-            display: none; 
-        } 
-         
-        .class-total-card::after { 
-            content: ''; 
-            position: absolute; 
-            bottom: 0; 
-            left: 0; 
-            right: 0; 
-            height: 20px; 
-            background: linear-gradient(to top, rgba(255,255,255,0.3), transparent); 
-            z-index: 1; 
-        } 
-         
-        .class-total-content { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            text-align: center; 
-            position: relative; 
-            z-index: 2; 
-        } 
-         
-        .class-total-label { 
-            font-size: 1.1rem; 
-            opacity: 0.9; 
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2); 
-        } 
-         
-        .class-total-count { 
-            font-size: 2.5rem; 
-            font-weight: 700; 
-            margin: 10px 0; 
-            text-shadow: 0 3px 6px rgba(0,0,0,0.3); 
-        } 
-         
-        .class-students-card { 
-            background: linear-gradient(135deg, #3498db 0%, #1a73e8 100%); 
-            color: white; 
-            border-radius: 16px; 
-            padding: 25px; 
-            box-shadow: var(--shadow); 
-            position: relative; 
-            overflow: hidden; 
-            margin-top: 25px; 
-            display: none; 
-        } 
-         
-        .class-students-card::after { 
-            content: ''; 
-            position: absolute; 
-            bottom: 0; 
-            left: 0; 
-            right: 0; 
-            height: 20px; 
-            background: linear-gradient(to top, rgba(255,255,255,0.3), transparent); 
-            z-index: 1; 
-        } 
-         
-        .class-students-content { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            text-align: center; 
-            position: relative; 
-            z-index: 2; 
-        } 
-         
-        .class-students-label { 
-            font-size: 1.1rem; 
-            opacity: 0.9; 
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2); 
-        } 
-         
-        .class-students-count { 
-            font-size: 2.5rem; 
-            font-weight: 700; 
-            margin: 10px 0; 
-            text-shadow: 0 3px 6px rgba(0,0,0,0.3); 
-        } 
-         
-        .registros-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 20px; 
-            background-color: white; 
-            border-radius: 10px; 
-            overflow: hidden; 
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1); 
-        } 
-         
-        .registros-table th { 
-            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary
-dark) 100%); 
-            color: white; 
-            padding: 15px; 
-            text-align: left; 
-            font-weight: 600; 
-            position: sticky; 
-            top: 0; 
-        } 
-         
-        .registros-table td { 
-            padding: 15px; 
-            border-bottom: 1px solid var(--border-color); 
-            color: var(--text-color); 
-        } 
-         
-        .registros-table tr:last-child td { 
-            border-bottom: none; 
-        } 
-         
-        .registros-table tr:hover { 
-            background-color: var(--hover-bg); 
-        } 
-         
-        .registros-table .actions-cell { 
-            display: flex; 
-            gap: 10px; 
-            justify-content: flex-end; 
-        } 
-         
-        .btn-action { 
-            padding: 8px 12px; 
-            border-radius: 6px; 
-            font-size: 14px; 
-            display: flex; 
-            align-items: center; 
-            gap: 5px; 
-            cursor: pointer; 
-            transition: var(--transition); 
-        } 
-         
-        .btn-edit { 
-            background-color: #f0f5ff; 
-            color: var(--primary-color); 
-            border: 1px solid var(--primary-color); 
-        } 
-         
-        .btn-edit:hover { 
-            background-color: #e0eaff; 
-        } 
-         
-        .btn-delete { 
-            background-color: #fff0f0; 
-            color: var(--error-color); 
-            border: 1px solid var(--error-color); 
-        } 
-         
-        .btn-delete:hover { 
-            background-color: #ffe0e0; 
-        } 
-         
-        .registros-table .history-row { 
-            background-color: #f9f9f9; 
-        } 
-         
-        .registros-table .history-row td { 
-            padding: 10px 15px; 
-            font-size: 0.9rem; 
-        } 
-         
-        .registros-table .history-table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            background-color: #f0f5ff; 
-            border-radius: 8px; 
-        } 
-         
-        .registros-table .history-table th { 
-            background-color: #d0e0ff; 
-            color: var(--text-color); 
-            padding: 10px; 
-            font-size: 0.85rem; 
-        } 
-         
-        .registros-table .history-table td { 
-            padding: 8px 10px; 
-            font-size: 0.85rem; 
-            border-bottom: 1px solid #e0e0e0; 
-        } 
-         
-        .registros-table .history-table tr:last-child td { 
-            border-bottom: none; 
-        } 
-         
-        .table-actions { 
-            display: flex; 
-            justify-content: flex-end; 
-            margin-bottom: 15px; 
-            gap: 15px; 
-        } 
-         
-        .no-records { 
-            text-align: center; 
-            padding: 20px; 
-            color: var(--light-text); 
-            font-style: italic; 
-        } 
-         
-        .form-actions { 
-            display: flex; 
-            justify-content: flex-end; 
-            gap: 18px; 
-            margin: 25px 0; 
-            flex-wrap: wrap; 
-        } 
-         
-        .loading { 
-            display: inline-block; 
-            width: 20px; 
-            height: 20px; 
-            border: 3px solid rgba(255,255,255,0.3); 
-            border-radius: 50%; 
-            border-top-color: white; 
-            animation: spin 1s ease-in-out infinite; 
-            margin-right: 10px; 
-        } 
-         
-        @keyframes spin { 
-            to { transform: rotate(360deg); } 
-        } 
-         
-        .notification { 
-            position: fixed; 
-            top: 20px; 
-            right: 20px; 
-            padding: 15px 25px; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
-            z-index: 1000; 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            opacity: 0; 
-            transform: translateX(100%); 
-            transition: all 0.4s ease; 
-        } 
-         
-        .notification.show { 
-            opacity: 1; 
-            transform: translateX(0); 
-        } 
-         
-        .notification.success { 
-            background: var(--success-color); 
-            color: white; 
-        } 
-         
-        .notification.error { 
-            background: var(--error-color); 
-            color: white; 
-        } 
-         
-        .notification.info { 
-            background: var(--morning-color); 
-            color: white; 
-        } 
-         
-        .notification .icon { 
-            font-size: 1.5rem; 
-        } 
-         
-        .notification .content { 
-            flex-grow: 1; 
-        } 
-         
-        .notification .close { 
-            background: none; 
-            border: none; 
-            color: white; 
-            cursor: pointer; 
-            font-size: 1.2rem; 
-        } 
-         
-        /* Estilos aprimorados para o formulário */ 
-        .form-loading { 
-            opacity: 0.7; 
-            pointer-events: none; 
-            position: relative; 
-        } 
-         
-        .form-loading::after { 
-            content: ''; 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            right: 0; 
-            bottom: 0; 
-            background: rgba(255, 255, 255, 0.8); 
-            z-index: 10; 
-        } 
-         
-        @keyframes shake { 
-            0%, 100% { transform: translateX(0); } 
-            25% { transform: translateX(-5px); } 
-            75% { transform: translateX(5px); } 
-        } 
-         
-        .enhanced-success { 
-            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%) 
-!important; 
-            border-left: 4px solid #219653 !important; 
-            max-width: 400px; 
-        } 
-         
-        .success-details { 
-            margin-top: 8px; 
-            font-size: 0.9em; 
-            opacity: 0.9; 
-        } 
-         
-        .success-details div { 
-            margin: 2px 0; 
-        } 
-         
-        @media (max-width: 992px) { 
-            .dashboard { 
-                grid-template-columns: 1fr; 
-            } 
-        } 
-         
-        @media (max-width: 768px) { 
-            .form-row { 
-                flex-direction: column; 
-                gap: 20px; 
-            } 
-             
-            .header-content { 
-                flex-direction: column; 
-                gap: 15px; 
-                text-align: center; 
-            } 
-             
-            .actions { 
-                flex-direction: column; 
-            } 
-             
-            .btn { 
-                width: 100%; 
-            } 
-             
-            .stats-grid { 
-                grid-template-columns: 1fr; 
-            } 
-             
-            .checkbox-container { 
-                grid-template-columns: 1fr; 
-            } 
-             
-            .chart-container { 
-                width: 40px; 
-                height: 40px; 
-            } 
-             
-            .period-stats { 
-                flex-direction: column; 
-                gap: 10px; 
-            } 
-             
-            .registros-table { 
-                font-size: 0.9rem; 
-            } 
-             
-            .registros-table th,  
-            .registros-table td { 
-                padding: 10px; 
-            } 
-             
-            .registros-table .actions-cell { 
-                flex-direction: column; 
-                gap: 5px; 
-            } 
-             
-            .form-actions { 
-                flex-direction: column; 
-                gap: 10px; 
-            } 
-        } 
-    </style> 
-</head> 
-<body> 
-    <header> 
-        <div class="header-content"> 
-            <div class="logo"> 
-                <div class="logo-icon"> 
-                    <i class="fas fa-graduation-cap"></i> 
-                </div> 
-                <div class="logo-text"> 
-                    <h1>Registro de Ocorrências Escolares</h1> 
-                    <p>Sistema integrado com Google Sheets</p> 
-                </div> 
-            </div> 
-        </div> 
-    </header> 
-     
-    <div class="container"> 
-        <main> 
-            <div class="dashboard"> 
-                <div> 
-                    <div class="integration-status"> 
-                        <i class="fas fa-plug"></i> 
-                        <div> 
-                            <strong>Status de integração:</strong>  
-                            <span class="status-indicator status-connected"></span> 
-                            Conectado à planilha Google Sheets 
-                        </div> 
-                    </div> 
-                     
-                    <div class="card"> 
-                        <div class="card-header"> 
-                            <i class="fas fa-clipboard-list"></i> Informações da Ocorrência 
-                        </div> 
-                        <div class="card-body"> 
-                            <form id="occurrenceForm"> 
-                                <div class="form-row"> 
-                                    <div class="form-col"> 
-                                        <div class="form-group"> 
-                                            <label for="professor" class="required">Nome do 
-professor</label> 
-                                            <div class="student-select-container"> 
-                                                <select id="professor" required> 
-                                                    <option value="">Selecione seu nome</option> 
-                                                    <!-- Professores serão preenchidos via JS --> 
-                                                </select> 
-                                            </div> 
-                                        </div> 
-                                    </div> 
-                                    <div class="form-col"> 
-                                        <div class="form-group date-input-container"> 
-                                            <label for="occurrenceDate" class="required">Data da 
-ocorrência</label> 
-                                            <input type="date" id="occurrenceDate" required> 
-                                        </div> 
-                                    </div> 
-                                </div> 
-                                 
-                                <div class="form-row"> 
-                                    <div class="form-col"> 
-                                        <div class="form-group"> 
-                                            <label for="studentClass" class="required">Turma</label> 
-                                            <div class="student-select-container"> 
-                                                <select id="studentClass" required> 
-                                                    <option value="">Selecione a turma</option> 
-                                                    <!-- Turmas serão preenchidas via JS --> 
-                                                </select> 
-                                            </div> 
-                                        </div> 
-                                    </div> 
-                                    <div class="form-col"> 
-                                        <div class="form-group"> 
-                                            <label for="student" class="required">Nome do 
-aluno</label> 
-                                            <div class="student-select-container"> 
-                                                <select id="student" required disabled> 
-                                                    <option value="">Selecione primeiro a turma</option> 
-                                                </select> 
-                                            </div> 
-                                        </div> 
-                                    </div> 
-                                </div> 
-                                 
-                                <div class="section-title"> 
-                                    <i class="fas fa-exclamation-triangle"></i> Irregularidades 
-                                </div> 
-                                 
-                                <div class="checkbox-group"> 
-                                    <label>Selecione as irregularidades (opcional):</label> 
-                                    <div class="checkbox-container" id="irregularitiesContainer"> 
-                                        <!-- Irregularidades serão preenchidas via JS --> 
-                                    </div> 
-                                </div> 
-                                 
-                                <div class="form-group"> 
-                                    <label for="description">Breve relato do ocorrido</label> 
-                                    <textarea id="description" placeholder="Descreva 
-detalhadamente a ocorrência..."></textarea> 
-                                </div> 
-                                 
-                                <div class="form-actions"> 
-                                    <button type="submit" class="btn btn-primary btn-lg" 
-id="submitBtn"> 
-                                        <i class="fas fa-paper-plane"></i> CADASTRAR 
-                                    </button> 
-                                    <button type="button" id="clearBtn" class="btn btn-secondary"> 
-                                        <i class="fas fa-broom"></i> Limpar formulário 
-                                    </button> 
-                                    <button type="button" id="exportBtn" class="btn btn
-secondary"> 
-                                        <i class="fas fa-file-export"></i> Exportar Dados 
-                                    </button> 
-                                </div> 
-                                 
-                                <div class="form-group"> 
-                                    <label>Registros de Ocorrências</label> 
-                                    <div class="table-container" style="overflow-x: auto;"> 
-                                        <table id="registrosTable" class="registros-table"> 
-                                            <thead> 
-                                                <tr> 
-                                                    <th>Data</th> 
-                                                    <th>Professor</th> 
-                                                    <th>Turma</th> 
-                                                    <th>Aluno</th> 
-                                                    <th>Irregularidades</th> 
-                                                    <th>Descrição</th> 
-                                                    <th>Ações</th> 
-                                                </tr> 
-                                            </thead> 
-                                            <tbody id="registrosTableBody"> 
-                                                <!-- Os registros serão carregados via JavaScript --> 
-                                            </tbody> 
-                                        </table> 
-                                    </div> 
-                                </div> 
-                            </form> 
-                        </div> 
-                    </div> 
-                </div> 
-                 
-                <div> 
-                    <div class="stats-card"> 
-                        <div class="card-header"> 
-                            <i class="fas fa-chart-line"></i> Estatísticas do Sistema 
-                        </div> 
-                        <div class="stats-grid"> 
-                            <div class="stat-item"> 
-                                <div class="stat-value" id="totalOccurrences">0</div> 
-                                <div class="stat-label">Ocorrências registradas</div> 
-                            </div> 
-                             
-                            <div class="stat-item" id="classStudentsCard" style="display: 
-none;"> 
-                                <div class="stat-value" id="classStudentsCount">0</div> 
-                                <div class="stat-label">Alunos na turma</div> 
-                                <div class="period-stats"> 
-                                    <div class="period-item"> 
-                                        <div class="period-value" id="selectedClassPeriod">-</div> 
-                                        <div class="period-label">Período</div> 
-                                    </div> 
-                                </div> 
-                            </div> 
-                             
-                            <div class="stat-item"> 
-                                <div class="stat-value" id="totalStudents">0</div> 
-                                <div class="stat-label">Total de alunos</div> 
-                                <div class="period-stats"> 
-                                    <div class="period-item"> 
-                                        <div class="period-value period-manha" 
-id="morningCount">0</div> 
-                                        <div class="period-label">Manhã</div> 
-                                    </div> 
-                                    <div class="period-item"> 
-                                        <div class="period-value period-tarde" 
-id="afternoonCount">0</div> 
-                                        <div class="period-label">Tarde</div> 
-                                    </div> 
-                                    <div class="period-item"> 
-                                        <div class="period-value period-noite" id="nightCount">0</div> 
-                                        <div class="period-label">Noite</div> 
-                                    </div> 
-                                </div> 
-                            </div> 
-                            <div class="stat-item"> 
-                                <div class="stat-value" id="totalClasses">0</div> 
-                                <div class="stat-label">Turmas monitoradas</div> 
-                            </div> 
-                            <div class="stat-item"> 
-                                <div class="stat-value" id="totalTeachers">0</div> 
-                                <div class="stat-label">Professores ativos</div> 
-                            </div> 
-                        </div> 
-                    </div> 
-                     
-                    <div class="student-occurrences-card" id="studentOccurrencesCard"> 
-                        <div class="student-occurrences-content"> 
-                            <div class="student-occurrences-name" 
-id="studentOccurrencesName">Nome do Aluno</div> 
-                            <div class="student-occurrences-count" 
-id="studentOccurrencesCount">0</div> 
-                            <div class="student-occurrences-label">Ocorrências 
-registradas</div> 
-                        </div> 
-                    </div> 
-                     
-                    <div class="card"> 
-                        <div class="card-header"> 
-                            <i class="fas fa-chart-bar"></i> Distribuição de Alunos por Período 
-                        </div> 
-                        <div class="card-body"> 
-                            <div class="stats-chart-container"> 
-                                <canvas id="studentsPeriodChart"></canvas> 
-                            </div> 
-                        </div> 
-                    </div> 
-                     
-                    <div class="card"> 
-                        <div class="card-header"> 
-                            <i class="fas fa-info-circle"></i> Sobre o Sistema 
-                        </div> 
-                        <div class="card-body"> 
-                            <p>Este sistema permite o registro de ocorrências escolares com 
-integração direta ao Google Sheets.</p> 
-                            <br> 
-                            <p><strong>Funcionalidades:</strong></p> 
-                            <ul style="padding-left: 20px; margin-top: 10px;"> 
-                                <li>Seleção de turma com carregamento automático dos 
-alunos</li> 
-                                <li>Registro detalhado de ocorrências</li> 
-                                <li>Integração em tempo real com planilha Google</li> 
-                                <li>Estatísticas atualizadas</li> 
-                                <li>Interface amigável e responsiva</li> 
-                            </ul> 
-                        </div> 
-                    </div> 
-                </div> 
-            </div> 
-        </main> 
-    </div> 
-     
-    <div id="notification" class="notification"> 
-        <i class="fas icon"></i> 
-        <div class="content"></div> 
-        <button class="close"><i class="fas fa-times"></i></button> 
-    </div> 
-     
-    <footer> 
-        <div class="footer-links"> 
-            <a href="#"><i class="fas fa-envelope"></i> Contato</a> 
-            <a href="#"><i class="fas fa-file-contract"></i> Termos de Serviço</a> 
-            <a href="#"><i class="fas fa-shield-alt"></i> Política de Privacidade</a> 
-            <a href="#"><i class="fas fa-flag"></i> Denunciar</a> 
-        </div> 
-        <div style="margin-top: 10px;"> 
-            Sistema de Gestão Escolar © 2025 
-        </div> 
-    </footer> 
- 
-    <script> 
-        document.addEventListener('DOMContentLoaded', function() { 
-            // Configurações da aplicação 
-            const BACKEND_URL = 
-"https://script.google.com/macros/s/AKfycbznUNvL75faWf55daaSc98NEiVYmBpGKC6p3LoZxTx85ASLG_JUy1Qm0sa142aPyOvAkA/exec"; 
- 
-            // Elementos do DOM 
-            const form = document.getElementById('occurrenceForm'); 
-            const professorSelect = document.getElementById('professor'); 
-            const classSelect = document.getElementById('studentClass'); 
-            const studentSelect = document.getElementById('student'); 
-            const submitBtn = document.getElementById('submitBtn'); 
-            const clearBtn = document.getElementById('clearBtn'); 
-            const exportBtn = document.getElementById('exportBtn'); 
-            const registrosTable = document.getElementById('registrosTable'); 
-            const registrosTableBody = document.getElementById('registrosTableBody'); 
-            const notification = document.getElementById('notification'); 
-            const notificationIcon = notification.querySelector('.icon'); 
-            const notificationContent = notification.querySelector('.content'); 
-            const notificationClose = notification.querySelector('.close'); 
-            const studentOccurrencesCard = 
-document.getElementById('studentOccurrencesCard'); 
-            const studentOccurrencesName = 
-document.getElementById('studentOccurrencesName'); 
-            const studentOccurrencesCount = 
-document.getElementById('studentOccurrencesCount'); 
-            const classStudentsCard = document.getElementById('classStudentsCard'); 
-            const classStudentsCount = 
-document.getElementById('classStudentsCount'); 
-            const selectedClassPeriod = 
-document.getElementById('selectedClassPeriod'); 
-            const totalOccurrencesEl = document.getElementById('totalOccurrences'); 
-            const morningCountEl = document.getElementById('morningCount'); 
-            const afternoonCountEl = document.getElementById('afternoonCount'); 
-            const nightCountEl = document.getElementById('nightCount'); 
- 
-            // Variáveis globais 
-            let currentEditId = null; 
-            let charts = {}; 
-            let availableClasses = []; 
- 
-            // Lista de irregularidades 
-            const irregularities = [ 
-                'Indisciplina', 
-                'Atraso', 
-                'Falta', 
-                'Uso Indevido de Celular', 
-                'Desrespeito ao Professor', 
-                'Desrespeito aos Colegas', 
-                'Não Fez Tarefa', 
-                'Não Trouxe Material', 
-                'Conversa Excessiva', 
-                'Saída da Sala sem Autorização', 
-                'Uso de Linguagem Inadequada', 
-                'Agressão Física', 
-                'Agressão Verbal', 
-                'Vandalismo', 
-                'Bullying', 
-                'Outros' 
-            ]; 
- 
-            // Inicializar aplicação 
-            async function initApp() { 
-                // Definir data atual 
-                const today = new Date(); 
-                const formattedDate = today.toISOString().split('T')[0]; 
-                document.getElementById('occurrenceDate').value = formattedDate; 
- 
-                // Carregar dados iniciais 
-                await loadTeachers(); 
-                await loadClasses(); 
-                createIrregularitiesCheckboxes(); 
-                await loadRegistrosTable(); 
-                await loadStatistics(); 
-                await loadStudentPeriodStats(); 
- 
-                // Event listeners 
-                form.addEventListener('submit', handleFormSubmit); 
-                clearBtn.addEventListener('click', clearForm); 
-                exportBtn.addEventListener('click', exportData); 
-                classSelect.addEventListener('change', handleClassChange); 
-                studentSelect.addEventListener('change', handleStudentChange); 
-                notificationClose.addEventListener('click', () => { 
-                    notification.classList.remove('show'); 
-                }); 
-            } 
- 
-            // Carregar professores 
-            async function loadTeachers() { 
-                try { 
-                    const response = await fetch(`${BACKEND_URL}?endpoint=teachers`); 
-                    const data = await response.json(); 
-                     
-                    if (data.status === 'success') { 
-                        professorSelect.innerHTML = '<option value="">Selecione seu 
-nome</option>'; 
-                        data.teachers.forEach(teacher => { 
-                            const option = document.createElement('option'); 
-                            option.value = teacher; 
-                            option.textContent = teacher; 
-                            professorSelect.appendChild(option); 
-                        }); 
-                        document.getElementById('totalTeachers').textContent = 
-data.teachers.length; 
-                    } 
-                } catch (error) { 
-                    console.error('Erro ao carregar professores:', error); 
-                    showNotification('error', 'Erro ao carregar lista de professores'); 
-                } 
-            } 
- 
-            // Carregar turmas 
-            async function loadClasses() { 
-                try { 
-                    const response = await fetch(`${BACKEND_URL}?endpoint=classes`); 
-                    const data = await response.json(); 
-                     
-                    if (data.status === 'success') { 
-                        availableClasses = data.classes; 
-                        classSelect.innerHTML = '<option value="">Selecione a 
-turma</option>'; 
-                        data.classes.forEach(className => { 
-                            const option = document.createElement('option'); 
-                            option.value = className; 
-                            option.textContent = className; 
-                            classSelect.appendChild(option); 
-                        }); 
-                        document.getElementById('totalClasses').textContent = 
-data.classes.length; 
-                    } 
-                } catch (error) { 
-                    console.error('Erro ao carregar turmas:', error); 
-                    showNotification('error', 'Erro ao carregar lista de turmas'); 
-                } 
-            } 
- 
-            // Criar checkboxes de irregularidades 
-            function createIrregularitiesCheckboxes() { 
-                const container = document.getElementById('irregularitiesContainer'); 
-                container.innerHTML = ''; 
-                 
-                irregularities.forEach(irregularity => { 
-                    const checkboxItem = document.createElement('div'); 
-                    checkboxItem.className = 'checkbox-item'; 
-                     
-                    const chartContainer = document.createElement('div'); 
-                    chartContainer.className = 'chart-container'; 
-                     
-                    const canvas = document.createElement('canvas'); 
-                    canvas.className = 'donut-chart'; 
-                    canvas.width = 50; 
-                    canvas.height = 50; 
-                    canvas.setAttribute('data-irregularity', irregularity); 
-                     
-                    const chartValue = document.createElement('div'); 
-                    chartValue.className = 'chart-value'; 
-                    chartValue.textContent = '0'; 
-                     
-                    chartContainer.appendChild(canvas); 
-                    chartContainer.appendChild(chartValue); 
-                     
-                    const checkbox = document.createElement('input'); 
-                    checkbox.type = 'checkbox'; 
-                    checkbox.id = `irregularity_${irregularity.replace(/\s+/g, '_')}`; 
-                    checkbox.value = irregularity; 
-                     
-                    const label = document.createElement('label'); 
-                    label.htmlFor = checkbox.id; 
-                    label.textContent = irregularity; 
-                     
-                    checkboxItem.appendChild(chartContainer); 
-                    checkboxItem.appendChild(checkbox); 
-                    checkboxItem.appendChild(label); 
-                     
-                    container.appendChild(checkboxItem); 
-                     
-                    // Criar gráfico inicial 
-                    createDonutChart(canvas, 0); 
-                }); 
-            } 
- 
-            // Carregar tabela de registros 
-            async function loadRegistrosTable() { 
-                try { 
-                    const response = await 
-fetch(`${BACKEND_URL}?endpoint=occurrences&sheet=BANCODEALUNOS`); 
-                    const data = await response.json(); 
-                     
-                    if (data.status === 'success') { 
-                        const tbody = registrosTableBody; 
-                        tbody.innerHTML = ''; 
-                         
-                        if (data.occurrences.length === 0) { 
-                            tbody.innerHTML = '<tr><td colspan="7" class="no
-records">Nenhuma ocorrência registrada</td></tr>'; 
-                        } else { 
-                            data.occurrences.forEach(occurrence => { 
-                                const row = document.createElement('tr'); 
-                                row.innerHTML = ` 
-                                    <td>${new Date(occurrence.data || occurrence.date || 
-occurrence['Data']).toLocaleDateString('pt-BR')}</td> 
-                                    <td>${occurrence.professor || occurrence['Professor']}</td> 
-                                    <td>${occurrence.turma || occurrence.studentClass || 
-occurrence['Turma']}</td> 
-                                    <td>${occurrence.aluno || occurrence.student || 
-occurrence['Aluno']}</td> 
-                                    <td>${occurrence.irregularidades || occurrence.irregularities || 
-occurrence['Irregularidades']}</td> 
-                                    <td>${occurrence.descricao || occurrence.description || 
-occurrence['Descrição'] || ''}</td> 
-                                    <td class="actions-cell"> 
-                                        <button class="btn-action btn-delete" 
-onclick="deleteOccurrence(${occurrence.id})"> 
-                                            <i class="fas fa-trash"></i> Excluir 
-                                        </button> 
-                                    </td> 
-                                `; 
-                                tbody.appendChild(row); 
-                            }); 
-                        } 
-                    } 
-                } catch (error) { 
-                    console.error('Erro ao carregar registros:', error); 
-                    showNotification('error', 'Erro ao carregar registros de ocorrências'); 
-                } 
-            } 
- 
-            // FUNÇÃO PRINCIPAL APRIMORADA - Manipular envio do formulário 
-            async function handleFormSubmit(e) { 
-                e.preventDefault(); 
- 
-                const submitBtn = document.getElementById('submitBtn'); 
-                const originalText = submitBtn.innerHTML; 
-                 
-                // Desabilitar botão e mostrar estado de carregamento 
-                submitBtn.disabled = true; 
-                submitBtn.innerHTML = '<div class="loading"></div> Processando...'; 
-                 
-                // Adicionar classe de carregamento ao formulário 
-                form.classList.add('form-loading'); 
- 
-                try { 
-                    // Validação completa do formulário 
-                    const validationResult = validateFormComplete(); 
-                    if (!validationResult.isValid) { 
-                        showNotification('error', validationResult.message); 
-                        highlightInvalidFields(validationResult.invalidFields); 
-                        return; 
-                    } 
- 
-                    // Captura os valores do formulário 
-                    const professor = professorSelect.value.trim(); 
-                    const turma = classSelect.value.trim(); 
-                    const aluno = studentSelect.value.trim(); 
-                    const descricao = document.getElementById('description').value.trim(); 
-                    const dataOcorrencia = 
-document.getElementById('occurrenceDate').value; 
- 
-                    // Coleta irregularidades marcadas 
-                    const irregularidadesSelecionadas = Array.from( 
-                        document.querySelectorAll('#irregularitiesContainer 
-input[type="checkbox"]:checked') 
-                    ).map(cb => cb.value); 
- 
-                    // Atualizar estado do botão 
-                    submitBtn.innerHTML = '<div class="loading"></div> Salvando no 
-sistema...'; 
- 
-                    // Monta o corpo da requisição 
-                    const data = { 
-                        endpoint: 'create-occurrence', 
-                        sheet: 'BANCODEALUNOS', 
-                        date: new Date().toISOString(), 
-                        occurrenceDate: dataOcorrencia, 
-                        professor: professor, 
-                        studentClass: turma, 
-                        student: aluno, 
-                        description: descricao, 
-                        irregularities: irregularidadesSelecionadas.join(', ') 
-                    }; 
- 
-                    // Envio para o backend 
-                    submitBtn.innerHTML = '<div class="loading"></div> Conectando com 
-servidor...'; 
-                     
-                    const response = await fetch(BACKEND_URL, { 
-                        method: 'POST', 
-                        headers: { 
-                            'Content-Type': 'application/json' 
-                        }, 
-                        body: JSON.stringify(data) 
-                    }); 
- 
-                    if (!response.ok) { 
-                        const errorText = await response.text(); 
-                        throw new Error(`Erro do servidor: ${response.status} - ${errorText}`); 
-                    } 
- 
-                    const result = await response.json(); 
- 
-                    if (result.status === 'success') { 
-                        // Feedback visual de sucesso 
-                        showEnhancedSuccessNotification(professor, aluno, turma); 
-                         
-                        // Reset inteligente do formulário (mantém professor e data) 
-                        intelligentFormReset(); 
-                         
-                        // Recarregar dados atualizados 
-                        await Promise.all([ 
-                            loadRegistrosTable(), 
-                            loadStatistics(), 
-                            updateStudentStatsIfSelected(aluno) 
-                        ]); 
-                         
-                    } else { 
-                        throw new Error(result.message || 'Erro desconhecido ao registrar 
-ocorrência.'); 
-                    } 
- 
-                } catch (error) { 
-                    console.error('Erro detalhado ao salvar ocorrência:', error); 
-                     
-                    // Determinar mensagem de erro mais amigável 
-                    const userFriendlyMessage = getFriendlyErrorMessage(error); 
-                    showNotification('error', `Erro ao salvar ocorrência: 
-${userFriendlyMessage}`); 
-                     
-                } finally { 
-                    // Restaurar estado original 
-                    submitBtn.disabled = false; 
-                    submitBtn.innerHTML = originalText; 
-                    form.classList.remove('form-loading'); 
-                     
-                    // Remover highlights de erro 
-                    clearFieldHighlights(); 
-                } 
-            } 
- 
-            // Funções auxiliares para os aprimoramentos 
-            function validateFormComplete() { 
-                const requiredFields = [ 
-                    { id: 'professor', name: 'Professor' }, 
-                    { id: 'occurrenceDate', name: 'Data da ocorrência' }, 
-                    { id: 'studentClass', name: 'Turma' }, 
-                    { id: 'student', name: 'Aluno' } 
-                ]; 
- 
-                const invalidFields = []; 
-                 
-                for (const field of requiredFields) { 
-                    const element = document.getElementById(field.id); 
-                    if (!element.value.trim()) { 
-                        invalidFields.push(field); 
-                    } 
-                } 
- 
-                return { 
-                    isValid: invalidFields.length === 0, 
-                    message: invalidFields.length > 0  
-                        ? `Por favor, preencha os campos obrigatórios: ${invalidFields.map(f 
-=> f.name).join(', ')}` 
-                        : '', 
-                    invalidFields: invalidFields 
-                }; 
-            } 
- 
-            function highlightInvalidFields(invalidFields) { 
-                invalidFields.forEach(field => { 
-                    const element = document.getElementById(field.id); 
-                    element.classList.add('input-error'); 
-                     
-                    // Scroll para o primeiro campo inválido 
-                    if (invalidFields[0].id === field.id) { 
-                        element.scrollIntoView({ behavior: 'smooth', block: 'center' }); 
-                    } 
-                }); 
-            } 
- 
-            function clearFieldHighlights() { 
-                document.querySelectorAll('.input-error').forEach(element => { 
-                    element.classList.remove('input-error'); 
-                }); 
-            } 
- 
-            function showEnhancedSuccessNotification(professor, aluno, turma) { 
-                // Criar notificação customizada de sucesso 
-                const notification = document.createElement('div'); 
-                notification.className = 'notification success show enhanced-success'; 
-                notification.innerHTML = ` 
-                    <i class="fas fa-check-circle icon"></i> 
-                    <div class="content"> 
-                        <strong>Ocorrência registrada com sucesso!</strong> 
-                        <div class="success-details"> 
-                            <div><strong>Professor:</strong> ${professor}</div> 
-                            <div><strong>Aluno:</strong> ${aluno}</div> 
-                            <div><strong>Turma:</strong> ${turma}</div> 
-                            <div><strong>Data:</strong> ${new Date().toLocaleDateString('pt
-BR')}</div> 
-                        </div> 
-                    </div> 
-                    <button class="close"><i class="fas fa-times"></i></button> 
-                `; 
-                 
-                document.body.appendChild(notification); 
-                 
-                // Configurar botão de fechar 
-                notification.querySelector('.close').addEventListener('click', () => { 
-                    notification.remove(); 
-                }); 
-                 
-                // Auto-remover após 8 segundos 
-                setTimeout(() => { 
-                    if (notification.parentNode) { 
-                        notification.remove(); 
-                    } 
-                }, 8000); 
-            } 
- 
-            function intelligentFormReset() { 
-                // Mantém professor e data atual, reseta o resto 
-                const professorValue = professorSelect.value; 
-                const today = new Date().toISOString().split('T')[0]; 
-                 
-                form.reset(); 
-                 
-                // Restaura valores que devem ser mantidos 
-                professorSelect.value = professorValue; 
-                document.getElementById('occurrenceDate').value = today; 
-                 
-                // Reseta estados dos selects dependentes 
-                studentSelect.innerHTML = '<option value="">Selecione primeiro a 
-turma</option>'; 
-                studentSelect.disabled = true; 
-                 
-                // Esconde cards de estatísticas 
-                studentOccurrencesCard.style.display = 'none'; 
-                classStudentsCard.style.display = 'none'; 
-            } 
- 
-            function getFriendlyErrorMessage(error) { 
-                if (error.message.includes('Failed to fetch')) { 
-                    return 'Não foi possível conectar com o servidor. Verifique sua conexão 
-com a internet.'; 
-                } else if (error.message.includes('Erro do servidor: 5')) { 
-                    return 'Problema temporário no servidor. Tente novamente em alguns 
-instantes.'; 
-                } else if (error.message.includes('Erro do servidor: 4')) { 
-                    return 'Dados inválidos enviados. Verifique as informações do 
-formulário.'; 
-                } else { 
-                    return error.message; 
-                } 
-            } 
- 
-            async function updateStudentStatsIfSelected(studentName) { 
-                if (studentName && studentSelect.value === studentName) { 
-                    await handleStudentChange(); 
-                } 
-            } 
- 
-            // Validação básica (mantida para compatibilidade) 
-            function validateForm() { 
-                const requiredFields = ['professor', 'occurrenceDate', 'studentClass', 
-'student']; 
-                let isValid = true; 
-                 
-                requiredFields.forEach(fieldId => { 
-                    const field = document.getElementById(fieldId); 
-                    if (!field.value.trim()) { 
-                        field.classList.add('input-error'); 
-                        isValid = false; 
-                    } else { 
-                        field.classList.remove('input-error'); 
-                    } 
-                }); 
-                 
-                if (!isValid) { 
-                    showNotification('error', 'Por favor, preencha todos os campos 
-obrigatórios'); 
-                } 
-                 
-                return isValid; 
-            } 
- 
-            // Coletar dados do formulário 
-            function collectFormData() { 
-                const selectedIrregularities = 
-Array.from(document.querySelectorAll('input[type="checkbox"]:checked')) 
-                    .map(checkbox => checkbox.value); 
-                 
-                return { 
-                    professor: professorSelect.value, 
-                    date: document.getElementById('occurrenceDate').value, 
-                    studentClass: classSelect.value, 
-                    student: studentSelect.value, 
-                    irregularities: selectedIrregularities.join(', '), 
-                    description: document.getElementById('description').value 
-                }; 
-            } 
- 
-            // Manipular mudança de turma 
-            async function handleClassChange() { 
-                const selectedClass = classSelect.value; 
-                studentSelect.innerHTML = '<option value="">Carregando 
-alunos...</option>'; 
-                studentSelect.disabled = true; 
-                studentOccurrencesCard.style.display = 'none'; 
-                classStudentsCard.style.display = 'none'; 
- 
-                // Resetar gráficos 
-                document.querySelectorAll('.donut-chart').forEach(canvas => { 
-                    createDonutChart(canvas, 0); 
-                }); 
- 
-                if (!selectedClass) { 
-                    studentSelect.innerHTML = '<option value="">Selecione uma 
-turma</option>'; 
-                    return; 
-                } 
- 
-                try { 
-                    const response = await 
-fetch(`${BACKEND_URL}?endpoint=students&turma=${encodeURIComponent(se
- lectedClass)}`); 
-                    const data = await response.json(); 
-                     
-                    if (data.status === 'success' && Array.isArray(data.students)) { 
-                        studentSelect.innerHTML = '<option value="">Selecione um 
-aluno</option>'; 
-                        data.students.forEach(student => { 
-                            const option = document.createElement('option'); 
-                            option.value = student; 
-                            option.textContent = student; 
-                            studentSelect.appendChild(option); 
-                        }); 
-                        studentSelect.disabled = false; 
-                         
-                        // Atualizar o card com o total de alunos na turma 
-                        classStudentsCount.textContent = data.students.length; 
-                         
-                        // Determinar o período da turma 
-                        const periodo = selectedClass.includes("MANHA") ? "Manhã" :  
-                                       selectedClass.includes("TARDE") ? "Tarde" :  
-                                       selectedClass.includes("NOITE") ? "Noite" : "Desconhecido"; 
-                        selectedClassPeriod.textContent = periodo; 
-                         
-                        classStudentsCard.style.display = 'block'; 
-                    } else { 
-                        throw new Error(data?.message || 'Resposta inesperada do servidor'); 
-                    } 
-                } catch (error) { 
-                    console.error('Erro ao carregar alunos:', error); 
-                    studentSelect.innerHTML = `<option value="">Erro: 
-${error.message}</option>`; 
-                    showNotification('error', 'Erro ao carregar alunos'); 
-                } 
-            } 
- 
-            // Manipular mudança de aluno 
-            async function handleStudentChange() { 
-                if (studentSelect.value) { 
-                    // Mostrar o card de ocorrências do aluno 
-                    studentOccurrencesCard.style.display = 'block'; 
-                    studentOccurrencesName.textContent = studentSelect.value; 
-                    studentOccurrencesCount.textContent = "Carregando..."; 
-                     
-                    try { 
-                        const response = await fetch(`${BACKEND_URL}?endpoint=student
-stats&aluno=${encodeURIComponent(studentSelect.value)}`); 
-                        const data = await response.json(); 
-                         
-                        if (data.status === 'success') { 
-                            studentOccurrencesCount.textContent = data.total_occurrences || 0; 
-                        } else { 
-                            studentOccurrencesCount.textContent = "0"; 
-                            console.error('Erro ao buscar estatísticas:', data?.message); 
-                        } 
-                    } catch (error) { 
-                        studentOccurrencesCount.textContent = "0"; 
-                        console.error('Erro ao buscar estatísticas:', error); 
-                    } 
-                } else { 
-                    studentOccurrencesCard.style.display = 'none'; 
-                    // Resetar gráficos 
-                    document.querySelectorAll('.donut-chart').forEach(canvas => { 
-                        createDonutChart(canvas, 0); 
-                    }); 
-                } 
-            } 
- 
-            // Limpar formulário 
-            function clearForm() { 
-                form.reset(); 
-                const today = new Date(); 
-                const formattedDate = today.toISOString().split('T')[0]; 
-                document.getElementById('occurrenceDate').value = formattedDate; 
-                professorSelect.selectedIndex = 0; 
-                studentSelect.innerHTML = '<option value="">Selecione primeiro a 
-turma</option>'; 
-                studentSelect.disabled = true; 
-                studentOccurrencesCard.style.display = 'none'; 
-                classStudentsCard.style.display = 'none'; 
-                classSelect.selectedIndex = 0; 
-                currentEditId = null; 
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> CADASTRAR'; 
- 
-                // Resetar gráficos 
-                document.querySelectorAll('.donut-chart').forEach(canvas => { 
-                    createDonutChart(canvas, 0); 
-                }); 
- 
-                // Desmarcar todos os checkboxes 
-                document.querySelectorAll('input[type="checkbox"]').forEach(checkbox 
-=> { 
-                    checkbox.checked = false; 
-                }); 
-                 
-                // Remover erros de validação 
-                document.querySelectorAll('.input-error').forEach(el => { 
-                    el.classList.remove('input-error'); 
-                }); 
-            } 
- 
-            // Exportar dados 
-            async function exportData() { 
-                try { 
-                    const response = await 
-fetch(`${BACKEND_URL}?endpoint=occurrences&sheet=BANCODEALUNOS`); 
-                    const data = await response.json(); 
-                     
-                    if (data.status === 'success' && Array.isArray(data.occurrences)) { 
-                        // Preparar dados para exportação 
-                        const exportData = data.occurrences.map(occurrence => { 
-                            return { 
-                                'Data': new Date(occurrence.data || occurrence.date || 
-occurrence['Data']).toLocaleDateString('pt-BR'), 
-                                'Professor': occurrence.professor || occurrence['Professor'], 
-                                'Turma': occurrence.turma || occurrence.studentClass || 
-occurrence['Turma'], 
-                                'Aluno': occurrence.aluno || occurrence.student || 
-occurrence['Aluno'], 
-                                'Irregularidades': occurrence.irregularidades || 
-occurrence.irregularities || occurrence['Irregularidades'], 
-                                'Descrição': occurrence.descricao || occurrence.description || 
-occurrence['Descrição'] 
-                            }; 
-                        }); 
-                         
-                        // Criar planilha 
-                        const worksheet = XLSX.utils.json_to_sheet(exportData); 
-                        const workbook = XLSX.utils.book_new(); 
-                        XLSX.utils.book_append_sheet(workbook, worksheet, 
-"OCORRENCIASDOSPROFESSORES"); 
-                         
-                        // Exportar para arquivo Excel 
-                        XLSX.writeFile(workbook, 'ocorrencias_escolares.xlsx'); 
-                        showNotification('success', 'Dados exportados com sucesso!'); 
-                    } else { 
-                        throw new Error(data?.message || 'Erro ao obter dados para 
-exportação'); 
-                    } 
-                } catch (error) { 
-                    console.error('Erro ao exportar dados:', error); 
-                    showNotification('error', 'Erro ao exportar dados'); 
-                } 
-            } 
- 
-            // Carregar estatísticas 
-            async function loadStatistics() { 
-                try { 
-                    const response = await fetch(`${BACKEND_URL}?endpoint=dashboard
-stats`); 
-                    const data = await response.json(); 
-                     
-                    if (data.status === 'success') { 
-                        totalOccurrencesEl.textContent = data.stats.total_occurrences || 0; 
-                        document.getElementById('totalClasses').textContent = 
-availableClasses.length; 
-                    } 
-                } catch (error) { 
-                    console.error('Erro ao carregar estatísticas:', error); 
-                    // Usar valores padrão em caso de erro 
-                    totalOccurrencesEl.textContent = 0; 
-                    document.getElementById('totalClasses').textContent = 
-availableClasses.length; 
-                } 
-            } 
- 
-            // Carregar estatísticas de alunos por período 
-            async function loadStudentPeriodStats() { 
-                try { 
-                    const response = await fetch(`${BACKEND_URL}?endpoint=period
-stats`); 
-                    const data = await response.json(); 
-                     
-                    if (data.status === 'success') { 
-                        document.getElementById('totalStudents').textContent = 
-data.statistics.total; 
-                        morningCountEl.textContent = data.statistics.morning; 
-                        afternoonCountEl.textContent = data.statistics.afternoon; 
-                        nightCountEl.textContent = data.statistics.night; 
-                         
-                        // Atualizar gráfico de distribuição por período 
-                        updateStudentsPeriodChart(data.statistics); 
-                    } else { 
-                        throw new Error(data?.message || "Erro ao carregar estatísticas de 
-alunos"); 
-                    } 
-                } catch (error) { 
-                    console.error('Erro ao carregar estatísticas de alunos:', error); 
-                    // Usar dados simulados para demonstração 
-                    const demoData = { 
-                        total: 1488, 
-                        morning: 685, 
-                        afternoon: 505, 
-                        night: 298 
-                    }; 
-                    document.getElementById('totalStudents').textContent = 
-demoData.total; 
-                    morningCountEl.textContent = demoData.morning; 
-                    afternoonCountEl.textContent = demoData.afternoon; 
-                    nightCountEl.textContent = demoData.night; 
-                    updateStudentsPeriodChart(demoData); 
-                } 
-            } 
- 
-            // Excluir ocorrência 
-            window.deleteOccurrence = async function(occurrenceId) { 
-                if (!confirm('Tem certeza que deseja excluir esta ocorrência?')) { 
-                    return; 
-                } 
- 
-                try { 
-                    const response = await fetch(`${BACKEND_URL}?endpoint=delete
-occurrence&id=${occurrenceId}`, { 
-                        method: 'DELETE' 
-                    }); 
-                     
-                    const data = await response.json(); 
-                     
-                    if (data.status === 'success') { 
-                        showNotification('success', 'Ocorrência excluída com sucesso!'); 
-                        // Recarregar tabela 
-                        loadRegistrosTable(); 
-                        // Atualizar estatísticas 
-                        loadStatistics(); 
-                    } else { 
-                        throw new Error(data?.message || "Erro ao excluir ocorrência"); 
-                    } 
-                } catch (error) { 
-                    console.error('Erro ao excluir ocorrência:', error); 
-                    showNotification('error', `Erro ao excluir ocorrência: ${error.message}`); 
-                } 
-            } 
- 
-            // Criar gráfico de rosca 
-            function createDonutChart(canvas, value, maxValue = 10) { 
-                const ctx = canvas.getContext('2d'); 
-                const chartKey = canvas.getAttribute('data-irregularity'); 
- 
-                // Destruir gráfico anterior se existir 
-                if (charts[chartKey]) { 
-                    charts[chartKey].destroy(); 
-                } 
- 
-                charts[chartKey] = new Chart(ctx, { 
-                    type: 'doughnut', 
-                    data: { 
-                        datasets: [{ 
-                            data: [value, maxValue - value], 
-                            backgroundColor: [ 
-                                '#3498db', // Cor da ocorrência 
-                                '#e0e0e0' // Cor de fundo 
-                            ], 
-                            borderWidth: 0 
-                        }] 
-                    }, 
-                    options: { 
-                        cutout: '70%', 
-                        responsive: false, 
-                        maintainAspectRatio: false, 
-                        plugins: { 
-                            legend: { display: false }, 
-                            tooltip: { enabled: false } 
-                        } 
-                    } 
-                }); 
- 
-                // Atualizar o número de ocorrências 
-                const chartValue = canvas.parentElement.querySelector('.chart-value'); 
-                chartValue.textContent = value; 
-            } 
- 
-            // Atualizar gráfico de distribuição por período 
-            function updateStudentsPeriodChart(data) { 
-                const ctx = 
-document.getElementById('studentsPeriodChart').getContext('2d'); 
-                 
-                // Destruir gráfico anterior se existir 
-                if (charts.studentsPeriodChart) { 
-                    charts.studentsPeriodChart.destroy(); 
-                } 
- 
-                charts.studentsPeriodChart = new Chart(ctx, { 
-                    type: 'doughnut', 
-                    data: { 
-                        labels: ['Manhã', 'Tarde', 'Noite'], 
-                        datasets: [{ 
-                            data: [data.morning, data.afternoon, data.night], 
-                            backgroundColor: [ 
-                                '#f1c40f', // Manhã 
-                                '#e67e22', // Tarde 
-                                '#9b59b6'  // Noite 
-                            ], 
-                            borderWidth: 2, 
-                            borderColor: '#ffffff' 
-                        }] 
-                    }, 
-                    options: { 
-                        responsive: true, 
-                        maintainAspectRatio: false, 
-                        plugins: { 
-                            legend: { 
-                                position: 'bottom', 
-                                labels: { 
-                                    color: 'white', 
-                                    font: { 
-                                        size: 12 
-                                    } 
-                                } 
-                            }, 
-                            tooltip: { 
-                                callbacks: { 
-                                    label: function(context) { 
-                                        const label = context.label || ''; 
-                                        const value = context.parsed; 
-                                        const total = context.dataset.data.reduce((a, b) => a + b, 0); 
-                                        const percentage = ((value / total) * 100).toFixed(1); 
-                                        return `${label}: ${value} (${percentage}%)`; 
-                                    } 
-                                } 
-                            } 
-                        } 
-                    } 
-                }); 
-            } 
- 
-            // Mostrar notificação 
-            function showNotification(type, message) { 
-                notificationIcon.className = `fas icon ${type === 'success' ? 'fa-check
-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}`; 
-                notificationContent.textContent = message; 
-                notification.className = `notification ${type} show`; 
-                 
-                setTimeout(() => { 
-                    notification.classList.remove('show'); 
-                }, 5000); 
-            } 
- 
-            // Inicializar a aplicação 
-            initApp(); 
-        }); 
-</script> 
-</body> 
-</html> 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cadastro de Ocorrências - 2025</title>
+
+  <!-- jsPDF para geração local de PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <style>
+    /* ===== Reset/Base ===== */
+    * { box-sizing: border-box; margin:0; padding:0; }
+    html,body{height:100%}
+    body{
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      background: linear-gradient(135deg,#9fe7ff 0%, #b9f7c9 60%, #baf3ff 100%);
+      color:#fff; font-weight:800; padding:18px;
+    }
+    .app{max-width:1400px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px;border-radius:14px;background:linear-gradient(90deg,rgba(0,31,63,0.95),rgba(0,78,120,0.95));box-shadow:0 8px 30px rgba(0,0,0,0.15)}
+    header h1{font-size:20px;margin:0}
+    .header-controls{display:flex;gap:10px;align-items:center}
+    .card{background:#2f3336;padding:18px;border-radius:12px;box-shadow:0 8px 30px rgba(0,0,0,0.15)}
+    .flex{display:flex;gap:18px;align-items:flex-start}
+    .col{display:flex;flex-direction:column;gap:12px}
+    label{display:block;margin-bottom:6px;font-size:13px}
+    
+    /* Ajustes para inputs com largura adequada ao conteúdo */
+    input[type="text"],input[type="email"],input[type="password"],select,textarea,input[type="date"]{
+      min-width: 120px; /* Largura mínima padrão */
+      padding:10px 12px;border-radius:8px;border:none;font-weight:800;font-size:14px;color:#111;
+      width: auto; /* Permite que o campo se ajuste ao conteúdo */
+      max-width: 100%; /* Garante que não ultrapasse o container */
+    }
+    
+    /* Campos específicos com larguras adequadas */
+    #professor_gestao, #disciplina_gestao { min-width: 200px; }
+    #serie_gestao, #aluno_gestao { min-width: 250px; }
+    #classificacao_gestao { min-width: 180px; }
+    #ra_gestao { min-width: 120px; }
+    #dataRetorno_gestao { min-width: 140px; }
+    
+    /* Área do professor */
+    #professor_select, #turma_select { min-width: 200px; }
+    #alunos_selected_input { min-width: 300px; }
+    #data_prof { min-width: 140px; }
+    
+    textarea{min-height:110px;resize:vertical;padding-top:12px; width: 100%;}
+    button{cursor:pointer;border:none;padding:10px 14px;border-radius:8px;font-weight:900;box-shadow:0 6px 18px rgba(0,0,0,0.15)}
+    .btn-primary{background:linear-gradient(90deg,#1e3c72,#2a5298);color:#fff}
+    .btn-danger{background:linear-gradient(90deg,#e94b4b,#c62828);color:#fff}
+    .btn-success{background:linear-gradient(90deg,#4CAF50,#2E7D32);color:#fff}
+    .btn-secondary{background:linear-gradient(90deg,#6c757d,#5a6268);color:#fff}
+    .subtitle{font-size:14px;color:#d9f2ff;margin-bottom:6px}
+    .historyList{max-height:420px;overflow:auto;display:flex;flex-direction:column;gap:10px;padding-right:6px}
+    .historyItem{background:rgba(255,255,255,0.06);border-left:5px solid rgba(255,255,255,0.06);padding:12px;border-radius:8px;color:#fff;font-weight:700}
+    .historyItem .meta{font-size:13px;color:#dbefff;font-weight:800;display:flex;justify-content:space-between;gap:8px;align-items:center}
+    .historyItem .desc{margin-top:8px;color:#e7f7ff;font-weight:600;font-size:14px}
+    .modal-root{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,0.5);z-index:2000}
+    .modal{width:92%;max-width:780px;background:#fff;color:#111;border-radius:12px;padding:14px;max-height:84vh;overflow:auto}
+    .studentList{display:flex;flex-direction:column;gap:8px}
+    .pill{background:linear-gradient(90deg,#2a5298,#3a6bd1);color:#fff;padding:6px 10px;border-radius:999px;font-weight:800;display:inline-block}
+    .muted{opacity:.9;font-weight:700;color:#e7f7ff}
+    .qnum{color:#ff3b3b;font-weight:900}
+    
+    /* Novos estilos para formulários com campos redimensionáveis */
+    .form-row {display: flex; gap: 12px; margin-bottom: 12px; align-items: flex-start;}
+    .form-group {display: flex; flex-direction:column; flex: 1 1 auto;}
+    .form-group label {margin-bottom: 6px;}
+    
+    /* Ajustes específicos para a área de gestão */
+    .gestao-form .form-group {flex: 1;}
+    .gestao-form .form-row {margin-bottom: 15px;}
+    .gestao-form input, 
+    .gestao-form select, 
+    .gestao-form textarea {
+        width: auto;
+        min-width: 150px;
+        padding: 12px;
+        font-size: 15px;
+    }
+    
+    .checkbox-group {display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;}
+    .checkbox-item {background: #efefef; color: #111; padding: 6px 10px; border-radius: 999px; display: inline-flex; align-items: center;}
+    .checkbox-item input {margin-right: 4px;}
+    
+    /* Estilo específico para o campo Classificação */
+    .classification-container {display: flex; flex-direction: column; min-width: 250px;}
+    
+    /* Ajuste para garantir que os dropdowns tenham largura adequada */
+    select {
+      width: auto;
+      min-width: 200px;
+    }
+    
+    /* ESTILOS PARA O MODAL DE ALUNOS COM BOTÕES FIXOS */
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .modal-content {
+      max-height: 60vh;
+      overflow-y: auto;
+      margin-bottom: 15px;
+    }
+    
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-top: 15px;
+      border-top: 1px solid #eee;
+      position: sticky;
+      bottom: 0;
+      background: white;
+    }
+    
+    .student-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #eee;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .student-row:hover {
+      background-color: #f5f5f5;
+    }
+    
+    .student-row.selected {
+      background-color: #e6f7ff;
+    }
+    
+    .student-name {
+      flex: 1;
+      padding-right: 10px;
+    }
+    
+    /* Ajustes para responsividade */
+    @media(max-width:980px){
+      .flex{flex-direction:column}
+      header{flex-direction:column;gap:8px;align-items:flex-start} 
+      .form-row {flex-direction: column;}
+      .classification-container {width: 100%;}
+      .gestao-form .form-row {flex-direction: column;}
+      
+      /* Em telas menores, os campos ocupam 100% da largura */
+      input[type="text"],input[type="email"],input[type="password"],select,textarea,input[type="date"] {
+        width: 100%;
+      }
+    }
+    
+    /* loader animation */
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .loader{width:18px;height:18px;border:3px solid rgba(255,255,255,0.2);border-top-color:#fff;border-radius:50%;animation:spin 1s linear infinite;display:inline-block}
+    
+    /* Notificações */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 700;
+      z-index: 10000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transition: all 0.3s ease;
+    }
+    .notification.success {
+      background: linear-gradient(90deg, #4CAF50, #2E7D32);
+    }
+    .notification.error {
+      background: linear-gradient(90deg, #e94b4b, #c62828);
+    }
+    
+    /* Estilos para o formulário de login unificado */
+    .login-form {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    .login-form .form-row {
+      margin-bottom: 15px;
+    }
+    
+    /* Estilo para o registro em tempo real */
+    .real-time-register {
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 12px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .real-time-item {
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .real-time-item:last-child {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <!-- HEADER -->
+    <header>
+      <h1>2025 — Cadastro de Ocorrências</h1>
+      <div class="header-controls">
+        <div id="userDisplay" class="muted">Não autenticado</div>
+        <button id="btnLogout" class="btn-danger" style="display:none" onclick="logout()">Sair</button>
+        <button id="btnDownloadPdf" class="btn-success" style="display:none" onclick="downloadDocument()">Baixar Template</button>
+      </div>
+    </header>
+
+    <!-- LOGIN UNIFICADO -->
+    <div id="loginScreen" class="card" style="display:block">
+      <div class="login-form">
+        <div class="subtitle">Acesso ao Sistema</div>
+        
+        <div class="form-row">
+          <div class="form-group" style="flex: 1;">
+            <label for="emailLogin">E-mail</label>
+            <input id="emailLogin" type="email" placeholder="seu.email@escola.com">
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group" style="flex: 1;">
+            <label for="passwordLogin">Senha</label>
+            <input id="passwordLogin" type="password" placeholder="senha">
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <button class="btn-primary" onclick="login()">Entrar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN APP - GESTÃO -->
+    <div id="mainAppGestao" style="display:none;flex-direction:column;gap:14px">
+      <div class="flex">
+        <!-- GESTÃO -->
+        <div class="card col" style="flex:1">
+          <div class="subtitle">CADASTRO — GESTÃO</div>
+          <div class="col gestao-form">
+            <!-- Série/Turma em primeiro lugar -->
+            <div class="form-row">
+              <div class="form-group">
+                <label>Série / Turma</label>
+                <select id="serie_gestao" onchange="carregarAlunosPorTurmaGestao(this.value)">
+                  <option value="">-- Selecione a turma --</option>
+                </select>
+              </div>
+            </div>
+            
+            <!-- Aluno e RA -->
+            <div class="form-row">
+              <div class="form-group">
+                <label>Aluno</label>
+                <select id="aluno_gestao" onchange="preencherRAGestao(this.value)">
+                  <option value="">-- Selecione o aluno --</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>RA</label>
+                <input id="ra_gestao" type="text" readonly>
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label>Professor</label>
+                <input id="professor_gestao" type="text">
+              </div>
+              <div class="form-group">
+                <label>Disciplina</label>
+                <input id="disciplina_gestao" type="text">
+              </div>
+            </div>
+            
+            <!-- Classificação com largura ajustada -->
+            <div class="form-row">
+              <div class="classification-container">
+                <label>Classificação</label>
+                <select id="classificacao_gestao" onchange="toggleSuspension('gestao')">
+                  <option value="">Selecione</option>
+                  <option value="OCORRÊNCIA">OCORRÊNCIA</option>
+                  <option value="SUSPENSÃO">SUSPENSÃO</option>
+                </select>
+              </div>
+              <div class="form-group" style="display:none" id="suspensionRow_gestao">
+                <label>Data de retorno</label>
+                <input id="dataRetorno_gestao" type="date">
+              </div>
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label>Descrição</label>
+                <textarea id="descricao_gestao" placeholder="Descrição detalhada"></textarea>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <button class="btn-primary" onclick="cadastrarOcorrenciaGestao()">Registrar (Gestão)</button>
+              <button class="btn-success" onclick="generatePDFLocal()">Gerar PDF (local)</button>
+            </div>
+
+            <div id="successGestao" style="display:none;margin-top:10px;background:linear-gradient(90deg,#4CAF50,#2E7D32);padding:10px;border-radius:8px;color:#fff;font-weight:900">
+              Ocorrência registrada com sucesso!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO GESTÃO -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="subtitle">HISTÓRICO DE OCORRÊNCIAS - GESTÃO</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <button class="btn-primary" onclick="carregarHistoricoGestao()">Atualizar</button>
+          </div>
+        </div>
+        <div style="margin-top:12px" id="historyListGestao" class="historyList"></div>
+      </div>
+    </div> <!-- mainAppGestao -->
+
+    <!-- MAIN APP - PROFESSOR -->
+    <div id="mainAppProfessor" style="display:none;flex-direction:column;gap:14px">
+      <div class="flex">
+        <!-- PROFESSOR -->
+        <div class="card col" style="flex:1">
+          <div class="subtitle">REGISTRO — PROFESSOR</div>
+          <div class="col">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Professor</label>
+                <select id="professor_select"></select>
+              </div>
+              <div class="form-group">
+                <label>Turma</label>
+                <select id="turma_select" onchange="onTurmaChange()"></select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Alunos (clique para selecionar)</label>
+                <input id="alunos_selected_input" type="text" readonly placeholder="Clique para selecionar" onclick="openStudentsModal()">
+                <div id="selectedPills" style="margin-top:8px"></div>
+              </div>
+              <div class="form-group">
+                <label>Data</label>
+                <input id="data_prof" type="date">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Irregularidades</label>
+                <div class="checkbox-group">
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="irreg" value="Agressão"> Agressão
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="irreg" value="Danos ao patrimônio"> Danos ao patrimônio
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="irreg" value="Desacato"> Desacato
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="irreg" value="Estava fora da sala"> Estava fora da sala
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="irreg" value="Falta de material"> Falta de material
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="irreg" value="Indisciplina"> Indisciplina
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="irreg" value="Não realiza as atividades"> Não realiza as atividades
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="irreg" value="Saiu da sala sem autorização"> Saiu da sala sem autorização
+                  </label>
+                  <label class="checkbox-item">
+                    <input type="checkbox" name="irreg" value="Uso de celular"> Uso de celular
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Descrição</label>
+                <textarea id="descricao_prof" placeholder="Descreva a ocorrência..."></textarea>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <button class="btn-primary" onclick="registrarOcorrenciaProfessor()">Registrar (Professor)</button>
+              <button class="btn-danger" onclick="clearProfessorForm()">Limpar</button>
+            </div>
+
+            <div id="successProfessor" style="display:none;margin-top:10px;background:linear-gradient(90deg,#4CAF50,#2E7D32);padding:10px;border-radius:8px;color:#fff;font-weight:900">
+              Ocorrência registrada com sucesso!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HISTÓRICO PROFESSOR E REGISTRO EM TEMPO REAL -->
+      <div class="flex">
+        <!-- HISTÓRICO PROFESSOR -->
+        <div class="card" style="flex: 1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="subtitle">HISTÓRICO DE OCORRÊNCIAS - PROFESSOR</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn-primary" onclick="carregarHistoricoProfessor()">Atualizar</button>
+            </div>
+          </div>
+          <div style="margin-top:12px" id="historyListProfessor" class="historyList"></div>
+        </div>
+        
+        <!-- REGISTRO EM TEMPO REAL -->
+        <div class="card" style="flex: 1">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="subtitle">REGISTRO EM TEMPO REAL - PROFESSOR</div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button class="btn-primary" onclick="atualizarRegistroTempoReal()">Atualizar</button>
+            </div>
+          </div>
+          <div class="real-time-register" id="realTimeRegister">
+            <div class="muted" style="text-align: center; padding: 20px;">Nenhum registro em tempo real</div>
+          </div>
+        </div>
+      </div>
+    </div> <!-- mainAppProfessor -->
+
+    <!-- MODAL SELEÇÃO ALUNOS COM BOTÕES FIXOS -->
+    <div id="modalRoot" class="modal-root">
+      <div class="modal">
+        <div class="modal-header">
+          <strong>Selecionar alunos</strong>
+          <button onclick="closeStudentsModal()" style="background:transparent;border:none;font-weight:900;cursor:pointer">✕</button>
+        </div>
+
+        <div class="modal-content">
+          <input id="studentSearch" type="text" placeholder="Filtrar alunos..." style="width:100%;padding:8px;border-radius:8px;border:1px solid #ddd;margin-bottom:10px" oninput="filterStudentList()">
+          <div id="studentList" class="studentList"></div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-primary" onclick="confirmStudents()">Confirmar</button>
+          <button class="btn-danger" onclick="closeStudentsModal()">Cancelar</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    /*******************************
+     * CONFIGURAÇÕES
+     *******************************/
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyV74CMNExr_o10IrU3dMeUFAiKS051nGQvSzaw1EZCYOQ8WydE4dTVFzf2J0pra-GX/exec';
+    const SPREADSHEET_ID = '1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio';
+
+    // nomes de abas (front-end manda "sheet" para o Apps Script)
+    const SHEET_GERAL = 'BANCODEDADOSGERAL';
+    const SHEET_PROF = 'OCORRENCIASDOSPROFESSORES'; // onde professores gravam (a partir de A2)
+    const SHEET_GESTAO = 'BANCODEALUNOS'; // onde gestão grava (a partir de A2)
+
+    // estado
+    let allAlunos = [];
+    let alunosDaTurmaAtual = [];
+    let alunosSelecionados = [];
+    let professores = [];
+    let turmas = [];
+    let currentUserRole = null;
+    let alunosComRA = []; // Para armazenar alunos com RA na área de gestão
+    let registroTempoReal = []; // Para armazenar registros em tempo real
+
+    // inicial
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('data_prof').value = new Date().toISOString().split('T')[0];
+      carregarTurmasGestao(); // Carregar turmas ao iniciar
+      
+      // Ajustar largura dos campos após o carregamento
+      setTimeout(ajustarLarguraCampos, 100);
+    });
+
+    // Função para ajustar a largura dos campos baseada no conteúdo
+    function ajustarLarguraCampos() {
+      // Selecionar todos os campos de entrada
+      const campos = document.querySelectorAll('input[type="text"], input[type="email"], select');
+      
+      campos.forEach(campo => {
+        // Criar um elemento temporário para medir o texto
+        const temp = document.createElement('span');
+        temp.style.visibility = 'hidden';
+        temp.style.position = 'absolute';
+        temp.style.whiteSpace = 'pre';
+        temp.style.font = window.getComputedStyle(campo).font;
+        
+        // Obter o valor atual ou o texto da opção selecionada
+        let texto = '';
+        if (campo.tagName === 'SELECT') {
+          const opcaoSelecionada = campo.options[campo.selectedIndex];
+          texto = opcaoSelecionada ? opcaoSelecionada.text : '';
+        } else {
+          texto = campo.value || campo.placeholder || '';
+        }
+        
+        temp.textContent = texto;
+        document.body.appendChild(temp);
+        
+        // Definir a largura mínima baseada no conteúdo
+        const largura = temp.getBoundingClientRect().width + 30; // Adicionar padding
+        campo.style.minWidth = Math.max(parseInt(window.getComputedStyle(campo).minWidth) || 120, largura) + 'px';
+        
+        document.body.removeChild(temp);
+      });
+    }
+
+    // Função para exibir notificações
+    function showNotification(type, message) {
+      // Remover notificações existentes
+      const existingNotifications = document.querySelectorAll('.notification');
+      existingNotifications.forEach(notification => notification.remove());
+      
+      // Criar nova notificação
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      // Remover após 5 segundos
+      setTimeout(() => {
+        notification.remove();
+      }, 5000);
+    }
+
+    // Login unificado
+    function login(){
+      const email = document.getElementById('emailLogin').value.trim();
+      const password = document.getElementById('passwordLogin').value.trim();
+      
+      if(email === 'gestao@escola.com' && password === 'gestao123'){
+        showAppAs('gestao', email);
+      } else if(email === 'professor@escola.com' && password === 'prof123'){
+        showAppAs('professor', email);
+      } else {
+        alert('E-mail ou senha incorretos.');
+      }
+    }
+
+    function showAppAs(role, email){
+      currentUserRole = role;
+      document.getElementById('loginScreen').style.display = 'none';
+      
+      if (role === 'gestao') {
+        document.getElementById('mainAppGestao').style.display = 'flex';
+        document.getElementById('mainAppProfessor').style.display = 'none';
+        carregarHistoricoGestao();
+      } else {
+        document.getElementById('mainAppGestao').style.display = 'none';
+        document.getElementById('mainAppProfessor').style.display = 'flex';
+        carregarProfessoresETurmas();
+        carregarHistoricoProfessor();
+        atualizarRegistroTempoReal();
+      }
+      
+      document.getElementById('userDisplay').textContent = email + (role==='gestao'?' (Gestão)':' (Professor)');
+      document.getElementById('btnLogout').style.display = 'inline-block';
+      document.getElementById('btnDownloadPdf').style.display = 'inline-block';
+      
+      // Reajustar largura após mostrar a aplicação
+      setTimeout(ajustarLarguraCampos, 200);
+    }
+
+    function logout(){
+      currentUserRole = null;
+      document.getElementById('loginScreen').style.display = 'block';
+      document.getElementById('mainAppGestao').style.display = 'none';
+      document.getElementById('mainAppProfessor').style.display = 'none';
+      document.getElementById('userDisplay').textContent = 'Não autenticado';
+      document.getElementById('btnLogout').style.display = 'none';
+      document.getElementById('btnDownloadPdf').style.display = 'none';
+      alunosDaTurmaAtual = []; alunosSelecionados = []; document.getElementById('selectedPills').innerHTML='';
+      
+      // Limpar formulários
+      document.getElementById('emailLogin').value = '';
+      document.getElementById('passwordLogin').value = '';
+    }
+
+    /*******************************
+     * Funções específicas para a área de gestão
+     *******************************/
+    
+    // Carregar turmas para a área de gestão
+    async function carregarTurmasGestao() {
+      try {
+        const r = await fetch(`${SCRIPT_URL}?endpoint=classes&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+        const j = await r.json();
+        if(j && j.status === 'success' && Array.isArray(j.classes)) {
+          turmas = j.classes;
+        } else {
+          turmas = Object.keys(_getClassRanges());
+        }
+        
+        const turmaSelect = document.getElementById('serie_gestao');
+        turmaSelect.innerHTML = '<option value="">-- Selecione a turma --</option>';
+        turmas.forEach(t => {
+          const option = document.createElement('option');
+          option.value = t;
+          option.textContent = t;
+          turmaSelect.appendChild(option);
+        });
+        
+        // Reajustar largura após carregar turmas
+        setTimeout(ajustarLarguraCampos, 100);
+      } catch(err) {
+        console.error('Erro ao carregar turmas (gestão):', err);
+        turmas = Object.keys(_getClassRanges());
+        const turmaSelect = document.getElementById('serie_gestao');
+        turmaSelect.innerHTML = '<option value="">-- Selecione a turma --</option>';
+        turmas.forEach(t => {
+          const option = document.createElement('option');
+          option.value = t;
+          option.textContent = t;
+          turmaSelect.appendChild(option);
+        });
+        
+        // Reajustar largura após carregar turmas
+        setTimeout(ajustarLarguraCampos, 100);
+      }
+    }
+    
+    // Carregar alunos por turma na área de gestão
+    async function carregarAlunosPorTurmaGestao(turma) {
+      if (!turma) {
+        document.getElementById('aluno_gestao').innerHTML = '<option value="">-- Selecione o aluno --</option>';
+        document.getElementById('ra_gestao').value = '';
+        return;
+      }
+      
+      try {
+        const resp = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
+        const json = await resp.json();
+        
+        // Verificar se a resposta inclui studentsList (com RA) ou apenas students (apenas nomes)
+        if (json.studentsList && Array.isArray(json.studentsList)) {
+          alunosComRA = json.studentsList;
+        } else if (json.students && Array.isArray(json.students)) {
+          // Se não tiver RA, criar array apenas com nomes
+          alunosComRA = json.students.map(nome => ({ nome, ra: '' }));
+        } else {
+          alunosComRA = [];
+        }
+        
+        const alunoSelect = document.getElementById('aluno_gestao');
+        alunoSelect.innerHTML = '<option value="">-- Selecione o aluno --</option>';
+        
+        alunosComRA.forEach(aluno => {
+          const option = document.createElement('option');
+          option.value = aluno.nome;
+          option.textContent = aluno.nome;
+          option.setAttribute('data-ra', aluno.ra || '');
+          alunoSelect.appendChild(option);
+        });
+        
+        // Reajustar largura após carregar alunos
+        setTimeout(ajustarLarguraCampos, 100);
+      } catch(err) {
+        console.error('Erro ao carregar alunos (gestão):', err);
+        document.getElementById('aluno_gestao').innerHTML = '<option value="">-- Selecione o aluno --</option>';
+      }
+    }
+    
+    // Preencher RA quando selecionar um aluno na área de gestão
+    function preencherRAGestao(nomeAluno) {
+      const alunoSelect = document.getElementById('aluno_gestao');
+      const selectedOption = alunoSelect.selectedOptions[0];
+      const ra = selectedOption ? selectedOption.getAttribute('data-ra') : '';
+      document.getElementById('ra_gestao').value = ra || '';
+      
+      // Reajustar largura após preencher RA
+      setTimeout(ajustarLarguraCampos, 50);
+    }
+
+    /*******************************
+     * GET professores & turmas (consultando BANCODEDADOSGERAL)
+     *******************************/
+    async function carregarProfessoresETurmas(){
+      try {
+        // professores (GET do sheet geral)
+        const r1 = await fetch(`${SCRIPT_URL}?endpoint=teachers&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+        const j1 = await r1.json();
+        if(j1 && j1.status === 'success' && Array.isArray(j1.teachers)) professores = j1.teachers;
+        else professores = getFallbackProfessores();
+
+        const profSel = document.getElementById('professor_select');
+        profSel.innerHTML = '<option value="">-- selecione --</option>';
+        professores.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; profSel.appendChild(o) });
+
+        // turmas (GET do sheet geral)
+        const r2 = await fetch(`${SCRIPT_URL}?endpoint=classes&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+        const j2 = await r2.json();
+        if(j2 && j2.status === 'success' && Array.isArray(j2.classes)) turmas = j2.classes;
+        else turmas = Object.keys(_getClassRanges());
+
+        const turmaSel = document.getElementById('turma_select');
+        turmaSel.innerHTML = '<option value="">-- selecione --</option>';
+        turmas.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; turmaSel.appendChild(o) });
+        
+        // Reajustar largura após carregar professores e turmas
+        setTimeout(ajustarLarguraCampos, 100);
+      } catch(err){
+        console.error('Erro carregar professores/turmas:', err);
+        // fallback
+        professores = getFallbackProfessores();
+        const profSel = document.getElementById('professor_select');
+        profSel.innerHTML = '<option value="">-- selecione --</option>';
+        professores.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; profSel.appendChild(o) });
+        turmas = Object.keys(_getClassRanges());
+        const turmaSel = document.getElementById('turma_select');
+        turmaSel.innerHTML = '<option value="">-- selecione --</option>';
+        turmas.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; turmaSel.appendChild(o) });
+        
+        // Reajustar largura após carregar professores e turmas
+        setTimeout(ajustarLarguraCampos, 100);
+      }
+    }
+
+    /*******************************
+     * GET students by class (consultando BANCODEDADOSGERAL)
+     *******************************/
+    async function onTurmaChange(){
+      const turma = document.getElementById('turma_select').value;
+      if(!turma){ alunosDaTurmaAtual = []; renderStudentList([]); return; }
+      await carregarAlunosPorTurma(turma);
+      renderStudentList(alunosDaTurmaAtual);
+      
+      // Reajustar largura após mudar turma
+      setTimeout(ajustarLarguraCampos, 100);
+    }
+
+    async function carregarAlunosPorTurma(turma){
+      try {
+        const resp = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
+        const json = await resp.json();
+        alunosDaTurmaAtual = json.students || json.studentsList || [];
+        if(!Array.isArray(alunosDaTurmaAtual)) alunosDaTurmaAtual = [];
+      } catch(err){
+        console.error('Erro get students:', err);
+        alunosDaTurmaAtual = [];
+      }
+    }
+
+    /*******************************
+     * Modal alunos (professor) - MODIFICADO PARA BOTÕES FIXOS E SELEÇÃO POR NOME
+     *******************************/
+    function openStudentsModal(){
+      if(!alunosDaTurmaAtual || alunosDaTurmaAtual.length === 0){ alert('Nenhum aluno encontrado para a turma selecionada.'); return; }
+      document.getElementById('modalRoot').style.display = 'flex';
+      renderStudentList(alunosDaTurmaAtual);
+      document.getElementById('studentSearch').value = '';
+    }
+    
+    function closeStudentsModal(){ 
+      document.getElementById('modalRoot').style.display = 'none'; 
+    }
+
+    function renderStudentList(list){
+      const container = document.getElementById('studentList'); 
+      container.innerHTML = '';
+      
+      list.forEach(nome => {
+        const row = document.createElement('div'); 
+        row.className = 'student-row';
+        if (alunosSelecionados.includes(nome)) {
+          row.classList.add('selected');
+        }
+        
+        const lbl = document.createElement('div'); 
+        lbl.className = 'student-name';
+        lbl.textContent = nome;
+        
+        const cb = document.createElement('input'); 
+        cb.type='checkbox'; 
+        cb.value = nome; 
+        cb.checked = alunosSelecionados.includes(nome);
+        
+        // Evento para alternar seleção ao clicar no checkbox
+        cb.onchange = (e) => { 
+          toggleStudentSelection(nome, e.target.checked);
+          updateStudentRowStyle(row, nome);
+        };
+        
+        // Evento para alternar seleção ao clicar em qualquer parte da linha
+        row.onclick = (e) => {
+          // Não disparar se o clique foi diretamente no checkbox
+          if (e.target !== cb) {
+            const newState = !alunosSelecionados.includes(nome);
+            cb.checked = newState;
+            toggleStudentSelection(nome, newState);
+            updateStudentRowStyle(row, nome);
+          }
+        };
+        
+        row.appendChild(lbl); 
+        row.appendChild(cb); 
+        container.appendChild(row);
+      });
+    }
+    
+    function toggleStudentSelection(nome, isSelected) {
+      if(isSelected){ 
+        if(!alunosSelecionados.includes(nome)) alunosSelecionados.push(nome); 
+      } else {
+        alunosSelecionados = alunosSelecionados.filter(x => x !== nome); 
+      }
+    }
+    
+    function updateStudentRowStyle(row, nome) {
+      if (alunosSelecionados.includes(nome)) {
+        row.classList.add('selected');
+      } else {
+        row.classList.remove('selected');
+      }
+    }
+
+    function filterStudentList(){ 
+      const q = document.getElementById('studentSearch').value.toLowerCase(); 
+      const filtered = alunosDaTurmaAtual.filter(s => s.toLowerCase().includes(q)); 
+      renderStudentList(filtered); 
+    }
+
+    function confirmStudents(){
+      document.getElementById('alunos_selected_input').value = alunosSelecionados.join(', ');
+      const pills = document.getElementById('selectedPills'); pills.innerHTML = '';
+      alunosSelecionados.forEach(a => { const el = document.createElement('div'); el.className='pill'; el.textContent = a; pills.appendChild(el); });
+      closeStudentsModal();
+      
+      // Reajustar largura após confirmar seleção de alunos
+      setTimeout(ajustarLarguraCampos, 100);
+    }
+
+    /*******************************
+     * Toggle suspensão (gestão)
+     *******************************/
+    function toggleSuspension(area){
+      if(area === 'gestao'){ const val = document.getElementById('classificacao_gestao').value; document.getElementById('suspensionRow_gestao').style.display = (val === 'SUSPENSÃO') ? 'flex' : 'none'; }
+      
+      // Reajustar largura após mudar classificação
+      setTimeout(ajustarLarguraCampos, 50);
+    }
+
+    /*******************************
+     * POST cadastrar ocorrência (gestão) -> grava em BANCODEALUNOS (sheet: SHEET_GESTAO)
+     *******************************/
+    async function cadastrarOcorrenciaGestao(){
+      const alunoSelect = document.getElementById('aluno_gestao');
+      const aluno = alunoSelect.value;
+      const turmaSelect = document.getElementById('serie_gestao');
+      const serie = turmaSelect.value;
+      const professor = document.getElementById('professor_gestao').value.trim();
+      const disciplina = document.getElementById('disciplina_gestao').value.trim();
+      const classificacao = document.getElementById('classificacao_gestao').value;
+      const descricao = document.getElementById('descricao_gestao').value.trim();
+      const dataRetorno = document.getElementById('dataRetorno_gestao').value || null;
+      const ra = document.getElementById('ra_gestao').value;
+
+      if(!aluno || !serie || !professor || !disciplina || !classificacao || !descricao){ alert('Preencha todos os campos obrigatórios.'); return; }
+      if(classificacao === 'SUSPENSÃO' && !dataRetorno){ alert('Informe data de retorno para suspensão.'); return; }
+
+      const payload = {
+        sheet: SHEET_GESTAO,           // grava na aba BANCODEALUNOS
+        startRow: 2,                  // indica a partir de A2 (o Apps Script deve utilizar isso)
+        date: new Date().toISOString().split('T')[0],
+        professor: professor,
+        studentClass: serie,
+        student: aluno,
+        ra: ra,
+        disciplina: disciplina,
+        irregularities: classificacao + (dataRetorno ? (' - retorno: ' + dataRetorno) : ''),
+        description: descricao
+      };
+
+      try {
+        const resp = await fetch(`${SCRIPT_URL}`, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify(payload)
+        });
+        const j = await resp.json();
+        if(j && j.status === 'success'){
+          showNotification('success', 'Ocorrência registrada com sucesso!');
+          // limpar
+          document.getElementById('serie_gestao').value = '';
+          document.getElementById('aluno_gestao').innerHTML = '<option value="">-- Selecione o aluno --</option>';
+          document.getElementById('ra_gestao').value = '';
+          document.getElementById('professor_gestao').value = '';
+          document.getElementById('disciplina_gestao').value = '';
+          document.getElementById('classificacao_gestao').value = '';
+          document.getElementById('descricao_gestao').value = '';
+          document.getElementById('suspensionRow_gestao').style.display = 'none';
+          carregarHistoricoGestao();
+          
+          // Reajustar largura após limpar formulário
+          setTimeout(ajustarLarguraCampos, 100);
+        } else {
+          showNotification('error', j.message || 'Erro ao registrar ocorrência!');
+        }
+      } catch(err){
+        console.error('Erro POST ocorrencia (gestao):', err);
+        showNotification('error', 'Falha na comunicação com servidor');
+      }
+    }
+
+    /*******************************
+     * POST registrar ocorrência (professor) -> grava em OCORRENCIASDOSPROFESSORES (sheet: SHEET_PROF)
+     *******************************/
+    async function registrarOcorrenciaProfessor(){
+      const professor = document.getElementById('professor_select').value;
+      const turma = document.getElementById('turma_select').value;
+      const dataOc = document.getElementById('data_prof').value;
+      const descricao = document.getElementById('descricao_prof').value.trim();
+      if(!professor || !turma || !dataOc || alunosSelecionados.length === 0){ alert('Preencha todos os campos obrigatórios e selecione ao menos um aluno.'); return; }
+      const irregs = Array.from(document.querySelectorAll('input[name="irreg"]:checked')).map(x=>x.value);
+      const payload = { 
+        sheet: SHEET_PROF,            // grava na aba OCORRENCIASDOSPROFESSORES
+        startRow: 2,                  // gravar a partir de A2 (Apps Script deve respeitar)
+        date: dataOc, 
+        professor: professor, 
+        studentClass: turma, 
+        student: alunosSelecionados.join(', '), 
+        irregularities: irregs.join(', '), 
+        description: descricao 
+      };
+      try {
+        const resp = await fetch(`${SCRIPT_URL}`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+        const j = await resp.json();
+        if(j && j.status === 'success'){
+          showNotification('success', 'Ocorrência registrada com sucesso!');
+          clearProfessorForm();
+          carregarHistoricoProfessor();
+          atualizarRegistroTempoReal();
+          
+          // Reajustar largura após limpar formulário
+          setTimeout(ajustarLarguraCampos, 100);
+        } else {
+          showNotification('error', j.message || 'Erro ao registrar ocorrência!');
+        }
+      } catch(err){
+        console.error('Erro POST ocorrencia (professor):', err);
+        showNotification('error', 'Falha na comunicação com servidor');
+      }
+    }
+
+    function clearProfessorForm(){
+      document.getElementById('professor_select').value=''; document.getElementById('turma_select').value=''; document.getElementById('alunos_selected_input').value=''; document.getElementById('selectedPills').innerHTML=''; document.getElementById('descricao_prof').value=''; alunosSelecionados = []; Array.from(document.querySelectorAll('input[name="irreg"]')).forEach(cb => cb.checked=false); document.getElementById('data_prof').value = new Date().toISOString().split('T')[0];
+      
+      // Reajustar largura após limpar formulário
+      setTimeout(ajustarLarguraCampos, 100);
+    }
+
+    /*******************************
+     * GET histórico (consultando BANCODEDADOSGERAL)
+     *******************************/
+    async function carregarHistoricoGestao(){
+      const container = document.getElementById('historyListGestao');
+      container.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
+      try {
+        const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+        const json = await resp.json();
+        // backend pode retornar json.occurrences ou json.data
+        const ocorrs = json.occurrences || json.data || [];
+        container.innerHTML = '';
+        if(!ocorrs || ocorrs.length === 0){ container.innerHTML = '<div class="muted">Nenhuma ocorrência encontrada.</div>'; return; }
+
+        // Exibe do mais recente para o mais antigo
+        ocorrs.slice().reverse().forEach(r => {
+          const id = r.id || r.ID || r.Id || null;
+          const date = r.DATA || r.date || r.col1 || '';
+          const prof = r.PROFESSOR || r.professor || r.col2 || '';
+          const turma = r.TURMA || r.studentClass || r.col3 || '';
+          const aluno = r.ALUNO || r.student || r.col4 || '';
+          const irreg = r.IRREGULARIDADES || r.irregularities || r.col5 || '';
+          const desc = r.DESCRICAO || r.description || r.col6 || '';
+
+          const div = document.createElement('div'); div.className='historyItem';
+          const meta = document.createElement('div'); meta.className='meta';
+          meta.innerHTML = `<div><strong>${date}</strong> — <span class="muted">${prof}</span></div>`;
+          const controls = document.createElement('div');
+          // botão gerar pdf via backend
+          const pdfBtn = document.createElement('button');
+          pdfBtn.className='btn-success'; pdfBtn.style.fontSize='12px'; pdfBtn.style.marginLeft='8px';
+          pdfBtn.textContent = 'Gerar PDF (template)';
+          pdfBtn.onclick = () => generatePdfFromBackend(id);
+          // botão excluir
+          const delBtn = document.createElement('button');
+          delBtn.className='btn-danger'; delBtn.style.fontSize='12px'; delBtn.style.marginLeft='8px';
+          delBtn.textContent = 'Excluir';
+          delBtn.onclick = () => deleteOccurrence(id);
+
+          controls.appendChild(pdfBtn); controls.appendChild(delBtn);
+          meta.appendChild(controls);
+
+          const ddesc = document.createElement('div'); ddesc.className='desc';
+          ddesc.innerHTML = `<strong>Aluno(s):</strong> ${aluno || 'N/A'}<br/><strong>Turma:</strong> ${turma || 'N/A'}<br/><strong>Irregularidades:</strong> ${irreg || 'N/A'}<br/><em>${desc || ''}</em>`;
+
+          // adicionar id visível (útil)
+          const idLine = document.createElement('div'); idLine.style.marginTop='8px'; idLine.style.fontSize='12px'; idLine.style.opacity='0.9'; idLine.innerHTML = `ID: <span class="qnum">${id}</span>`;
+
+          div.appendChild(meta); div.appendChild(ddesc); div.appendChild(idLine);
+          container.appendChild(div);
+        });
+      } catch(err){
+        console.error('Erro carregarHistorico:', err);
+        document.getElementById('historyListGestao').innerHTML = '<div class="muted">Erro ao carregar histórico (ver console).</div>';
+      }
+    }
+
+    async function carregarHistoricoProfessor(){
+      const container = document.getElementById('historyListProfessor');
+      container.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
+      try {
+        const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+        const json = await resp.json();
+        const ocorrs = json.occurrences || json.data || [];
+        container.innerHTML = '';
+        if(!ocorrs || ocorrs.length === 0){ container.innerHTML = '<div class="muted">Nenhuma ocorrência encontrada.</div>'; return; }
+
+        // Exibe do mais recente para o mais antigo
+        ocorrs.slice().reverse().forEach(r => {
+          const id = r.id || r.ID || r.Id || null;
+          const date = r.DATA || r.date || r.col1 || '';
+          const prof = r.PROFESSOR || r.professor || r.col2 || '';
+          const turma = r.TURMA || r.studentClass || r.col3 || '';
+          const aluno = r.ALUNO || r.student || r.col4 || '';
+          const irreg = r.IRREGULARIDADES || r.irregularities || r.col5 || '';
+          const desc = r.DESCRICAO || r.description || r.col6 || '';
+
+          const div = document.createElement('div'); div.className='historyItem';
+          const meta = document.createElement('div'); meta.className='meta';
+          meta.innerHTML = `<div><strong>${date}</strong> — <span class="muted">${prof}</span></div>`;
+          
+          const ddesc = document.createElement('div'); ddesc.className='desc';
+          ddesc.innerHTML = `<strong>Aluno(s):</strong> ${aluno || 'N/A'}<br/><strong>Turma:</strong> ${turma || 'N/A'}<br/><strong>Irregularidades:</strong> ${irreg || 'N/A'}<br/><em>${desc || ''}</em>`;
+
+          // adicionar id visível (útil)
+          const idLine = document.createElement('div'); idLine.style.marginTop='8px'; idLine.style.fontSize='12px'; idLine.style.opacity='0.9'; idLine.innerHTML = `ID: <span class="qnum">${id}</span>`;
+
+          div.appendChild(meta); div.appendChild(ddesc); div.appendChild(idLine);
+          container.appendChild(div);
+        });
+      } catch(err){
+        console.error('Erro carregarHistorico:', err);
+        document.getElementById('historyListProfessor').innerHTML = '<div class="muted">Erro ao carregar histórico (ver console).</div>';
+      }
+    }
+
+    /*******************************
+     * Registro em tempo real do professor
+     *******************************/
+    async function atualizarRegistroTempoReal() {
+      const container = document.getElementById('realTimeRegister');
+      container.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="loader"></div><div class="muted">Carregando registro...</div></div>`;
+      
+      try {
+        const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+        const json = await resp.json();
+        const ocorrs = json.occurrences || json.data || [];
+        
+        // Filtrar ocorrências do professor logado
+        const professorLogado = document.getElementById('professor_select').value;
+        const ocorrsProfessor = ocorrs.filter(r => {
+          const prof = r.PROFESSOR || r.professor || r.col2 || '';
+          return prof === professorLogado;
+        });
+        
+        container.innerHTML = '';
+        
+        if(ocorrsProfessor.length === 0) {
+          container.innerHTML = '<div class="muted" style="text-align: center; padding: 20px;">Nenhum registro em tempo real</div>';
+          return;
+        }
+        
+        // Exibir apenas os 5 registros mais recentes
+        const registrosRecentes = ocorrsProfessor.slice(-5).reverse();
+        
+        registrosRecentes.forEach(r => {
+          const date = r.DATA || r.date || r.col1 || '';
+          const turma = r.TURMA || r.studentClass || r.col3 || '';
+          const aluno = r.ALUNO || r.student || r.col4 || '';
+          const irreg = r.IRREGULARIDADES || r.irregularities || r.col5 || '';
+          const desc = r.DESCRICAO || r.description || r.col6 || '';
+
+          const item = document.createElement('div');
+          item.className = 'real-time-item';
+          
+          const header = document.createElement('div');
+          header.style.display = 'flex';
+          header.style.justifyContent = 'space-between';
+          header.style.marginBottom = '5px';
+          
+          const dateEl = document.createElement('div');
+          dateEl.textContent = date;
+          dateEl.style.fontWeight = 'bold';
+          dateEl.style.fontSize = '13px';
+          
+          const classEl = document.createElement('div');
+          classEl.textContent = turma;
+          classEl.style.fontSize = '12px';
+          classEl.style.opacity = '0.8';
+          
+          header.appendChild(dateEl);
+          header.appendChild(classEl);
+          
+          const content = document.createElement('div');
+          content.style.fontSize = '13px';
+          content.innerHTML = `<strong>Aluno(s):</strong> ${aluno || 'N/A'}<br/>
+                               <strong>Irregularidade:</strong> ${irreg || 'N/A'}<br/>
+                               <em>${desc || ''}</em>`;
+          
+          item.appendChild(header);
+          item.appendChild(content);
+          container.appendChild(item);
+        });
+      } catch(err) {
+        console.error('Erro ao carregar registro em tempo real:', err);
+        container.innerHTML = '<div class="muted">Erro ao carregar registro</div>';
+      }
+    }
+
+    /*******************************
+     * DELETE ocorrência (POST ?endpoint=delete-occurrence) - envia sheet para contexto
+     *******************************/
+    async function deleteOccurrence(occurrenceId){
+      if(occurrenceId === null || occurrenceId === undefined){ alert('ID inválido para exclusão.'); return; }
+      if(!confirm('Confirma exclusão desta ocorrência (ID '+occurrenceId+')?')) return;
+      try {
+        const resp = await fetch(`${SCRIPT_URL}?endpoint=delete-occurrence`, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ occurrenceId, sheet: SHEET_PROF })
+        });
+        const j = await resp.json();
+        if(j && j.status === 'success'){ 
+          showNotification('success', 'Ocorrência excluída com sucesso!');
+          carregarHistoricoGestao(); 
+        }
+        else showNotification('error', j.message || 'Erro ao excluir ocorrência!');
+      } catch(err){ 
+        console.error('Erro deleteOccurrence:', err); 
+        showNotification('error', 'Falha na comunicação com servidor');
+      }
+    }
+
+    /*******************************
+     * Geração de PDF via backend
+     *******************************/
+    async function generatePdfFromBackend(occurrenceId){
+      if(!occurrenceId){ alert('ID inválido para geração de PDF.'); return; }
+      try {
+        const resp = await fetch(`${SCRIPT_URL}?endpoint=generate-pdf`, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ occurrenceId, sheet: SHEET_PROF })
+        });
+        const j = await resp.json();
+        if(j && j.status === 'success' && j.pdfUrl){
+          // abrir link em nova aba
+          window.open(j.pdfUrl, '_blank');
+        } else {
+          showNotification('error', j.message || 'Erro ao gerar PDF!');
+        }
+      } catch(err){
+        console.error('Erro generatePdfFromBackend:', err);
+        showNotification('error', 'Falha na comunicação com servidor');
+      }
+    }
+
+    /*******************************
+     * fallback: gerar PDF localmente (apenas conteúdo simples)
+     *******************************/
+    function generatePDFLocal(){
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(16);
+        doc.text('Registro de Ocorrência', 14, 20);
+        const aluno = document.getElementById('aluno_gestao').value || '';
+        const turma = document.getElementById('serie_gestao').value || '';
+        const prof = document.getElementById('professor_gestao').value || '';
+        const desc = document.getElementById('descricao_gestao').value || '';
+        let y = 36;
+        if(aluno){ doc.text(`Aluno: ${aluno}`, 14, y); y+=8; }
+        if(turma){ doc.text(`Turma: ${turma}`, 14, y); y+=8; }
+        if(prof){ doc.text(`Professor: ${prof}`, 14, y); y+=8; }
+        doc.text('Descrição:', 14, y); y+=8;
+        const split = doc.splitTextToSize(desc || 'Sem descrição', 180);
+        doc.text(split, 14, y);
+        doc.save(`ocorrencia_${Date.now()}.pdf`);
+      } catch(err){ console.error('Erro gerar PDF local:', err); alert('Erro ao gerar PDF local (ver console).'); }
+    }
+
+    /*******************************
+     * utilitários / fallbacks
+     *******************************/
+    function _getClassRanges(){ return {
+      "6° ANO A MANHA":"C3:C46","6° ANO B MANHA":"H3:H46","6° ANO C MANHA":"M3:M46","6° ANO D MANHA":"R3:R46",
+      "6° ANO E TARDE":"W3:W46","6° ANO F TARDE":"AB3:AB46","7° ANO A TARDE":"AG3:AG46","7° ANO B TARDE":"AL3:AL46",
+      "7° ANO C TARDE":"AQ3:AQ46","7° ANO D TARDE":"AV3:AV46","7° ANO E TARDE":"BA3:BA46","7° ANO F TARDE":"BF3:BF46",
+      "8° ANO A TARDE":"BK3:BK46","8° ANO B TARDE":"BP3:BP46","8° ANO C TARDE":"BU3:BU46","8° ANO D TARDE":"BZ3:B46",
+      "9° ANO A TARDE":"CE3:CE46","9° ANO B TARDE":"CJ3:CJ46","9° ANO C TARDE":"CO3:CO46","9° ANO D TARDE":"CT3:CT46",
+      "1ª SERIE A MANHA":"CY3:CY46","1ª SERIE B MANHA":"DD3:DD46","1ª SERIE C MANHA":"DI3:DI46","1ª SERIE D MANHA":"DN3:DN46",
+      "1ª SERIE E MANHA":"DS3:DS46","1ª SERIE F MANHA":"DX3:DX46","1ª SERIE G TARDE":"EC3:EC46","1ª SERIE H NOITE":"EH3:EH46",
+      "1ª SERIE I NOITE":"EM3:EM46","2ª SERIE A MANHA":"ER3:ER46","2ª SERIE B MANHA":"EW3:EW46","2ª SERIE C MANHA":"FB3:FB46",
+      "2ª SERIE D MANHA":"FG3:FG46","2ª SERIE E MANHA":"FL3:FL46","2ª SERIE F NOITE":"FQ3:FQ46","2ª SERIE G NOITE":"FV3:FV46",
+      "2ª SERIE H NOITE":"GA3:GA46","3ª SERIE A MANHA":"GK3:GK46","3ª SERIE B MANHA":"GP3:GP46","3ª SERIE C MANHA":"GU3:GU46",
+      "3ª SERIE D NOITE":"GZ3:GZ46","3ª SERIE E NOITE":"HE3:HE46","3ª SERIE F NOITE":"HJ3:HJ46"
+    };}
+
+    function getFallbackProfessores(){
+      return [
+        "ALEX LUTH PEREIRA MARANHAO","ALEXSANDRA PAULA VARELLA DE SOUZA","ALISON VASCONCELOS BESERRA","AMAURI TEODORO DE OLIVEIRA",
+        "ANA PAULA DOS SANTOS","ANDREIA DOS SANTOS FREITAS","ANDREIA MADUREIRA REIS","ANTONIO CARLOS DE OLIVEIRA",
+        "ANTONIO RAMS DE ARAUJO","ANTONIO WILTON WANDERLEY CABRAL","AUGUSTO LINO PESSOA NETO","AUREA MARIA DE JESUS MARQUES",
+        "CAROLINA PERNOMIAN PARUSSOLOLO","CASSIA OLIVEIRA ANTONIAZI","CLAUDINEIA DE AGUIAR LIMA","DANIEL DE FREITAS ALMEIDA",
+        "DANIEL LOPES BARBOSA","DANIELA FERREIRA LIMA","DANIELLE LUCIA BATISTA DE ALMEIDA","EDIANE VIEIRA DA SILVA",
+        "EDILEUSA NUNES PEREIRA","EDUARDO HENRIQUE DA FONSECA","ELIANE SANTOS SILVA","ELIAS MONTEIRO DA SILVERA",
+        "ELISABETE APARECIDA PIRES","ELZA DE FARIA PEREIRA","EMERSON GABLER DE ALMEIDA","EUZELI ARAUJO DE OLIVEIRA",
+        "FABIANO AUGUSTO PIEDADE","FABIO CAMILO","FERNANDO JOSE DA SILVA FILHO","FLAVIA CRISTINA APARECIDA BICHLER",
+        "FLAVIO CARDOSO FLEURY","FRANCISCA EDIVANIA DE MORAIS COSTA","GABRIELA SERIGHELLI DE MELO","GELSON DE ALMEIDA BATISTA",
+        "GENILTON DE OLIVEIRA SILVA","GIANI CRISTINA DO PRADO","INGRYD CAROLINA SUGUIMOTO VIEIRA","IVANILDES DOS SANTOS OSHIKAWA",
+        "JANINA DOS PASSOS BRAGA DE ALMEIDA","JOSE APARECIDO DA SILVA","JUAREZ GOMES DE MAGALHAES FILHO","JUREMA SOLEDADE FURINI SANTOS",
+        "KATIUSCIA ALVES BOMFIM","LUANA CAROLINE ALVES LIMA","LUANA DE FREITAS SILVA","LUCIANA NOVAIS CORREIA SANTOS",
+        "LUCIANO MOREIRA DE AZEVEDO","MARCIEL DA SILVA","MARIA HELENA CUNHA MORO","MARIA QUITÉRIA FERREIRA DOS SANTOS",
+        "MARINA DA CONCEICAO FRANCISCO SILVA","MAURICIO DE BARROS SANTOS","MICHELE DE PINHO MORAES","MOISES ANTONIO DE BARROS",
+        "PAULA ARMANI VILA","PAULO ROBERTO DA SILVA ITO","PEDRO ZANOTTI FILHO","RAUL PEREIRA VILERA JUNIOR",
+        "REGIANE CURTI DE SOUZA OLIVEIRA","REGINA DA SILSA CASTRO","RICARDO AMERICO DA SILVA","ROBERTO SALGADO",
+        "RODRIGO VIEIRA","ROSANGELA CAFASSO MOREIRA","ROSIMERY DE SOUZA PESSOA","ROSMARA DA SILSA CARDOSO",
+        "SANDRA CRISTINA MACEDO MORAES","SELMA GOMES DA SILSA","SERGIO AGRIPINO VILLA NOVA","SOLANGE ALMEIDA DA SILSA",
+        "SUZINEIDE SILSA DE FREITAS","THIAGO FABIANO BRITO","TITTO AUGUSTO NASCIMENTO SILSA","VANDERSON HYPPOLITO",
+        "VANESSA IVETE GOMES DOS SANTOS","VANIA PENHA DE BARROS","VIVIANE LEAL CAMERA DE MORAES","WILSON RODRIGUES MOTA"
+      ];
+    }
+
+  </script>
+</body>
+</html>
