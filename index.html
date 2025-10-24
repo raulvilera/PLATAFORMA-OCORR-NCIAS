@@ -28,22 +28,35 @@
     
     /* Ajustes para inputs com largura adequada ao conteúdo */
     input[type="text"],input[type="email"],input[type="password"],select,textarea,input[type="date"]{
-      min-width: 120px; /* Largura mínima padrão */
+      min-width: 120px;
       padding:10px 12px;border-radius:8px;border:none;font-weight:800;font-size:14px;color:#111;
-      width: auto; /* Permite que o campo se ajuste ao conteúdo */
-      max-width: 100%; /* Garante que não ultrapasse o container */
+      width: auto;
+      max-width: 100%;
+    }
+    
+    /* Estilo para listas dropdown com cores alternadas */
+    select option:nth-child(odd) {
+      background-color: #f5f5f5;
+    }
+    select option:nth-child(even) {
+      background-color: #e9e9e9;
+    }
+    select option:checked {
+      background-color: #2a5298;
+      color: white;
     }
     
     /* Campos específicos com larguras adequadas */
-    #professor_gestao, #disciplina_gestao { min-width: 200px; }
-    #serie_gestao, #aluno_gestao { min-width: 250px; }
-    #classificacao_gestao { min-width: 180px; }
+    #professor_gestao, #disciplina_gestao { min-width: 180px; }
+    #serie_gestao { min-width: 200px; }
+    #aluno_gestao { min-width: 220px; }
+    #classificacao_gestao { min-width: 160px; }
     #ra_gestao { min-width: 120px; }
     #dataRetorno_gestao { min-width: 140px; }
     
     /* Área do professor */
-    #professor_select, #turma_select { min-width: 200px; }
-    #alunos_selected_input { min-width: 300px; }
+    #professor_select, #turma_select { min-width: 180px; }
+    #alunos_selected_input { min-width: 280px; }
     #data_prof { min-width: 140px; }
     
     textarea{min-height:110px;resize:vertical;padding-top:12px; width: 100%;}
@@ -69,7 +82,7 @@
     .form-group {display: flex; flex-direction:column; flex: 1 1 auto;}
     .form-group label {margin-bottom: 6px;}
     
-    /* Ajustes específicos para a área de gestão */
+    /* Ajustes específicos para a área de gestão - melhor organização */
     .gestao-form .form-group {flex: 1;}
     .gestao-form .form-row {margin-bottom: 15px;}
     .gestao-form input, 
@@ -79,6 +92,23 @@
         min-width: 150px;
         padding: 12px;
         font-size: 15px;
+    }
+    
+    /* Layout otimizado para campos lado a lado */
+    .gestao-form .form-row.double {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+    }
+    
+    .gestao-form .form-row.triple {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 12px;
+    }
+    
+    .gestao-form .form-row.full {
+        display: block;
     }
     
     .checkbox-group {display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px;}
@@ -151,6 +181,10 @@
       .form-row {flex-direction: column;}
       .classification-container {width: 100%;}
       .gestao-form .form-row {flex-direction: column;}
+      .gestao-form .form-row.double,
+      .gestao-form .form-row.triple {
+          grid-template-columns: 1fr;
+      }
       
       /* Em telas menores, os campos ocupam 100% da largura */
       input[type="text"],input[type="email"],input[type="password"],select,textarea,input[type="date"] {
@@ -257,30 +291,27 @@
           <div class="subtitle">CADASTRO — GESTÃO</div>
           <div class="col gestao-form">
             <!-- Série/Turma em primeiro lugar -->
-            <div class="form-row">
+            <div class="form-row double">
               <div class="form-group">
                 <label>Série / Turma</label>
                 <select id="serie_gestao" onchange="carregarAlunosPorTurmaGestao(this.value)">
                   <option value="">-- Selecione a turma --</option>
                 </select>
               </div>
-            </div>
-            
-            <!-- Aluno e RA -->
-            <div class="form-row">
               <div class="form-group">
                 <label>Aluno</label>
                 <select id="aluno_gestao" onchange="preencherRAGestao(this.value)">
                   <option value="">-- Selecione o aluno --</option>
                 </select>
               </div>
+            </div>
+            
+            <!-- Aluno e RA lado a lado -->
+            <div class="form-row triple">
               <div class="form-group">
                 <label>RA</label>
                 <input id="ra_gestao" type="text" readonly>
               </div>
-            </div>
-            
-            <div class="form-row">
               <div class="form-group">
                 <label>Professor</label>
                 <input id="professor_gestao" type="text">
@@ -292,8 +323,8 @@
             </div>
             
             <!-- Classificação com largura ajustada -->
-            <div class="form-row">
-              <div class="classification-container">
+            <div class="form-row double">
+              <div class="form-group">
                 <label>Classificação</label>
                 <select id="classificacao_gestao" onchange="toggleSuspension('gestao')">
                   <option value="">Selecione</option>
@@ -307,7 +338,7 @@
               </div>
             </div>
             
-            <div class="form-row">
+            <div class="form-row full">
               <div class="form-group">
                 <label>Descrição</label>
                 <textarea id="descricao_gestao" placeholder="Descrição detalhada"></textarea>
@@ -345,7 +376,7 @@
         <div class="card col" style="flex:1">
           <div class="subtitle">REGISTRO — PROFESSOR</div>
           <div class="col">
-            <div class="form-row">
+            <div class="form-row double">
               <div class="form-group">
                 <label>Professor</label>
                 <select id="professor_select"></select>
@@ -356,7 +387,7 @@
               </div>
             </div>
 
-            <div class="form-row">
+            <div class="form-row double">
               <div class="form-group">
                 <label>Alunos (clique para selecionar)</label>
                 <input id="alunos_selected_input" type="text" readonly placeholder="Clique para selecionar" onclick="openStudentsModal()">
@@ -368,7 +399,7 @@
               </div>
             </div>
 
-            <div class="form-row">
+            <div class="form-row full">
               <div class="form-group">
                 <label>Irregularidades</label>
                 <div class="checkbox-group">
@@ -403,7 +434,7 @@
               </div>
             </div>
 
-            <div class="form-row">
+            <div class="form-row full">
               <div class="form-group">
                 <label>Descrição</label>
                 <textarea id="descricao_prof" placeholder="Descreva a ocorrência..."></textarea>
