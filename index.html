@@ -287,9 +287,9 @@
     /*******************************
      * CONFIGURAÇÕES
      *******************************/
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyoMnBjfOCRCkkzWuQy4BlTk0YkGdWQ9lxETh-zGAbcP5QeUcXkxmNCL7EobDVdFP5O/exec';
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwFdUBE637Uk69XFK6elC_nNxxGQsM1bc8OlmRCnHuaNF4nbf5BXd7QO3X-MHRLCl8SUQ/exec';
     
-    // CORREÇÃO: Usar nomes exatos das abas
+    // Nomes das abas
     const SHEET_GERAL = 'BANCODEDADOSGERAL';
     const SHEET_PROF = 'OCORRENCIASDOSPROFESSORES';
     const SHEET_GESTAO = 'BANCODEALUNOS';
@@ -372,7 +372,7 @@
     }
 
     /*******************************
-     * ÁREA DE GESTÃO - CORRIGIDA
+     * ÁREA DE GESTÃO - COMPLETA
      *******************************/
     
     // Carregar turmas para a área de gestão
@@ -380,6 +380,7 @@
       try {
         const r = await fetch(`${SCRIPT_URL}?endpoint=classes`);
         const j = await r.json();
+        
         if(j && j.status === 'success' && Array.isArray(j.classes)) {
           turmas = j.classes;
         } else {
@@ -394,6 +395,8 @@
           option.textContent = t;
           turmaSelect.appendChild(option);
         });
+        
+        console.log(`Carregadas ${turmas.length} turmas`);
       } catch(err) {
         console.error('Erro ao carregar turmas (gestão):', err);
         turmas = Object.keys(_getClassRanges());
@@ -416,36 +419,53 @@
         return;
       }
       
+      console.log('Carregando alunos para turma:', turma);
+
       try {
+        // Mostrar loading
+        const alunoSelect = document.getElementById('aluno_gestao');
+        alunoSelect.innerHTML = '<option value="">Carregando alunos...</option>';
+        
         const resp = await fetch(`${SCRIPT_URL}?endpoint=students&turma=${encodeURIComponent(turma)}`);
         const json = await resp.json();
         
-        console.log('Resposta alunos:', json); // DEBUG
-        
-        // CORREÇÃO: Verificar a estrutura correta da resposta
-        if (json.status === 'success' && json.studentsList && Array.isArray(json.studentsList)) {
-          alunosComRA = json.studentsList;
+        console.log('Resposta completa do backend:', json);
+
+        // CORREÇÃO: Verificar a estrutura da resposta
+        if (json.status === 'success') {
+          if (json.studentsList && Array.isArray(json.studentsList)) {
+            alunosComRA = json.studentsList;
+          } else {
+            alunosComRA = [];
+          }
+          
+          alunoSelect.innerHTML = '<option value="">-- Selecione o aluno --</option>';
+          
+          if (alunosComRA.length > 0) {
+            alunosComRA.forEach(aluno => {
+              const option = document.createElement('option');
+              option.value = aluno.nome;
+              option.textContent = aluno.nome;
+              option.setAttribute('data-ra', aluno.ra || '');
+              alunoSelect.appendChild(option);
+            });
+            console.log(`Carregados ${alunosComRA.length} alunos`);
+          } else {
+            alunoSelect.innerHTML = '<option value="">Nenhum aluno encontrado</option>';
+            showNotification('error', 'Nenhum aluno encontrado para esta turma');
+          }
         } else {
-          alunosComRA = [];
-          showNotification('error', 'Erro ao carregar alunos: ' + (json.message || 'Estrutura de dados inválida'));
+          // CORREÇÃO: Mostrar mensagem de erro específica
+          alunoSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+          const errorMsg = json.message || 'Erro desconhecido';
+          showNotification('error', `Erro: ${errorMsg}`);
+          console.error('Erro na resposta:', json);
         }
-        
-        const alunoSelect = document.getElementById('aluno_gestao');
-        alunoSelect.innerHTML = '<option value="">-- Selecione o aluno --</option>';
-        
-        alunosComRA.forEach(aluno => {
-          const option = document.createElement('option');
-          option.value = aluno.nome;
-          option.textContent = aluno.nome;
-          // CORREÇÃO: Armazenar o RA como valor customizado
-          option.setAttribute('data-ra', aluno.ra || '');
-          alunoSelect.appendChild(option);
-        });
         
       } catch(err) {
         console.error('Erro ao carregar alunos (gestão):', err);
-        document.getElementById('aluno_gestao').innerHTML = '<option value="">-- Selecione o aluno --</option>';
-        showNotification('error', 'Erro ao carregar alunos da turma');
+        document.getElementById('aluno_gestao').innerHTML = '<option value="">Erro ao carregar</option>';
+        showNotification('error', 'Erro de conexão ao carregar alunos');
       }
     }
     
@@ -458,7 +478,7 @@
         // CORREÇÃO: Pegar o RA do atributo data-ra
         const ra = selectedOption.getAttribute('data-ra') || '';
         document.getElementById('ra_gestao').value = ra;
-        console.log('RA preenchido:', ra); // DEBUG
+        console.log('RA preenchido:', ra);
       } else {
         document.getElementById('ra_gestao').value = '';
       }
@@ -490,7 +510,7 @@
       // CORREÇÃO: Payload simplificado e correto
       const payload = {
         endpoint: 'create-occurrence',
-        sheet: SHEET_GESTAO, // Nome exato da aba
+        sheet: SHEET_GESTAO,
         date: new Date().toISOString().split('T')[0],
         professor: professor,
         studentClass: serie,
@@ -501,7 +521,7 @@
         description: descricao
       };
 
-      console.log('Enviando payload gestão:', payload); // DEBUG
+      console.log('Enviando payload gestão:', payload);
 
       try {
         const resp = await fetch(SCRIPT_URL, {
@@ -511,7 +531,7 @@
         });
         
         const j = await resp.json();
-        console.log('Resposta backend gestão:', j); // DEBUG
+        console.log('Resposta backend gestão:', j);
         
         if(j && j.status === 'success'){
           showNotification('success', 'Ocorrência registrada com sucesso!');
@@ -538,7 +558,7 @@
     }
 
     /*******************************
-     * ÁREA DO PROFESSOR - CORRIGIDA
+     * ÁREA DO PROFESSOR - COMPLETA
      *******************************/
 
     async function carregarProfessoresETurmas(){
@@ -614,25 +634,32 @@
       await carregarAlunosPorTurma(turma);
     }
 
+    // CORREÇÃO: Função para carregar alunos do professor
     async function carregarAlunosPorTurma(turma){
       try {
         const resp = await fetch(`${SCRIPT_URL}?endpoint=students&turma=${encodeURIComponent(turma)}`);
         const json = await resp.json();
         
-        // CORREÇÃO: Usar students para professores (apenas nomes)
-        if (json.status === 'success' && json.students && Array.isArray(json.students)) {
-          alunosDaTurmaAtual = json.students;
+        console.log('Resposta alunos professor:', json);
+        
+        if (json.status === 'success') {
+          // Usar students para professores (apenas nomes)
+          alunosDaTurmaAtual = json.students || [];
+          console.log(`Carregados ${alunosDaTurmaAtual.length} alunos para professor`);
         } else {
           alunosDaTurmaAtual = [];
+          console.error('Erro ao carregar alunos:', json.message);
+          showNotification('error', `Erro ao carregar alunos: ${json.message}`);
         }
       } catch(err){
         console.error('Erro get students:', err);
         alunosDaTurmaAtual = [];
+        showNotification('error', 'Erro de conexão ao carregar alunos');
       }
     }
 
     /*******************************
-     * Modal alunos (professor)
+     * Modal alunos (professor) - COMPLETO
      *******************************/
     function openStudentsModal(){
       if(!alunosDaTurmaAtual || alunosDaTurmaAtual.length === 0){ 
@@ -742,7 +769,7 @@
       // CORREÇÃO: Payload simplificado e correto
       const payload = { 
         endpoint: 'create-occurrence',
-        sheet: SHEET_PROF, // Nome exato da aba
+        sheet: SHEET_PROF,
         date: dataOc, 
         professor: professor, 
         studentClass: turma, 
@@ -751,7 +778,7 @@
         description: descricao 
       };
       
-      console.log('Enviando payload professor:', payload); // DEBUG
+      console.log('Enviando payload professor:', payload);
 
       try {
         const resp = await fetch(SCRIPT_URL, { 
@@ -761,7 +788,7 @@
         });
         
         const j = await resp.json();
-        console.log('Resposta backend professor:', j); // DEBUG
+        console.log('Resposta backend professor:', j);
         
         if(j && j.status === 'success'){
           showNotification('success', 'Ocorrência registrada com sucesso!');
@@ -798,7 +825,7 @@
     }
 
     /*******************************
-     * Históricos - CORRIGIDOS
+     * Históricos - COMPLETOS
      *******************************/
     async function carregarHistoricoGestao(){
       const container = document.getElementById('historyListGestao');
@@ -930,21 +957,32 @@
     }
 
     /*******************************
-     * utilitários / fallbacks
+     * utilitários / fallbacks - COMPLETOS
      *******************************/
-    function _getClassRanges(){ 
+    function _getClassRanges() {
       return {
-        "6° ANO A MANHA":"C3:C46","6° ANO B MANHA":"H3:H46","6° ANO C MANHA":"M3:M46","6° ANO D MANHA":"R3:R46",
-        "6° ANO E TARDE":"W3:W46","6° ANO F TARDE":"AB3:AB46","7° ANO A TARDE":"AG3:AG46","7° ANO B TARDE":"AL3:AL46",
-        "7° ANO C TARDE":"AQ3:AQ46","7° ANO D TARDE":"AV3:AV46","7° ANO E TARDE":"BA3:BA46","7° ANO F TARDE":"BF3:BF46",
-        "8° ANO A TARDE":"BK3:BK46","8° ANO B TARDE":"BP3:BP46","8° ANO C TARDE":"BU3:BU46","8° ANO D TARDE":"BZ3:B46",
-        "9° ANO A TARDE":"CE3:CE46","9° ANO B TARDE":"CJ3:CJ46","9° ANO C TARDE":"CO3:CO46","9° ANO D TARDE":"CT3:CT46",
-        "1ª SERIE A MANHA":"CY3:CY46","1ª SERIE B MANHA":"DD3:DD46","1ª SERIE C MANHA":"DI3:DI46","1ª SERIE D MANHA":"DN3:DN46",
-        "1ª SERIE E MANHA":"DS3:DS46","1ª SERIE F MANHA":"DX3:DX46","1ª SERIE G TARDE":"EC3:EC46","1ª SERIE H NOITE":"EH3:EH46",
-        "1ª SERIE I NOITE":"EM3:EM46","2ª SERIE A MANHA":"ER3:ER46","2ª SERIE B MANHA":"EW3:EW46","2ª SERIE C MANHA":"FB3:FB46",
-        "2ª SERIE D MANHA":"FG3:FG46","2ª SERIE E MANHA":"FL3:FL46","2ª SERIE F NOITE":"FQ3:FQ46","2ª SERIE G NOITE":"FV3:FV46",
-        "2ª SERIE H NOITE":"GA3:GA46","3ª SERIE A MANHA":"GK3:GK46","3ª SERIE B MANHA":"GP3:GP46","3ª SERIE C MANHA":"GU3:GU46",
-        "3ª SERIE D NOITE":"GZ3:GZ46","3ª SERIE E NOITE":"HE3:HE46","3ª SERIE F NOITE":"HJ3:HJ46"
+        "6° ANO A MANHA":"6° ANO A MANHA","6° ANO B MANHA":"6° ANO B MANHA",
+        "6° ANO C MANHA":"6° ANO C MANHA","6° ANO D MANHA":"6° ANO D MANHA",
+        "6° ANO E TARDE":"6° ANO E TARDE","6° ANO F TARDE":"6° ANO F TARDE",
+        "7° ANO A TARDE":"7° ANO A TARDE","7° ANO B TARDE":"7° ANO B TARDE",
+        "7° ANO C TARDE":"7° ANO C TARDE","7° ANO D TARDE":"7° ANO D TARDE",
+        "7° ANO E TARDE":"7° ANO E TARDE","7° ANO F TARDE":"7° ANO F TARDE",
+        "8° ANO A TARDE":"8° ANO A TARDE","8° ANO B TARDE":"8° ANO B TARDE",
+        "8° ANO C TARDE":"8° ANO C TARDE","8° ANO D TARDE":"8° ANO D TARDE",
+        "9° ANO A TARDE":"9° ANO A TARDE","9° ANO B TARDE":"9° ANO B TARDE",
+        "9° ANO C TARDE":"9° ANO C TARDE","9° ANO D TARDE":"9° ANO D TARDE",
+        "1ª SERIE A MANHA":"1ª SERIE A MANHA","1ª SERIE B MANHA":"1ª SERIE B MANHA",
+        "1ª SERIE C MANHA":"1ª SERIE C MANHA","1ª SERIE D MANHA":"1ª SERIE D MANHA",
+        "1ª SERIE E MANHA":"1ª SERIE E MANHA","1ª SERIE F MANHA":"1ª SERIE F MANHA",
+        "1ª SERIE G TARDE":"1ª SERIE G TARDE","1ª SERIE H NOITE":"1ª SERIE H NOITE",
+        "1ª SERIE I NOITE":"1ª SERIE I NOITE","2ª SERIE A MANHA":"2ª SERIE A MANHA",
+        "2ª SERIE B MANHA":"2ª SERIE B MANHA","2ª SERIE C MANHA":"2ª SERIE C MANHA",
+        "2ª SERIE D MANHA":"2ª SERIE D MANHA","2ª SERIE E MANHA":"2ª SERIE E MANHA",
+        "2ª SERIE F NOITE":"2ª SERIE F NOITE","2ª SERIE G NOITE":"2ª SERIE G NOITE",
+        "2ª SERIE H NOITE":"2ª SERIE H NOITE","3ª SERIE A MANHA":"3ª SERIE A MANHA",
+        "3ª SERIE B MANHA":"3ª SERIE B MANHA","3ª SERIE C MANHA":"3ª SERIE C MANHA",
+        "3ª SERIE D NOITE":"3ª SERIE D NOITE","3ª SERIE E NOITE":"3ª SERIE E NOITE",
+        "3ª SERIE F NOITE":"3ª SERIE F NOITE"
       };
     }
 
