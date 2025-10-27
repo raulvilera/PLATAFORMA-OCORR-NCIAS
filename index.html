@@ -550,15 +550,15 @@
 
   <script>
     /*******************************
-     * CONFIGURAÇÕES
+     * CONFIGURAÇÕES CORRIGIDAS
      *******************************/
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwFdUBE637Uk69XFK6elC_nNxxGQsM1bc8OlmRCnHuaNF4nbf5BXd7QO3X-MHRLCl8SUQ/exec';
     const SPREADSHEET_ID = '1u7qMsMHkZT47OZdar5qvshQDRA8XJrLgDjAZVOViAio';
 
-    // nomes de abas (front-end manda "sheet" para o Apps Script)
+    // CORREÇÃO: Nomes das abas sincronizados entre frontend e backend
     const SHEET_GERAL = 'BANCODEDADOSGERAL';
-    const SHEET_PROF = 'OCORRENCIASDOSPROFESSORES'; // onde professores gravam (a partir de A2)
-    const SHEET_GESTAO = 'BANCODEALUNOS'; // onde gestão grava (a partir de A2)
+    const SHEET_PROF = 'OCORRENCIASDOSPROFESSORES';
+    const SHEET_GESTAO = 'BANCODEALUNOS';
 
     // estado
     let allAlunos = [];
@@ -567,30 +567,25 @@
     let professores = [];
     let turmas = [];
     let currentUserRole = null;
-    let alunosComRA = []; // Para armazenar alunos com RA na área de gestão
-    let registroTempoReal = []; // Para armazenar registros em tempo real
+    let alunosComRA = [];
+    let registroTempoReal = [];
 
     // inicial
     document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('data_prof').value = new Date().toISOString().split('T')[0];
-      carregarTurmasGestao(); // Carregar turmas ao iniciar
+      carregarTurmasGestao();
       
-      // Ajustar largura dos campos após o carregamento
       setTimeout(ajustarLarguraCampos, 100);
-      
-      // Adicionar eventos de clique para os campos de data
       setupDateFields();
     });
 
     // Configurar campos de data para abrir o calendário ao clicar em qualquer parte
     function setupDateFields() {
-      // Campo de data do professor
       const dataProfContainer = document.querySelector('#data_prof').parentElement;
       dataProfContainer.addEventListener('click', function() {
         document.getElementById('data_prof').showPicker();
       });
       
-      // Campo de data de retorno da gestão
       const dataRetornoGestao = document.getElementById('dataRetorno_gestao');
       if (dataRetornoGestao) {
         const dataRetornoContainer = dataRetornoGestao.parentElement;
@@ -602,18 +597,15 @@
 
     // Função para ajustar a largura dos campos baseada no conteúdo
     function ajustarLarguraCampos() {
-      // Selecionar todos os campos de entrada
       const campos = document.querySelectorAll('input[type="text"], input[type="email"], select');
       
       campos.forEach(campo => {
-        // Criar um elemento temporário para medir o texto
         const temp = document.createElement('span');
         temp.style.visibility = 'hidden';
         temp.style.position = 'absolute';
         temp.style.whiteSpace = 'pre';
         temp.style.font = window.getComputedStyle(campo).font;
         
-        // Obter o valor atual ou o texto da opção selecionada
         let texto = '';
         if (campo.tagName === 'SELECT') {
           const opcaoSelecionada = campo.options[campo.selectedIndex];
@@ -625,8 +617,7 @@
         temp.textContent = texto;
         document.body.appendChild(temp);
         
-        // Definir a largura mínima baseada no conteúdo
-        const largura = temp.getBoundingClientRect().width + 30; // Adicionar padding
+        const largura = temp.getBoundingClientRect().width + 30;
         campo.style.minWidth = Math.max(parseInt(window.getComputedStyle(campo).minWidth) || 120, largura) + 'px';
         
         document.body.removeChild(temp);
@@ -635,17 +626,14 @@
 
     // Função para exibir notificações
     function showNotification(type, message) {
-      // Remover notificações existentes
       const existingNotifications = document.querySelectorAll('.notification');
       existingNotifications.forEach(notification => notification.remove());
       
-      // Criar nova notificação
       const notification = document.createElement('div');
       notification.className = `notification ${type}`;
       notification.textContent = message;
       document.body.appendChild(notification);
       
-      // Remover após 5 segundos
       setTimeout(() => {
         notification.remove();
       }, 5000);
@@ -685,7 +673,6 @@
       document.getElementById('btnLogout').style.display = 'inline-block';
       document.getElementById('btnDownloadPdf').style.display = 'inline-block';
       
-      // Reajustar largura após mostrar a aplicação
       setTimeout(ajustarLarguraCampos, 200);
     }
 
@@ -699,7 +686,6 @@
       document.getElementById('btnDownloadPdf').style.display = 'none';
       alunosDaTurmaAtual = []; alunosSelecionados = []; document.getElementById('selectedPills').innerHTML='';
       
-      // Limpar formulários
       document.getElementById('emailLogin').value = '';
       document.getElementById('passwordLogin').value = '';
     }
@@ -728,7 +714,6 @@
           turmaSelect.appendChild(option);
         });
         
-        // Reajustar largura após carregar turmas
         setTimeout(ajustarLarguraCampos, 100);
       } catch(err) {
         console.error('Erro ao carregar turmas (gestão):', err);
@@ -742,7 +727,6 @@
           turmaSelect.appendChild(option);
         });
         
-        // Reajustar largura após carregar turmas
         setTimeout(ajustarLarguraCampos, 100);
       }
     }
@@ -759,11 +743,9 @@
         const resp = await fetch(`${SCRIPT_URL}?endpoint=students&sheet=${encodeURIComponent(SHEET_GERAL)}&turma=${encodeURIComponent(turma)}`);
         const json = await resp.json();
         
-        // Verificar se a resposta inclui studentsList (com RA) ou apenas students (apenas nomes)
         if (json.studentsList && Array.isArray(json.studentsList)) {
           alunosComRA = json.studentsList;
         } else if (json.students && Array.isArray(json.students)) {
-          // Se não tiver RA, criar array apenas com nomes
           alunosComRA = json.students.map(nome => ({ nome, ra: '' }));
         } else {
           alunosComRA = [];
@@ -780,7 +762,6 @@
           alunoSelect.appendChild(option);
         });
         
-        // Reajustar largura após carregar alunos
         setTimeout(ajustarLarguraCampos, 100);
       } catch(err) {
         console.error('Erro ao carregar alunos (gestão):', err);
@@ -795,16 +776,15 @@
       const ra = selectedOption ? selectedOption.getAttribute('data-ra') : '';
       document.getElementById('ra_gestao').value = ra || '';
       
-      // Reajustar largura após preencher RA
       setTimeout(ajustarLarguraCampos, 50);
     }
 
     /*******************************
-     * GET professores & turmas (consultando BANCODEDADOSGERAL)
+     * GET professores & turmas
      *******************************/
     async function carregarProfessoresETurmas(){
       try {
-        // professores (GET do sheet geral)
+        // professores
         const r1 = await fetch(`${SCRIPT_URL}?endpoint=teachers&sheet=${encodeURIComponent(SHEET_GERAL)}`);
         const j1 = await r1.json();
         if(j1 && j1.status === 'success' && Array.isArray(j1.teachers)) professores = j1.teachers;
@@ -814,7 +794,7 @@
         profSel.innerHTML = '<option value="">-- selecione --</option>';
         professores.forEach(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; profSel.appendChild(o) });
 
-        // turmas (GET do sheet geral)
+        // turmas
         const r2 = await fetch(`${SCRIPT_URL}?endpoint=classes&sheet=${encodeURIComponent(SHEET_GERAL)}`);
         const j2 = await r2.json();
         if(j2 && j2.status === 'success' && Array.isArray(j2.classes)) turmas = j2.classes;
@@ -824,11 +804,9 @@
         turmaSel.innerHTML = '<option value="">-- selecione --</option>';
         turmas.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; turmaSel.appendChild(o) });
         
-        // Reajustar largura após carregar professores e turmas
         setTimeout(ajustarLarguraCampos, 100);
       } catch(err){
         console.error('Erro carregar professores/turmas:', err);
-        // fallback
         professores = getFallbackProfessores();
         const profSel = document.getElementById('professor_select');
         profSel.innerHTML = '<option value="">-- selecione --</option>';
@@ -838,13 +816,12 @@
         turmaSel.innerHTML = '<option value="">-- selecione --</option>';
         turmas.forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; turmaSel.appendChild(o) });
         
-        // Reajustar largura após carregar professores e turmas
         setTimeout(ajustarLarguraCampos, 100);
       }
     }
 
     /*******************************
-     * GET students by class (consultando BANCODEDADOSGERAL)
+     * GET students by class
      *******************************/
     async function onTurmaChange(){
       const turma = document.getElementById('turma_select').value;
@@ -852,7 +829,6 @@
       await carregarAlunosPorTurma(turma);
       renderStudentList(alunosDaTurmaAtual);
       
-      // Reajustar largura após mudar turma
       setTimeout(ajustarLarguraCampos, 100);
     }
 
@@ -869,7 +845,7 @@
     }
 
     /*******************************
-     * Modal alunos (professor) - MODIFICADO PARA BOTÕES FIXOS E SELEÇÃO POR NOME
+     * Modal alunos (professor)
      *******************************/
     function openStudentsModal(){
       if(!alunosDaTurmaAtual || alunosDaTurmaAtual.length === 0){ alert('Nenhum aluno encontrado para a turma selecionada.'); return; }
@@ -902,15 +878,12 @@
         cb.value = nome; 
         cb.checked = alunosSelecionados.includes(nome);
         
-        // Evento para alternar seleção ao clicar no checkbox
         cb.onchange = (e) => { 
           toggleStudentSelection(nome, e.target.checked);
           updateStudentRowStyle(row, nome);
         };
         
-        // Evento para alternar seleção ao clicar em qualquer parte da linha
         row.onclick = (e) => {
-          // Não disparar se o clique foi diretamente no checkbox
           if (e.target !== cb) {
             const newState = !alunosSelecionados.includes(nome);
             cb.checked = newState;
@@ -953,7 +926,6 @@
       alunosSelecionados.forEach(a => { const el = document.createElement('div'); el.className='pill'; el.textContent = a; pills.appendChild(el); });
       closeStudentsModal();
       
-      // Reajustar largura após confirmar seleção de alunos
       setTimeout(ajustarLarguraCampos, 100);
     }
 
@@ -965,7 +937,6 @@
         const val = document.getElementById('classificacao_gestao').value; 
         document.getElementById('suspensionRow_gestao').style.display = (val === 'SUSPENSÃO') ? 'flex' : 'none'; 
         
-        // Se está mostrando o campo de data, configurar o evento de clique
         if (val === 'SUSPENSÃO') {
           setTimeout(() => {
             const dataRetornoGestao = document.getElementById('dataRetorno_gestao');
@@ -979,12 +950,11 @@
         }
       }
       
-      // Reajustar largura após mudar classificação
       setTimeout(ajustarLarguraCampos, 50);
     }
 
     /*******************************
-     * POST cadastrar ocorrência (gestão) -> grava em BANCODEALUNOS (sheet: SHEET_GESTAO)
+     * POST cadastrar ocorrência (gestão) - CORRIGIDO
      *******************************/
     async function cadastrarOcorrenciaGestao(){
       const alunoSelect = document.getElementById('aluno_gestao');
@@ -998,12 +968,19 @@
       const dataRetorno = document.getElementById('dataRetorno_gestao').value || null;
       const ra = document.getElementById('ra_gestao').value;
 
-      if(!aluno || !serie || !professor || !disciplina || !classificacao || !descricao){ alert('Preencha todos os campos obrigatórios.'); return; }
-      if(classificacao === 'SUSPENSÃO' && !dataRetorno){ alert('Informe data de retorno para suspensão.'); return; }
+      if(!aluno || !serie || !professor || !disciplina || !classificacao || !descricao){ 
+        showNotification('error', 'Preencha todos os campos obrigatórios.');
+        return; 
+      }
+      if(classificacao === 'SUSPENSÃO' && !dataRetorno){ 
+        showNotification('error', 'Informe data de retorno para suspensão.');
+        return; 
+      }
 
+      // CORREÇÃO: Payload simplificado e correto
       const payload = {
-        sheet: SHEET_GESTAO,           // grava na aba BANCODEALUNOS
-        startRow: 2,                  // indica a partir de A2 (o Apps Script deve utilizar isso)
+        endpoint: 'create-occurrence',
+        sheet: SHEET_GESTAO,
         date: new Date().toISOString().split('T')[0],
         professor: professor,
         studentClass: serie,
@@ -1022,8 +999,8 @@
         });
         const j = await resp.json();
         if(j && j.status === 'success'){
-          showNotification('success', 'Ocorrência registrada com sucesso!');
-          // limpar
+          showNotification('success', 'Ocorrência registrada com sucesso na gestão!');
+          // limpar formulário
           document.getElementById('serie_gestao').value = '';
           document.getElementById('aluno_gestao').innerHTML = '<option value="">-- Selecione o aluno --</option>';
           document.getElementById('ra_gestao').value = '';
@@ -1034,7 +1011,6 @@
           document.getElementById('suspensionRow_gestao').style.display = 'none';
           carregarHistoricoGestao();
           
-          // Reajustar largura após limpar formulário
           setTimeout(ajustarLarguraCampos, 100);
         } else {
           showNotification('error', j.message || 'Erro ao registrar ocorrência!');
@@ -1046,18 +1022,23 @@
     }
 
     /*******************************
-     * POST registrar ocorrência (professor) -> grava em OCORRENCIASDOSPROFESSORES (sheet: SHEET_PROF)
+     * POST registrar ocorrência (professor) - CORRIGIDO
      *******************************/
     async function registrarOcorrenciaProfessor(){
       const professor = document.getElementById('professor_select').value;
       const turma = document.getElementById('turma_select').value;
       const dataOc = document.getElementById('data_prof').value;
       const descricao = document.getElementById('descricao_prof').value.trim();
-      if(!professor || !turma || !dataOc || alunosSelecionados.length === 0){ alert('Preencha todos os campos obrigatórios e selecione ao menos um aluno.'); return; }
+      if(!professor || !turma || !dataOc || alunosSelecionados.length === 0){ 
+        showNotification('error', 'Preencha todos os campos obrigatórios e selecione ao menos um aluno.');
+        return; 
+      }
       const irregs = Array.from(document.querySelectorAll('input[name="irreg"]:checked')).map(x=>x.value);
+      
+      // CORREÇÃO: Payload simplificado e correto
       const payload = { 
-        sheet: SHEET_PROF,            // grava na aba OCORRENCIASDOSPROFESSORES
-        startRow: 2,                  // gravar a partir de A2 (Apps Script deve respeitar)
+        endpoint: 'create-occurrence',
+        sheet: SHEET_PROF,
         date: dataOc, 
         professor: professor, 
         studentClass: turma, 
@@ -1065,16 +1046,20 @@
         irregularities: irregs.join(', '), 
         description: descricao 
       };
+      
       try {
-        const resp = await fetch(`${SCRIPT_URL}`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) });
+        const resp = await fetch(`${SCRIPT_URL}`, { 
+          method:'POST', 
+          headers:{'Content-Type':'application/json'}, 
+          body: JSON.stringify(payload) 
+        });
         const j = await resp.json();
         if(j && j.status === 'success'){
-          showNotification('success', 'Ocorrência registrada com sucesso!');
+          showNotification('success', 'Ocorrência registrada com sucesso pelo professor!');
           clearProfessorForm();
           carregarHistoricoProfessor();
           atualizarRegistroTempoReal();
           
-          // Reajustar largura após limpar formulário
           setTimeout(ajustarLarguraCampos, 100);
         } else {
           showNotification('error', j.message || 'Erro ao registrar ocorrência!');
@@ -1086,27 +1071,32 @@
     }
 
     function clearProfessorForm(){
-      document.getElementById('professor_select').value=''; document.getElementById('turma_select').value=''; document.getElementById('alunos_selected_input').value=''; document.getElementById('selectedPills').innerHTML=''; document.getElementById('descricao_prof').value=''; alunosSelecionados = []; Array.from(document.querySelectorAll('input[name="irreg"]')).forEach(cb => cb.checked=false); document.getElementById('data_prof').value = new Date().toISOString().split('T')[0];
+      document.getElementById('professor_select').value=''; 
+      document.getElementById('turma_select').value=''; 
+      document.getElementById('alunos_selected_input').value=''; 
+      document.getElementById('selectedPills').innerHTML=''; 
+      document.getElementById('descricao_prof').value=''; 
+      alunosSelecionados = []; 
+      Array.from(document.querySelectorAll('input[name="irreg"]')).forEach(cb => cb.checked=false); 
+      document.getElementById('data_prof').value = new Date().toISOString().split('T')[0];
       
-      // Reajustar largura após limpar formulário
       setTimeout(ajustarLarguraCampos, 100);
     }
 
     /*******************************
-     * GET histórico (consultando BANCODEDADOSGERAL)
+     * GET histórico - CORRIGIDO
      *******************************/
     async function carregarHistoricoGestao(){
       const container = document.getElementById('historyListGestao');
       container.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
       try {
-        const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+        // CORREÇÃO: Especificar a aba correta para gestão
+        const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GESTAO)}`);
         const json = await resp.json();
-        // backend pode retornar json.occurrences ou json.data
         const ocorrs = json.occurrences || json.data || [];
         container.innerHTML = '';
         if(!ocorrs || ocorrs.length === 0){ container.innerHTML = '<div class="muted">Nenhuma ocorrência encontrada.</div>'; return; }
 
-        // Exibe do mais recente para o mais antigo
         ocorrs.slice().reverse().forEach(r => {
           const id = r.id || r.ID || r.Id || null;
           const date = r.DATA || r.date || r.col1 || '';
@@ -1120,16 +1110,16 @@
           const meta = document.createElement('div'); meta.className='meta';
           meta.innerHTML = `<div><strong>${date}</strong> — <span class="muted">${prof}</span></div>`;
           const controls = document.createElement('div');
-          // botão gerar pdf via backend
+          
           const pdfBtn = document.createElement('button');
           pdfBtn.className='btn-success'; pdfBtn.style.fontSize='12px'; pdfBtn.style.marginLeft='8px';
           pdfBtn.textContent = 'Gerar PDF (template)';
           pdfBtn.onclick = () => generatePdfFromBackend(id);
-          // botão excluir
+          
           const delBtn = document.createElement('button');
           delBtn.className='btn-danger'; delBtn.style.fontSize='12px'; delBtn.style.marginLeft='8px';
           delBtn.textContent = 'Excluir';
-          delBtn.onclick = () => deleteOccurrence(id);
+          delBtn.onclick = () => deleteOccurrence(id, SHEET_GESTAO);
 
           controls.appendChild(pdfBtn); controls.appendChild(delBtn);
           meta.appendChild(controls);
@@ -1137,7 +1127,6 @@
           const ddesc = document.createElement('div'); ddesc.className='desc';
           ddesc.innerHTML = `<strong>Aluno(s):</strong> ${aluno || 'N/A'}<br/><strong>Turma:</strong> ${turma || 'N/A'}<br/><strong>Irregularidades:</strong> ${irreg || 'N/A'}<br/><em>${desc || ''}</em>`;
 
-          // adicionar id visível (útil)
           const idLine = document.createElement('div'); idLine.style.marginTop='8px'; idLine.style.fontSize='12px'; idLine.style.opacity='0.9'; idLine.innerHTML = `ID: <span class="qnum">${id}</span>`;
 
           div.appendChild(meta); div.appendChild(ddesc); div.appendChild(idLine);
@@ -1153,13 +1142,13 @@
       const container = document.getElementById('historyListProfessor');
       container.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="loader"></div><div class="muted">Carregando histórico...</div></div>`;
       try {
-        const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+        // CORREÇÃO: Especificar a aba correta para professor
+        const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_PROF)}`);
         const json = await resp.json();
         const ocorrs = json.occurrences || json.data || [];
         container.innerHTML = '';
         if(!ocorrs || ocorrs.length === 0){ container.innerHTML = '<div class="muted">Nenhuma ocorrência encontrada.</div>'; return; }
 
-        // Exibe do mais recente para o mais antigo
         ocorrs.slice().reverse().forEach(r => {
           const id = r.id || r.ID || r.Id || null;
           const date = r.DATA || r.date || r.col1 || '';
@@ -1176,7 +1165,6 @@
           const ddesc = document.createElement('div'); ddesc.className='desc';
           ddesc.innerHTML = `<strong>Aluno(s):</strong> ${aluno || 'N/A'}<br/><strong>Turma:</strong> ${turma || 'N/A'}<br/><strong>Irregularidades:</strong> ${irreg || 'N/A'}<br/><em>${desc || ''}</em>`;
 
-          // adicionar id visível (útil)
           const idLine = document.createElement('div'); idLine.style.marginTop='8px'; idLine.style.fontSize='12px'; idLine.style.opacity='0.9'; idLine.innerHTML = `ID: <span class="qnum">${id}</span>`;
 
           div.appendChild(meta); div.appendChild(ddesc); div.appendChild(idLine);
@@ -1196,11 +1184,10 @@
       container.innerHTML = `<div style="display:flex;align-items:center;gap:8px"><div class="loader"></div><div class="muted">Carregando registro...</div></div>`;
       
       try {
-        const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_GERAL)}`);
+        const resp = await fetch(`${SCRIPT_URL}?endpoint=occurrences&sheet=${encodeURIComponent(SHEET_PROF)}`);
         const json = await resp.json();
         const ocorrs = json.occurrences || json.data || [];
         
-        // Filtrar ocorrências do professor logado
         const professorLogado = document.getElementById('professor_select').value;
         const ocorrsProfessor = ocorrs.filter(r => {
           const prof = r.PROFESSOR || r.professor || r.col2 || '';
@@ -1214,7 +1201,6 @@
           return;
         }
         
-        // Exibir apenas os 5 registros mais recentes
         const registrosRecentes = ocorrsProfessor.slice(-5).reverse();
         
         registrosRecentes.forEach(r => {
@@ -1262,23 +1248,35 @@
     }
 
     /*******************************
-     * DELETE ocorrência (POST ?endpoint=delete-occurrence) - envia sheet para contexto
+     * DELETE ocorrência - CORRIGIDO
      *******************************/
-    async function deleteOccurrence(occurrenceId){
-      if(occurrenceId === null || occurrenceId === undefined){ alert('ID inválido para exclusão.'); return; }
+    async function deleteOccurrence(occurrenceId, sheet){
+      if(occurrenceId === null || occurrenceId === undefined){ 
+        showNotification('error', 'ID inválido para exclusão.');
+        return; 
+      }
       if(!confirm('Confirma exclusão desta ocorrência (ID '+occurrenceId+')?')) return;
+      
       try {
         const resp = await fetch(`${SCRIPT_URL}?endpoint=delete-occurrence`, {
           method:'POST',
           headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ occurrenceId, sheet: SHEET_PROF })
+          body: JSON.stringify({ 
+            occurrenceId, 
+            sheet: sheet || (currentUserRole === 'gestao' ? SHEET_GESTAO : SHEET_PROF)
+          })
         });
         const j = await resp.json();
         if(j && j.status === 'success'){ 
           showNotification('success', 'Ocorrência excluída com sucesso!');
-          carregarHistoricoGestao(); 
+          if (currentUserRole === 'gestao') {
+            carregarHistoricoGestao();
+          } else {
+            carregarHistoricoProfessor();
+          }
+        } else {
+          showNotification('error', j.message || 'Erro ao excluir ocorrência!');
         }
-        else showNotification('error', j.message || 'Erro ao excluir ocorrência!');
       } catch(err){ 
         console.error('Erro deleteOccurrence:', err); 
         showNotification('error', 'Falha na comunicação com servidor');
@@ -1289,16 +1287,21 @@
      * Geração de PDF via backend
      *******************************/
     async function generatePdfFromBackend(occurrenceId){
-      if(!occurrenceId){ alert('ID inválido para geração de PDF.'); return; }
+      if(!occurrenceId){ 
+        showNotification('error', 'ID inválido para geração de PDF.');
+        return; 
+      }
       try {
         const resp = await fetch(`${SCRIPT_URL}?endpoint=generate-pdf`, {
           method:'POST',
           headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ occurrenceId, sheet: SHEET_PROF })
+          body: JSON.stringify({ 
+            occurrenceId, 
+            sheet: currentUserRole === 'gestao' ? SHEET_GESTAO : SHEET_PROF 
+          })
         });
         const j = await resp.json();
         if(j && j.status === 'success' && j.pdfUrl){
-          // abrir link em nova aba
           window.open(j.pdfUrl, '_blank');
         } else {
           showNotification('error', j.message || 'Erro ao gerar PDF!');
@@ -1310,7 +1313,7 @@
     }
 
     /*******************************
-     * fallback: gerar PDF localmente (apenas conteúdo simples)
+     * fallback: gerar PDF localmente
      *******************************/
     function generatePDFLocal(){
       try {
@@ -1330,7 +1333,14 @@
         const split = doc.splitTextToSize(desc || 'Sem descrição', 180);
         doc.text(split, 14, y);
         doc.save(`ocorrencia_${Date.now()}.pdf`);
-      } catch(err){ console.error('Erro gerar PDF local:', err); alert('Erro ao gerar PDF local (ver console).'); }
+      } catch(err){ 
+        console.error('Erro gerar PDF local:', err); 
+        showNotification('error', 'Erro ao gerar PDF local');
+      }
+    }
+
+    function downloadDocument() {
+      window.open('https://docs.google.com/document/d/1dHwyN8mlb_4bltEksnoc3Yx5wUcDNgAkzqsluLPYeP8/copy', '_blank');
     }
 
     /*******************************
